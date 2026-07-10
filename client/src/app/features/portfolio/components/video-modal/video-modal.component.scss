@@ -1,0 +1,88 @@
+@use 'mixins' as *;
+
+.video-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: rgba(3, 3, 8, 0.85);
+  backdrop-filter: blur(6px);
+  animation: fade-in var(--transition-base) var(--ease-out);
+}
+
+.video-modal {
+  position: relative;
+  z-index: var(--z-modal);
+  width: min(920px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  outline: none;
+  animation: scale-in var(--transition-slow) var(--ease-out);
+}
+
+.video-modal__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: var(--color-bg-elevated);
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.video-modal__close {
+  @include button-reset;
+  position: absolute;
+  top: calc(-1 * var(--space-6));
+  inset-inline-end: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  background: var(--color-bg-glass-strong);
+  border: 1px solid var(--color-border-strong);
+  transition: transform var(--transition-fast) var(--ease-out), border-color var(--transition-fast);
+
+  &:hover {
+    transform: scale(1.06);
+    border-color: var(--color-accent-purple-light);
+  }
+}
+
+.video-modal__title {
+  text-align: center;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@include reduced-motion {
+  .video-modal-backdrop,
+  .video-modal {
+    animation: none;
+  }
+}

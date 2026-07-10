@@ -1,0 +1,65 @@
+<header class="header" [class.header--scrolled]="isScrolled()">
+  <div class="header__inner">
+    <a class="header__brand" href="#" (click)="$event.preventDefault(); navigateTo('top')">
+      {{ brandName }}
+    </a>
+
+    <nav class="header__nav" aria-label="ניווט ראשי">
+      <ul>
+        @for (link of navLinks; track link.sectionId) {
+          <li>
+            <button type="button" class="header__nav-link" (click)="navigateTo(link.sectionId)">
+              {{ link.labelHe }}
+            </button>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <a
+        class="header__whatsapp"
+        [href]="whatsappUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="פתיחת שיחת וואטסאפ"
+      >
+        וואטסאפ
+      </a>
+      <button type="button" class="header__cta" (click)="navigateTo('configurator')">
+        התחילו ליצור
+      </button>
+
+      <button
+        type="button"
+        class="header__menu-toggle"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen()"
+        aria-controls="mobile-nav"
+        aria-label="פתיחת תפריט ניווט"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  @if (isMobileMenuOpen()) {
+    <nav id="mobile-nav" class="header__mobile-nav" aria-label="ניווט ראשי - נייד">
+      <ul>
+        @for (link of navLinks; track link.sectionId) {
+          <li>
+            <button type="button" (click)="navigateTo(link.sectionId)">{{ link.labelHe }}</button>
+          </li>
+        }
+      </ul>
+      <a class="header__mobile-cta" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+        שליחת הודעה בוואטסאפ
+      </a>
+      <button type="button" class="header__mobile-cta header__mobile-cta--primary" (click)="navigateTo('configurator')">
+        התחילו ליצור
+      </button>
+    </nav>
+  }
+</header>

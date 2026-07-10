@@ -1,0 +1,38 @@
+// Breakpoints must live as SCSS variables (not CSS custom properties) so they
+// can be used inside @media queries.
+
+$breakpoint-xs: 400px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-xxl: 1536px;
+
+$breakpoints: (
+  'xs': $breakpoint-xs,
+  'sm': $breakpoint-sm,
+  'md': $breakpoint-md,
+  'lg': $breakpoint-lg,
+  'xl': $breakpoint-xl,
+  'xxl': $breakpoint-xxl,
+);
+
+@mixin respond-up($name) {
+  @if map-has-key($breakpoints, $name) {
+    @media (min-width: map-get($breakpoints, $name)) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint `#{$name}`.";
+  }
+}
+
+@mixin respond-down($name) {
+  @if map-has-key($breakpoints, $name) {
+    @media (max-width: (map-get($breakpoints, $name) - 1px)) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint `#{$name}`.";
+  }
+}

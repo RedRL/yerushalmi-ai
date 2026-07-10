@@ -1,0 +1,20 @@
+<div class="step">
+  <h3 class="step__title">תוספות</h3>
+  <p class="step__description">אפשר לבחור כמה תוספות שרוצים - המחיר יתעדכן באופן מיידי.</p>
+
+  <div class="addons-step__grid" role="group" aria-label="תוספות אפשריות">
+    @for (addon of relevantAddons(); track addon.id) {
+      <button
+        type="button"
+        class="option-card"
+        [class.option-card--selected]="isSelected(addon.id)"
+        role="checkbox"
+        [attr.aria-checked]="isSelected(addon.id)"
+        (click)="toggle(addon.id)"
+      >
+        <span class="option-card__title">{{ addon.labelHe }}</span>
+        <span class="option-card__price">+₪{{ addon.price }}</span>
+      </button>
+    }
+  </div>
+</div>

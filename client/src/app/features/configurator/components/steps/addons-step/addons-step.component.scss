@@ -1,0 +1,12 @@
+@use 'breakpoints' as bp;
+
+.addons-step__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+
+  @include bp.respond-up('sm') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

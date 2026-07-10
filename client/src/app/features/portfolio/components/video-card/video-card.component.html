@@ -1,0 +1,21 @@
+<article class="video-card">
+  <button
+    type="button"
+    class="video-card__media"
+    (click)="onActivate()"
+    [attr.aria-label]="'צפייה בקליפ: ' + video().titleHe"
+  >
+    <img [src]="thumbnailUrl()" [alt]="video().titleHe" loading="lazy" width="480" height="270" />
+    <span class="video-card__play" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="26" height="26">
+        <path d="M8 5v14l11-7-11-7Z" fill="currentColor" />
+      </svg>
+    </span>
+    <span class="video-card__badge">{{ categoryLabel() }}</span>
+  </button>
+
+  <div class="video-card__body">
+    <h3 class="video-card__title">{{ video().titleHe }}</h3>
+    <p class="video-card__description">{{ descriptionHe() }}</p>
+  </div>
+</article>

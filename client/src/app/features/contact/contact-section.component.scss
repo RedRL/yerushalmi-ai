@@ -1,0 +1,52 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+.contact {
+  @include container('lg');
+  padding-block: var(--section-padding-y);
+}
+
+.contact__panel {
+  @include glass-surface;
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  background-image: var(--gradient-radial-glow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.contact__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.contact__cta {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-semibold);
+  transition: transform var(--transition-fast) var(--ease-out);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.contact__cta--primary {
+  background: var(--gradient-brand);
+  color: var(--color-text-on-accent);
+  box-shadow: var(--shadow-glow-purple);
+}
+
+.contact__cta--whatsapp {
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+
+  &:hover {
+    border-color: var(--color-whatsapp);
+  }
+}

@@ -1,0 +1,19 @@
+<section id="contact" class="contact">
+  <div class="contact__panel">
+    <app-section-heading
+      align="start"
+      eyebrow="יצירת קשר"
+      title="מוכנים להתחיל?"
+      subtitle="אפשר לבנות הצעת מחיר מפורטת במסך בניית הפרויקט, או לשלוח הודעה ישירה בוואטסאפ ולקבל מענה מהיר."
+    />
+
+    <div class="contact__actions">
+      <button type="button" class="contact__cta contact__cta--primary" (click)="goToConfigurator()">
+        בניית הצעת מחיר
+      </button>
+      <a class="contact__cta contact__cta--whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+        שליחת הודעה בוואטסאפ · {{ localPhone }}
+      </a>
+    </div>
+  </div>
+</section>

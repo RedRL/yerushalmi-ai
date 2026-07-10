@@ -1,0 +1,45 @@
+@use 'mixins' as *;
+
+.whatsapp-fab {
+  position: fixed;
+  inset-inline-end: clamp(16px, 4vw, 28px);
+  inset-block-end: calc(env(safe-area-inset-bottom, 0px) + clamp(16px, 4vw, 28px));
+  z-index: var(--z-floating-whatsapp);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-full);
+  background: var(--color-whatsapp);
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.45);
+  transition: transform var(--transition-base) var(--ease-out), box-shadow var(--transition-base) var(--ease-out);
+
+  svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-3px) scale(1.06);
+    box-shadow: 0 14px 36px rgba(37, 211, 102, 0.55);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@include reduced-motion {
+  .whatsapp-fab {
+    transition: none;
+
+    &:hover,
+    &:focus-visible {
+      transform: none;
+    }
+  }
+}

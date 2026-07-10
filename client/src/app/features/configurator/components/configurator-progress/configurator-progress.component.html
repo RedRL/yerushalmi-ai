@@ -1,0 +1,30 @@
+<nav class="progress" aria-label="שלבי בניית הפרויקט">
+  <ol
+    class="progress__list"
+    role="list"
+    [attr.aria-current]="store.currentStep().labelHe"
+  >
+    @for (step of store.visibleSteps(); track step.id; let index = $index) {
+      <li class="progress__item" [class]="'progress__item--' + stepState(index)">
+        <button
+          type="button"
+          class="progress__button"
+          (click)="onStepClick(index)"
+          [attr.aria-current]="stepState(index) === 'current' ? 'step' : null"
+          [attr.aria-label]="'שלב ' + (index + 1) + ' מתוך ' + store.visibleSteps().length + ': ' + step.labelHe"
+        >
+          <span class="progress__dot">
+            @if (stepState(index) === 'completed') {
+              <svg viewBox="0 0 16 16" width="10" height="10">
+                <path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            } @else {
+              {{ index + 1 }}
+            }
+          </span>
+          <span class="progress__label">{{ step.labelHe }}</span>
+        </button>
+      </li>
+    }
+  </ol>
+</nav>

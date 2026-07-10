@@ -1,0 +1,44 @@
+// Design tokens - colors.
+// Dark, cinematic base with purple / blue / magenta accents.
+
+:root {
+  // Backgrounds
+  --color-bg-base: #05050a;
+  --color-bg-elevated: #0c0c17;
+  --color-bg-surface: #13131f;
+  --color-bg-surface-hover: #191928;
+  --color-bg-glass: rgba(255, 255, 255, 0.045);
+  --color-bg-glass-strong: rgba(255, 255, 255, 0.08);
+
+  // Borders
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-border-accent: rgba(139, 92, 246, 0.4);
+
+  // Text
+  --color-text-primary: #f6f5fb;
+  --color-text-secondary: #b7b5c9;
+  --color-text-muted: #817f96;
+  --color-text-on-accent: #ffffff;
+
+  // Accents
+  --color-accent-purple: #8b5cf6;
+  --color-accent-purple-light: #a78bfa;
+  --color-accent-blue: #6366f1;
+  --color-accent-magenta: #d946ef;
+  --color-accent-cyan: #22d3ee;
+
+  // Gradients
+  --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #d946ef 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.25) 45%, rgba(217, 70, 239, 0.25) 100%);
+  --gradient-radial-glow: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.35), transparent 60%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
+
+  // Feedback
+  --color-success: #34d399;
+  --color-error: #f87171;
+  --color-warning: #fbbf24;
+
+  // WhatsApp brand
+  --color-whatsapp: #25d366;
+}

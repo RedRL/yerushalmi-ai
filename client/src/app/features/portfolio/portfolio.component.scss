@@ -1,0 +1,47 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+.portfolio {
+  @include container('xl');
+  padding-block: var(--section-padding-y);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.portfolio__categories {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.portfolio__category-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+
+  h3 {
+    font-size: var(--font-size-h3);
+    color: var(--color-text-primary);
+  }
+
+  p {
+    color: var(--color-text-secondary);
+    max-width: 640px;
+  }
+}
+
+.portfolio__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+
+  @include bp.respond-up('sm') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp.respond-up('lg') {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

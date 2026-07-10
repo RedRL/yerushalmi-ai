@@ -1,0 +1,38 @@
+<div class="step">
+  <h3 class="step__title">העלאת חומרים</h3>
+  <p class="step__description">
+    העלאת הקבצים היא זמנית בשלב זה של האתר - בהמשך יחוברו לאחסון קבוע ומאובטח. לא נשלח קבצים כקבצים מצורפים במייל.
+  </p>
+
+  @if (needsImages()) {
+    <div class="step__section">
+      <span class="step__section-title">תמונות</span>
+      <app-file-upload
+        kind="image"
+        accept="image/jpeg,image/png,image/webp,image/heic"
+        acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
+        [maxFiles]="20"
+        [maxSizeMb]="25"
+        [files]="imageFiles()"
+        (filesSelected)="onFilesSelected($event, 'image')"
+        (removeFile)="onRemoveFile($event)"
+      />
+    </div>
+  }
+
+  @if (needsVideos()) {
+    <div class="step__section">
+      <span class="step__section-title">סרטונים</span>
+      <app-file-upload
+        kind="video"
+        accept="video/mp4,video/quicktime,video/webm"
+        acceptDescriptionHe="MP4, MOV או WEBM"
+        [maxFiles]="10"
+        [maxSizeMb]="200"
+        [files]="videoFiles()"
+        (filesSelected)="onFilesSelected($event, 'video')"
+        (removeFile)="onRemoveFile($event)"
+      />
+    </div>
+  }
+</div>

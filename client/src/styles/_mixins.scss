@@ -1,0 +1,72 @@
+@use 'sass:map';
+@use 'breakpoints' as bp;
+
+@mixin container($max-width: 'lg') {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--section-padding-x);
+
+  @if $max-width == 'sm' {
+    max-width: var(--container-sm);
+  } @else if $max-width == 'md' {
+    max-width: var(--container-md);
+  } @else if $max-width == 'lg' {
+    max-width: var(--container-lg);
+  } @else if $max-width == 'xl' {
+    max-width: var(--container-xl);
+  }
+}
+
+@mixin glass-surface($opacity: 1) {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--color-border-subtle);
+  opacity: $opacity;
+}
+
+@mixin focus-ring {
+  outline: 2px solid var(--color-accent-purple-light);
+  outline-offset: 3px;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin heading-gradient {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@mixin section-heading {
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+@mixin button-reset {
+  appearance: none;
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}

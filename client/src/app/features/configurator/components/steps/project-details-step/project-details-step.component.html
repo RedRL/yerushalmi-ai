@@ -1,0 +1,91 @@
+<div class="step" [formGroup]="store.projectDetailsForm">
+  <h3 class="step__title">פרטים על האדם והסיפור</h3>
+  <p class="step__description">ככל שתשתפו יותר פרטים, אוכל ליצור שיר וקליפ אישיים ומדויקים יותר.</p>
+
+  <div class="field-grid step__section">
+    <div class="field">
+      <label class="field__label" for="personName">שם האדם שעבורו יוצרים את הפרויקט *</label>
+      <input id="personName" class="field__control" formControlName="personName" placeholder="שם מלא" />
+      @if (store.projectDetailsForm.controls.personName.invalid && store.projectDetailsForm.controls.personName.touched) {
+        <span class="field__error">נא להזין שם</span>
+      }
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="occasion">סוג האירוע *</label>
+      <input id="occasion" class="field__control" formControlName="occasion" placeholder="יום הולדת, חתונה, יום נישואין..." />
+      @if (store.projectDetailsForm.controls.occasion.invalid && store.projectDetailsForm.controls.occasion.touched) {
+        <span class="field__error">נא לבחור סוג אירוע</span>
+      }
+    </div>
+  </div>
+
+  <div class="field-grid step__section">
+    <div class="field">
+      <label class="field__label" for="age">גיל (אם רלוונטי)</label>
+      <input id="age" class="field__control" formControlName="age" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="relationship">הקשר שלכם לאדם</label>
+      <input id="relationship" class="field__control" formControlName="relationship" placeholder="בן/בת זוג, הורה, חבר/ה..." />
+    </div>
+  </div>
+
+  <div class="field-grid step__section">
+    <div class="field">
+      <label class="field__label" for="characterTraits">תכונות אופי</label>
+      <input id="characterTraits" class="field__control" formControlName="characterTraits" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="hobbies">תחביבים</label>
+      <input id="hobbies" class="field__control" formControlName="hobbies" />
+    </div>
+  </div>
+
+  <div class="field-grid step__section">
+    <div class="field">
+      <label class="field__label" for="occupation">מקצוע או עיסוק</label>
+      <input id="occupation" class="field__control" formControlName="occupation" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="peopleToMention">אנשים שחשוב להזכיר</label>
+      <input id="peopleToMention" class="field__control" formControlName="peopleToMention" />
+    </div>
+  </div>
+
+  <div class="field step__section">
+    <label class="field__label" for="desiredAtmosphere">האווירה הרצויה</label>
+    <input id="desiredAtmosphere" class="field__control" formControlName="desiredAtmosphere" />
+  </div>
+
+  <div class="field step__section">
+    <label class="field__label" for="story">ספרו לי כמה שיותר על האדם ועל הסיפור שתרצו להעביר *</label>
+    <textarea
+      id="story"
+      class="field__control"
+      formControlName="story"
+      rows="8"
+      [maxlength]="storyMaxLength"
+      placeholder="זיכרונות, סיפורים משותפים, בדיחות פנימיות, משפטים קבועים, מילים שחייבות להופיע, דברים שכדאי להימנע מהם..."
+      aria-describedby="story-counter"
+    ></textarea>
+    <div class="project-details-step__counter-row">
+      @if (store.projectDetailsForm.controls.story.invalid && store.projectDetailsForm.controls.story.touched) {
+        <span class="field__error">נא לשתף כמה שיותר פרטים (לפחות 10 תווים)</span>
+      } @else {
+        <span></span>
+      }
+      <span id="story-counter" class="field__hint">
+        {{ store.projectDetailsForm.controls.story.value.length }} / {{ storyMaxLength }}
+      </span>
+    </div>
+  </div>
+
+  <div class="field step__section">
+    <label class="field__label" for="additionalNotes">מידע נוסף</label>
+    <textarea id="additionalNotes" class="field__control" formControlName="additionalNotes" rows="3"></textarea>
+  </div>
+</div>

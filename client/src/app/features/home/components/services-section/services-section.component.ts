@@ -1,0 +1,52 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
+import type { ServiceItem } from '../../../../shared/models/service-item.model';
+import { scrollToSection } from '../../../../shared/utils/scroll-to.util';
+
+const SERVICES: readonly ServiceItem[] = [
+  {
+    id: 'song-only',
+    icon: 'song',
+    titleHe: 'שיר אישי בלבד',
+    descriptionHe: 'שיר מקורי שנכתב לפי האדם, הסיפור, הזיכרונות והסגנון שתבחרו.',
+  },
+  {
+    id: 'video-existing-song',
+    icon: 'video-existing-song',
+    titleHe: 'קליפ עם שיר קיים',
+    descriptionHe: 'אתם מספקים שיר קיים, ואני יוצר עבורו קליפ המבוסס על תמונות, סרטונים או סצנות שנוצרות באמצעות AI.',
+  },
+  {
+    id: 'video-new-song',
+    icon: 'video-new-song',
+    titleHe: 'קליפ עם שיר אישי חדש',
+    descriptionHe: 'חבילה מלאה הכוללת כתיבה ויצירה של שיר אישי יחד עם קליפ מוזיקלי מותאם.',
+  },
+  {
+    id: 'video-photos',
+    icon: 'photos',
+    titleHe: 'קליפ מתמונות אמיתיות',
+    descriptionHe: 'תמונות שהלקוח מספק הופכות לסצנות וידאו קולנועיות ומרגשות.',
+  },
+  {
+    id: 'video-ai',
+    icon: 'ai-visual',
+    titleHe: 'קליפ AI מלא',
+    descriptionHe: 'הוויזואליה נוצרת מאפס בהתאם לסיפור, לקונספט ולאווירה הרצויה.',
+  },
+];
+
+@Component({
+  selector: 'app-services-section',
+  imports: [SectionHeadingComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './services-section.component.html',
+  styleUrl: './services-section.component.scss',
+})
+export class ServicesSectionComponent {
+  readonly services = SERVICES;
+
+  goToConfigurator(): void {
+    scrollToSection('configurator');
+  }
+}

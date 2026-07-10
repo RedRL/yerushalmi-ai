@@ -1,0 +1,11 @@
+// Design tokens - z-index scale. Keep every layer registered here to avoid stacking conflicts.
+
+:root {
+  --z-base: 0;
+  --z-decorative: 1;
+  --z-header: 100;
+  --z-floating-whatsapp: 200;
+  --z-modal-backdrop: 900;
+  --z-modal: 1000;
+  --z-toast: 1100;
+}

@@ -1,0 +1,79 @@
+<div class="step">
+  <h3 class="step__title">סיכום ומחיר</h3>
+  <p class="step__description">אפשר לחזור ולערוך כל שלב לפני שמסכמים ושולחים את הבקשה.</p>
+
+  <div class="summary-step__grid">
+    <div class="summary-step__details">
+      <div class="summary-step__row">
+        <div class="summary-step__row-header">
+          <h4>סוג הפרויקט</h4>
+          <button type="button" (click)="goToStep('product')">עריכה</button>
+        </div>
+        <p>{{ productLabel() }}</p>
+      </div>
+
+      @if (store.includesNewSong() || store.requiresExistingSongRights()) {
+        <div class="summary-step__row">
+          <div class="summary-step__row-header">
+            <h4>השיר</h4>
+            <button type="button" (click)="goToStep('song')">עריכה</button>
+          </div>
+          @if (store.requiresExistingSongRights()) {
+            <p>שיר קיים: {{ store.songForm.controls.existingSongName.value || '—' }}</p>
+          } @else {
+            <p>
+              סגנון: {{ store.songForm.controls.style.value || store.songForm.controls.customStyle.value || '—' }}
+            </p>
+          }
+        </div>
+      }
+
+      @if (store.includesVideo()) {
+        <div class="summary-step__row">
+          <div class="summary-step__row-header">
+            <h4>הסרטון</h4>
+            <button type="button" (click)="goToStep('video')">עריכה</button>
+          </div>
+          <p>מקור: {{ sourceLabel() || '—' }}</p>
+          <p>אורך: {{ lengthLabel() }} · פורמט: {{ formatLabel() }} · כתוביות: {{ subtitlesLabel() }}</p>
+        </div>
+      }
+
+      <div class="summary-step__row">
+        <div class="summary-step__row-header">
+          <h4>תוספות</h4>
+          <button type="button" (click)="goToStep('addons')">עריכה</button>
+        </div>
+        @if (addonLabels().length > 0) {
+          <p>{{ addonLabels().join(', ') }}</p>
+        } @else {
+          <p>לא נבחרו תוספות</p>
+        }
+      </div>
+
+      <div class="summary-step__row">
+        <div class="summary-step__row-header">
+          <h4>הסיפור</h4>
+          <button type="button" (click)="goToStep('details')">עריכה</button>
+        </div>
+        <p>עבור: {{ store.projectDetailsForm.controls.personName.value || '—' }}</p>
+        <p>אירוע: {{ store.projectDetailsForm.controls.occasion.value || '—' }}</p>
+        <p class="summary-step__story">{{ store.projectDetailsForm.controls.story.value }}</p>
+      </div>
+
+      @if (store.requiresUploadStep()) {
+        <div class="summary-step__row">
+          <div class="summary-step__row-header">
+            <h4>קבצים</h4>
+            <button type="button" (click)="goToStep('upload')">עריכה</button>
+          </div>
+          <p>{{ store.uploadedFiles().length }} קבצים הועלו</p>
+        </div>
+      }
+    </div>
+
+    <div class="summary-step__price">
+      <app-price-summary [breakdown]="store.priceBreakdown()" />
+    </div>
+  </div>
+</div>

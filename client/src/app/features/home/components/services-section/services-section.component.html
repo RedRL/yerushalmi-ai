@@ -1,0 +1,17 @@
+<section id="services" class="services">
+  <app-section-heading eyebrow="השירותים" title="מה אפשר ליצור?" />
+
+  <div class="services__grid">
+    @for (service of services; track service.id) {
+      <article class="services__card">
+        <span class="services__icon" [attr.data-icon]="service.icon" aria-hidden="true"></span>
+        <h3>{{ service.titleHe }}</h3>
+        <p>{{ service.descriptionHe }}</p>
+      </article>
+    }
+  </div>
+
+  <div class="services__cta">
+    <button type="button" (click)="goToConfigurator()">בנו הצעת מחיר</button>
+  </div>
+</section>

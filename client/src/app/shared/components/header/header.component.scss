@@ -1,0 +1,177 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+.header {
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  z-index: var(--z-header);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background var(--transition-base) var(--ease-standard), border-color var(--transition-base) var(--ease-standard),
+    box-shadow var(--transition-base) var(--ease-standard);
+
+  &--scrolled {
+    background: rgba(5, 5, 10, 0.75);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom-color: var(--color-border-subtle);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+.header__inner {
+  @include container('xl');
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  height: 76px;
+}
+
+.header__brand {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+  @include heading-gradient;
+}
+
+.header__nav {
+  display: none;
+
+  ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  @include bp.respond-up('lg') {
+    display: block;
+  }
+}
+
+.header__nav-link {
+  @include button-reset;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body);
+  transition: color var(--transition-fast) var(--ease-standard);
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.header__whatsapp {
+  display: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  transition: border-color var(--transition-fast) var(--ease-standard), background var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-whatsapp);
+    background: rgba(37, 211, 102, 0.12);
+  }
+
+  @include bp.respond-up('md') {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.header__cta {
+  @include button-reset;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--gradient-brand);
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+  transition: transform var(--transition-fast) var(--ease-out), box-shadow var(--transition-fast);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(139, 92, 246, 0.45);
+  }
+}
+
+.header__menu-toggle {
+  @include button-reset;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+
+  span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--color-text-primary);
+    border-radius: var(--radius-full);
+    transition: transform var(--transition-fast) var(--ease-standard);
+  }
+
+  @include bp.respond-up('lg') {
+    display: none;
+  }
+}
+
+.header__mobile-nav {
+  @include glass-surface;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--section-padding-x) var(--space-6);
+  border-top: 1px solid var(--color-border-subtle);
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  button {
+    @include button-reset;
+    width: 100%;
+    text-align: start;
+    padding: var(--space-2) 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body-lg);
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
+  }
+
+  @include bp.respond-up('lg') {
+    display: none;
+  }
+}
+
+.header__mobile-cta {
+  display: block;
+  text-align: center;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-semibold);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+
+  &--primary {
+    border: none;
+    background: var(--gradient-brand);
+    color: var(--color-text-on-accent);
+  }
+}

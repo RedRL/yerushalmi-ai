@@ -1,0 +1,102 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+.configurator {
+  @include container('lg');
+  padding-block: var(--section-padding-y);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.configurator__panel {
+  @include glass-surface;
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+
+  @include bp.respond-up('md') {
+    padding: var(--space-7);
+  }
+}
+
+.configurator__body {
+  min-height: 260px;
+  animation: step-fade var(--transition-slow) var(--ease-out);
+}
+
+@keyframes step-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@include reduced-motion {
+  .configurator__body {
+    animation: none;
+  }
+}
+
+.configurator__price-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--gradient-brand-soft);
+  border: 1px solid var(--color-border-accent);
+  color: var(--color-text-primary);
+  position: sticky;
+  bottom: var(--space-4);
+
+  span {
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+  }
+
+  strong {
+    font-size: var(--font-size-h4);
+    @include heading-gradient;
+  }
+}
+
+.configurator__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  position: sticky;
+  bottom: 0;
+  padding-top: var(--space-2);
+}
+
+.configurator__nav-back,
+.configurator__nav-next {
+  @include button-reset;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-semibold);
+  transition: transform var(--transition-fast) var(--ease-out), opacity var(--transition-fast);
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+
+.configurator__nav-back {
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.configurator__nav-next {
+  background: var(--gradient-brand);
+  color: var(--color-text-on-accent);
+  box-shadow: var(--shadow-glow-purple);
+  margin-inline-start: auto;
+}

@@ -1,0 +1,9 @@
+<div class="section-heading" [class.section-heading--start]="align() === 'start'">
+  @if (eyebrow()) {
+    <span class="section-heading__eyebrow">{{ eyebrow() }}</span>
+  }
+  <h2 class="section-heading__title">{{ title() }}</h2>
+  @if (subtitle()) {
+    <p class="section-heading__subtitle">{{ subtitle() }}</p>
+  }
+</div>

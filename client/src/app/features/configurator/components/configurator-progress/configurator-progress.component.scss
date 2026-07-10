@@ -1,0 +1,96 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+.progress {
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.progress__list {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: max-content;
+
+  @include bp.respond-up('md') {
+    min-width: 0;
+    justify-content: space-between;
+  }
+}
+
+.progress__item {
+  flex: 1;
+  min-width: 92px;
+  position: relative;
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    inset-inline-start: calc(50% + 26px);
+    width: calc(100% - 30px);
+    height: 2px;
+    background: var(--color-border-subtle);
+
+    @include bp.respond-down('md') {
+      display: none;
+    }
+  }
+
+  &--completed:not(:last-child)::after {
+    background: var(--color-accent-purple);
+  }
+}
+
+.progress__button {
+  @include button-reset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: center;
+}
+
+.progress__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.progress__item--completed .progress__dot {
+  border-color: var(--color-accent-purple);
+  background: var(--gradient-brand);
+  color: var(--color-text-on-accent);
+}
+
+.progress__item--current .progress__dot {
+  border-color: var(--color-accent-purple-light);
+  color: var(--color-text-primary);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+}
+
+.progress__label {
+  font-size: var(--font-size-tiny);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.progress__item--current .progress__label {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}

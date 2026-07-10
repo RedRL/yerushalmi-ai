@@ -1,0 +1,95 @@
+<div class="step">
+  @if (store.submitResult(); as result) {
+    <div class="contact-step__success" role="status" aria-live="polite">
+      <h3 class="step__title">הבקשה נשלחה בהצלחה!</h3>
+      <p class="step__description">
+        תודה! קיבלתי את כל הפרטים והחומרים. אחזור אליכם בהקדם לאישור סופי ולתחילת התהליך.
+        מספר הפנייה שלכם: <strong>{{ result.inquiryId.slice(0, 8) }}</strong>
+      </p>
+      <p class="step__description">שליחת הבקשה אינה מהווה תחילת עבודה בפועל, ולא בוצע כל תשלום בשלב זה.</p>
+
+      <div class="contact-step__success-actions">
+        <a [href]="whatsappUrl" target="_blank" rel="noopener noreferrer" class="contact-step__whatsapp-link">
+          מעדיפים לדבר עכשיו? שליחת הודעה בוואטסאפ
+        </a>
+        <button type="button" class="contact-step__secondary" (click)="startNewProject()">התחלת פרויקט נוסף</button>
+      </div>
+    </div>
+  } @else {
+    <h3 class="step__title">פרטי קשר ושליחה</h3>
+    <p class="step__description">אלו הפרטים שדרכם אחזור אליכם לאחר קבלת הבקשה.</p>
+
+    <form [formGroup]="store.contactForm" (ngSubmit)="submit()">
+      <div class="field-grid step__section">
+        <div class="field">
+          <label class="field__label" for="contactName">שם מלא *</label>
+          <input id="contactName" class="field__control" formControlName="name" autocomplete="name" />
+          @if (store.contactForm.controls.name.invalid && store.contactForm.controls.name.touched) {
+            <span class="field__error">נא להזין שם מלא</span>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="contactPhone">טלפון *</label>
+          <input id="contactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" />
+          @if (store.contactForm.controls.phone.invalid && store.contactForm.controls.phone.touched) {
+            <span class="field__error">נא להזין מספר טלפון תקין</span>
+          }
+        </div>
+      </div>
+
+      <div class="field-grid step__section">
+        <div class="field">
+          <label class="field__label" for="contactEmail">מייל (אופציונלי)</label>
+          <input id="contactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" />
+          @if (store.contactForm.controls.email.invalid && store.contactForm.controls.email.touched) {
+            <span class="field__error">כתובת אימייל לא תקינה</span>
+          }
+        </div>
+      </div>
+
+      <div class="field step__section">
+        <label class="field__label" for="contactMessage">הודעה נוספת (אופציונלי)</label>
+        <textarea id="contactMessage" class="field__control" formControlName="message" rows="3"></textarea>
+      </div>
+
+      <div class="step__section contact-step__consents">
+        <div class="consent-checkbox">
+          <input id="mediaRightsConsent" type="checkbox" formControlName="mediaRightsConsent" />
+          <label for="mediaRightsConsent">
+            אני מאשר/ת שיש לי הרשאה להשתמש ולשלוח את התמונות, הסרטונים, קובצי האודיו והמידע שסיפקתי.
+          </label>
+        </div>
+
+        <div class="consent-checkbox">
+          <input id="contactPermissionConsent" type="checkbox" formControlName="contactPermissionConsent" />
+          <label for="contactPermissionConsent">אני מאשר/ת שיחזרו אליי בנוגע לבקשה.</label>
+        </div>
+
+        @if (store.requiresExistingSongRights()) {
+          <div class="consent-checkbox">
+            <input id="musicRightsConsent" type="checkbox" formControlName="musicRightsConsent" />
+            <label for="musicRightsConsent">אני מאשר/ת שיש לי הרשאה להשתמש בשיר או בחומר המוזיקלי שסיפקתי.</label>
+          </div>
+        }
+      </div>
+
+      @if (store.submitError()) {
+        <p class="contact-step__error" role="alert" aria-live="assertive">{{ store.submitError() }}</p>
+      }
+
+      <button
+        type="submit"
+        class="contact-step__submit"
+        [disabled]="store.isSubmitting()"
+        [attr.aria-busy]="store.isSubmitting()"
+      >
+        @if (store.isSubmitting()) {
+          <span>שולח בקשה...</span>
+        } @else {
+          <span>שליחת הבקשה וקבלת אישור</span>
+        }
+      </button>
+    </form>
+  }
+</div>

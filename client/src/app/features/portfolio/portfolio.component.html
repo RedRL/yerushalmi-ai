@@ -1,0 +1,33 @@
+<section id="portfolio" class="portfolio">
+  <app-section-heading
+    eyebrow="פורטפוליו"
+    title="קליפים שיצרתי"
+    subtitle="כל קליפ מתחיל מסיפור, תמונות ורגעים אישיים — והופך לשיר ולחוויה ויזואלית שאפשר לשתף, להקרין ולשמור."
+  />
+
+  <div class="portfolio__categories">
+    @for (group of categoryGroups; track group.category.id) {
+      <div class="portfolio__category">
+        <div class="portfolio__category-header">
+          <h3>{{ group.category.titleHe }}</h3>
+          <p>{{ group.category.descriptionHe }}</p>
+        </div>
+
+        <div class="portfolio__grid">
+          @for (video of group.videos; track video.id) {
+            <app-video-card
+              [video]="video"
+              [categoryLabel]="group.category.titleHe"
+              [descriptionHe]="group.category.descriptionHe"
+              (play)="openVideo($event)"
+            />
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+@if (selectedVideo(); as video) {
+  <app-video-modal [video]="video" (closed)="closeModal()" />
+}

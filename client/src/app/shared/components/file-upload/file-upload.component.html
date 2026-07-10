@@ -1,0 +1,83 @@
+<div class="file-upload">
+  <div
+    class="file-upload__dropzone"
+    [class.file-upload__dropzone--dragging]="isDragging()"
+    role="button"
+    tabindex="0"
+    [attr.aria-label]="'העלאת קבצים - ' + acceptDescriptionHe()"
+    (click)="openFileDialog()"
+    (keydown)="onKeydown($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    <input
+      #fileInput
+      type="file"
+      multiple
+      class="visually-hidden"
+      [attr.accept]="accept()"
+      (change)="onFileInputChange($event)"
+      tabindex="-1"
+    />
+
+    <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+      <path
+        d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        fill="none"
+      />
+    </svg>
+
+    <p class="file-upload__prompt">גררו קבצים לכאן או לחצו לבחירה</p>
+    <p class="file-upload__hint">{{ acceptDescriptionHe() }} · עד {{ maxSizeMb() }}MB לקובץ</p>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="file-upload__error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (files().length > 0) {
+    <ul class="file-upload__list">
+      @for (file of files(); track file.id) {
+        <li class="file-upload__item">
+          @if (file.previewUrl) {
+            <img [src]="file.previewUrl" [alt]="file.name" class="file-upload__thumb" />
+          } @else {
+            <span class="file-upload__icon" aria-hidden="true">{{ kind() === 'audio' ? '🎵' : '🎬' }}</span>
+          }
+
+          <div class="file-upload__meta">
+            <span class="file-upload__name">{{ file.name }}</span>
+            <span class="file-upload__size">{{ formatSize(file.sizeBytes) }}</span>
+            @switch (file.status) {
+              @case ('uploading') {
+                <span class="file-upload__status file-upload__status--uploading">מעלה...</span>
+              }
+              @case ('error') {
+                <span class="file-upload__status file-upload__status--error">{{ file.errorMessageHe || 'שגיאה בהעלאה' }}</span>
+              }
+              @default {
+                <span class="file-upload__status file-upload__status--complete">הועלה בהצלחה</span>
+              }
+            }
+          </div>
+
+          <button
+            type="button"
+            class="file-upload__remove"
+            (click)="removeFile.emit(file.id)"
+            [attr.aria-label]="'הסרת הקובץ ' + file.name"
+          >
+            ✕
+          </button>
+        </li>
+      }
+    </ul>
+
+    <p class="file-upload__summary">{{ files().length }} קבצים · {{ totalSizeLabel() }} בסה"כ</p>
+  }
+</div>
