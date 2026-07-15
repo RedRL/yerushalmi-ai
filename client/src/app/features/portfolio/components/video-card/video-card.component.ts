@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
 
+export type VideoCardSize = 'default' | 'featured' | 'gallery';
+
 @Component({
   selector: 'app-video-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -9,8 +11,8 @@ import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.m
 })
 export class VideoCardComponent {
   readonly video = input.required<PortfolioVideo>();
-  readonly categoryLabel = input.required<string>();
   readonly descriptionHe = input.required<string>();
+  readonly size = input<VideoCardSize>('default');
 
   readonly play = output<PortfolioVideo>();
 

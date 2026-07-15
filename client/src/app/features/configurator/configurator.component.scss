@@ -9,6 +9,17 @@
   gap: var(--space-7);
 }
 
+.configurator__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  align-items: start;
+
+  @include bp.respond-up('lg') {
+    grid-template-columns: 1fr 300px;
+  }
+}
+
 .configurator__panel {
   @include glass-surface;
   border-radius: var(--radius-xl);
@@ -16,6 +27,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  transition: box-shadow var(--transition-base) var(--ease-out), border-color var(--transition-base);
+
+  &:hover {
+    border-color: var(--color-border-accent);
+    box-shadow: var(--shadow-md), var(--shadow-glow-blue);
+  }
 
   @include bp.respond-up('md') {
     padding: var(--space-7);
@@ -27,13 +44,32 @@
   animation: step-fade var(--transition-slow) var(--ease-out);
 }
 
+.configurator__sidebar {
+  @include glass-surface;
+  position: sticky;
+  top: calc(var(--space-6) + 72px);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  animation: sidebar-in 0.6s var(--ease-out) both;
+
+  @include bp.respond-up('md') {
+    padding: var(--space-6);
+  }
+}
+
 @keyframes step-fade {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes sidebar-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
 }
 
 @include reduced-motion {
-  .configurator__body {
+  .configurator__body,
+  .configurator__sidebar {
     animation: none;
   }
 }
@@ -69,6 +105,10 @@
   position: sticky;
   bottom: 0;
   padding-top: var(--space-2);
+
+  @include bp.respond-down('sm') {
+    padding-inline-end: 76px;
+  }
 }
 
 .configurator__nav-back,
@@ -97,6 +137,6 @@
 .configurator__nav-next {
   background: var(--gradient-brand);
   color: var(--color-text-on-accent);
-  box-shadow: var(--shadow-glow-purple);
+  box-shadow: var(--shadow-glow-blue);
   margin-inline-start: auto;
 }

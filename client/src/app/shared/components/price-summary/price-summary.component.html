@@ -1,19 +1,41 @@
 <div class="price-summary" [class.price-summary--compact]="compact()">
   @if (breakdown(); as data) {
-    <ul class="price-summary__items">
-      @for (item of data.lineItems; track item.id) {
-        <li>
-          <span>{{ item.labelHe }}</span>
-          <span class="price-summary__amount">
-            {{ item.amount * item.quantity === 0 ? 'כלול' : '₪' + item.amount * item.quantity }}
-          </span>
-        </li>
-      }
-    </ul>
+    @if (packageInfo(); as pkg) {
+      <div class="price-summary__package">
+        <span class="price-summary__package-emoji" aria-hidden="true">{{ pkg.emoji }}</span>
+        <h4 class="price-summary__package-title">{{ pkg.titleHe }}</h4>
+        @if (pkg.subtitleHe) {
+          <p class="price-summary__package-subtitle">{{ pkg.subtitleHe }}</p>
+        }
+      </div>
+
+      <div class="price-summary__hero-price">
+        <span class="price-summary__intro">₪{{ data.total }}</span>
+        @if (data.total === pkg.introPrice) {
+          <span class="price-summary__original">₪{{ pkg.originalPrice }}</span>
+          <span class="price-summary__promo">מחיר היכרות · לזמן מוגבל</span>
+        }
+      </div>
+    }
+
+    @if (addonItems().length > 0) {
+      <ul class="price-summary__items">
+        @for (item of addonItems(); track item.id) {
+          <li>
+            <span>{{ item.labelHe }}</span>
+            <span class="price-summary__amount">
+              {{ item.amount * item.quantity === 0 ? 'כלול' : '₪' + item.amount * item.quantity }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
 
     <div class="price-summary__total">
       <span>סה"כ משוער</span>
-      <span class="price-summary__total-amount">₪{{ data.total }}</span>
+      <span class="price-summary__total-amount" [class.price-summary__total-amount--bump]="justUpdated()">
+        ₪{{ data.total }}
+      </span>
     </div>
 
     <p class="price-summary__disclaimer" aria-live="polite">
@@ -21,6 +43,6 @@
       התשלום לא מתבצע בשלב זה, והשליחה אינה מתחילה את העבודה באופן אוטומטי - ניצור איתכם קשר לאישור לפני התחלת התהליך.
     </p>
   } @else {
-    <p class="price-summary__empty">בחרו סוג פרויקט כדי לראות הערכת מחיר.</p>
+    <p class="price-summary__empty">בחרו חבילה כדי לראות הערכת מחיר.</p>
   }
 </div>

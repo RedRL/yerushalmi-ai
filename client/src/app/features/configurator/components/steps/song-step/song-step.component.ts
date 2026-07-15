@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SONG_STYLE_OPTIONS } from '../../../../../core/config/pricing.config';
+import { SONG_LENGTH_OPTIONS, SONG_STYLE_OPTIONS } from '../../../../../core/config/pricing.config';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 
 @Component({
@@ -13,11 +13,5 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 export class SongStepComponent {
   readonly store = inject(ConfiguratorStoreService);
   readonly styleOptions = SONG_STYLE_OPTIONS;
-
-  selectStyle(style: string): void {
-    this.store.songForm.controls.style.setValue(style);
-    if (style !== 'אחר') {
-      this.store.songForm.controls.customStyle.setValue('');
-    }
-  }
+  readonly lengthOptions = SONG_LENGTH_OPTIONS;
 }

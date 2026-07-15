@@ -38,6 +38,10 @@ export class VideoModalComponent implements OnInit, OnDestroy {
     ),
   );
 
+  readonly backdropUrl = computed(
+    () => `https://i.ytimg.com/vi/${this.video().youtubeId}/maxresdefault.jpg`,
+  );
+
   ngOnInit(): void {
     this.previouslyFocusedElement = document.activeElement as HTMLElement | null;
     document.body.classList.add('scroll-locked');

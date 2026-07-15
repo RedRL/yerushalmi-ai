@@ -1,35 +1,68 @@
 <section id="top" class="hero">
-  <div class="hero__background" aria-hidden="true">
-    <span class="hero__blob hero__blob--one"></span>
-    <span class="hero__blob hero__blob--two"></span>
-    <span class="hero__blob hero__blob--three"></span>
-    <div class="hero__grid"></div>
+  <div #banner class="hero__banner" [style.transform]="bannerStyle().transform" [style.opacity]="bannerStyle().opacity">
+    <img
+      class="hero__banner-image"
+      [src]="bannerImageUrl"
+      alt="YERUSHALMI.AI — קליפים מוזיקליים ושירים בהתאמה אישית"
+      [width]="bannerWidth"
+      [height]="bannerHeight"
+      fetchpriority="high"
+    />
+
+    <button type="button" class="hero__scroll-indicator" (click)="goToStage()" aria-label="גלילה לתוכן הבא">
+      <span class="hero__scroll-line"><span class="hero__scroll-dot"></span></span>
+      <span class="hero__scroll-label">גללו מטה</span>
+    </button>
   </div>
 
-  <div class="hero__content">
-    <h1 class="hero__headline">
-      הופכים זיכרונות<br />
-      לשיר ולקליפ<br />
-      שלא שוכחים
-    </h1>
+  <div #stage id="hero-stage" class="hero__stage" [style.transform]="stageStyle().transform">
+    <div class="hero__stage-cover" aria-hidden="true"></div>
 
-    <p class="hero__subtitle">
-      קליפים מוזיקליים אישיים ושירים מקוריים שהופכים תמונות, רגעים וסיפורים למתנה מרגשת ובלתי נשכחת.
-    </p>
-
-    <div class="hero__actions">
-      <button type="button" class="hero__cta hero__cta--primary" (click)="goToConfigurator()">
-        בנו את הפרויקט שלכם
-      </button>
-      <button type="button" class="hero__cta hero__cta--secondary" (click)="goToPortfolio()">
-        צפו בדוגמאות
-      </button>
+    <div class="hero__background" aria-hidden="true">
+      <div
+        class="hero__poster"
+        [class.hero__poster--hidden]="videoReady()"
+        [style.background-image]="'url(' + heroPosterUrl + ')'"
+      ></div>
+      <div class="hero__video-wrap">
+        <iframe
+          class="hero__video"
+          [src]="heroVideoEmbedUrl"
+          aria-hidden="true"
+          tabindex="-1"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          referrerpolicy="strict-origin-when-cross-origin"
+          (load)="onVideoLoad()"
+        ></iframe>
+      </div>
+      <div class="hero__overlay"></div>
+      <div class="hero__gradient"></div>
     </div>
 
-    <p class="hero__supporting">מתאים לימי הולדת, זוגיות, משפחה, מתנות ואירועים מיוחדים.</p>
-  </div>
+    <div class="hero__content">
+      <span class="hero__kicker">שירים וקליפים אישיים · YERUSHALMI.AI</span>
 
-  <button type="button" class="hero__scroll-indicator" (click)="goToPortfolio()" aria-label="גלילה לתוכן הבא">
-    <span></span>
-  </button>
+      <h1 class="hero__headline">
+        <span class="hero__line">הופכים זיכרונות</span>
+        <span class="hero__line">לשיר ולקליפ</span>
+        <span class="hero__line hero__line--accent">שלא שוכחים</span>
+      </h1>
+
+      <p class="hero__subtitle">
+        קליפים מוזיקליים אישיים ושירים מקוריים שהופכים תמונות, רגעים וסיפורים למתנה מרגשת ובלתי נשכחת.
+        מספיקות תמונות ותיאור קצר — אנחנו בונים את הקליפ מהתמונות עצמן.
+      </p>
+
+      <div class="hero__actions">
+        <button type="button" class="hero__cta hero__cta--primary" (click)="goToConfigurator()">
+          בנו את הפרויקט שלכם
+        </button>
+        <button type="button" class="hero__cta hero__cta--secondary" (click)="goToPortfolio()">
+          צפו בדוגמאות
+        </button>
+      </div>
+
+      <p class="hero__supporting">מתאים לימי הולדת, חתונות, בר/בת מצווה, זוגיות, משפחה, מתנות ואירועים מיוחדים.</p>
+    </div>
+  </div>
 </section>

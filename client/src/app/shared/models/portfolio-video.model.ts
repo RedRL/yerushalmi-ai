@@ -10,6 +10,12 @@ export interface PortfolioVideo {
   id: string;
   titleHe: string;
   categoryId: PortfolioCategoryId;
+  /** Short genre/style tags shown on the card. */
+  tagsHe: readonly string[];
+  /** Overrides the category badge label on the card when set. */
+  categoryLabelHe?: string;
+  /** Overrides the category description on the card when set. */
+  descriptionHe?: string;
   youtubeUrl: string;
   youtubeId: string;
 }

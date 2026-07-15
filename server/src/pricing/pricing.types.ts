@@ -11,7 +11,9 @@ export type MainProductId = 'song_only' | 'video_existing_song' | 'video_new_son
 
 export type VideoSourceId = 'customer_photos' | 'ai_only' | 'mixed' | 'customer_videos';
 
-export type VideoLengthId = 'up_to_1_min' | 'up_to_2_min' | 'up_to_3_min' | 'custom_length';
+export type VideoLengthId = 'up_to_2_min' | 'up_to_3_min' | 'up_to_4_min';
+
+export type SongLengthId = VideoLengthId;
 
 export type VideoFormatId = 'landscape' | 'portrait' | 'both';
 
@@ -31,6 +33,7 @@ export interface PricingSelection {
   mainProduct: MainProductId;
   videoSource?: VideoSourceId;
   videoLength?: VideoLengthId;
+  songLength?: SongLengthId;
   videoFormat?: VideoFormatId;
   subtitles?: SubtitlesId;
   addons: AddonId[];

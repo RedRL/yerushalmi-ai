@@ -1,30 +1,35 @@
 <section id="portfolio" class="portfolio">
-  <app-section-heading
-    eyebrow="פורטפוליו"
-    title="קליפים שיצרתי"
-    subtitle="כל קליפ מתחיל מסיפור, תמונות ורגעים אישיים — והופך לשיר ולחוויה ויזואלית שאפשר לשתף, להקרין ולשמור."
-  />
+  <div class="portfolio__intro" appReveal>
+    <app-section-heading
+      eyebrow="פורטפוליו"
+      heading="מה אפשר לקבל?"
+      subtitle="גללו בין דוגמאות אמיתיות — מספיקות תמונות ותיאור קצר, ואנחנו הופכים אותן לקליפ מוזיקלי מלא."
+    />
+  </div>
 
-  <div class="portfolio__categories">
-    @for (group of categoryGroups; track group.category.id) {
-      <div class="portfolio__category">
-        <div class="portfolio__category-header">
-          <h3>{{ group.category.titleHe }}</h3>
-          <p>{{ group.category.descriptionHe }}</p>
-        </div>
+  <div class="portfolio__gallery" appReveal>
+    <button type="button" class="portfolio__nav portfolio__nav--prev" (click)="scrollPrev()" aria-label="גלילה לדוגמה הקודמת">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
 
-        <div class="portfolio__grid">
-          @for (video of group.videos; track video.id) {
+    <div class="portfolio__viewport">
+      <div #scroller class="portfolio__track" tabindex="0" aria-label="גלריית קליפים">
+        @for (video of loopVideos; track $index) {
+          <div class="portfolio__item">
             <app-video-card
-              [video]="video"
-              [categoryLabel]="group.category.titleHe"
-              [descriptionHe]="group.category.descriptionHe"
+              size="gallery"
+            [video]="video"
+            [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
               (play)="openVideo($event)"
             />
-          }
-        </div>
+          </div>
+        }
       </div>
-    }
+    </div>
+
+    <button type="button" class="portfolio__nav portfolio__nav--next" (click)="scrollNext()" aria-label="גלילה לדוגמה הבאה">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
   </div>
 </section>
 

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import {
   ADDON_OPTIONS,
+  MAIN_PRODUCT_INTRO_PRICES,
   MAIN_PRODUCT_OPTIONS,
-  NEW_SONG_BASE_PRICE,
   PRODUCT_INCLUDES_NEW_SONG,
   PRODUCT_INCLUDES_VIDEO,
+  SONG_LENGTH_OPTIONS,
   SUBTITLES_OPTIONS,
-  VIDEO_BASE_PRICE,
   VIDEO_FORMAT_OPTIONS,
   VIDEO_LENGTH_OPTIONS,
   VIDEO_SOURCE_OPTIONS,
@@ -23,20 +23,30 @@ import type { PriceBreakdown, PricingLineItem, PricingSelection } from '../../sh
 export class PricingCalculatorService {
   calculate(selection: PricingSelection): PriceBreakdown {
     const lineItems: PricingLineItem[] = [];
-
-    const includesNewSong = PRODUCT_INCLUDES_NEW_SONG[selection.mainProduct];
     const includesVideo = PRODUCT_INCLUDES_VIDEO[selection.mainProduct];
+    const includesNewSong = PRODUCT_INCLUDES_NEW_SONG[selection.mainProduct];
 
     const productLabel = MAIN_PRODUCT_OPTIONS.find((option) => option.id === selection.mainProduct)?.titleHe ?? '';
-    lineItems.push({ id: `main_product:${selection.mainProduct}`, labelHe: productLabel, amount: 0, quantity: 1 });
+    lineItems.push({
+      id: `main_product:${selection.mainProduct}`,
+      labelHe: productLabel,
+      amount: MAIN_PRODUCT_INTRO_PRICES[selection.mainProduct],
+      quantity: 1,
+    });
 
-    if (includesNewSong) {
-      lineItems.push({ id: 'new_song_base', labelHe: 'שיר אישי מקורי', amount: NEW_SONG_BASE_PRICE, quantity: 1 });
+    if (includesNewSong && selection.songLength) {
+      const songLength = SONG_LENGTH_OPTIONS.find((option) => option.id === selection.songLength);
+      if (songLength && songLength.price > 0) {
+        lineItems.push({
+          id: `song_length:${songLength.id}`,
+          labelHe: `אורך שיר — ${songLength.labelHe}`,
+          amount: songLength.price,
+          quantity: 1,
+        });
+      }
     }
 
     if (includesVideo) {
-      lineItems.push({ id: 'video_base', labelHe: 'יצירת קליפ', amount: VIDEO_BASE_PRICE, quantity: 1 });
-
       const source = VIDEO_SOURCE_OPTIONS.find((option) => option.id === selection.videoSource);
       if (source) {
         lineItems.push({ id: `video_source:${source.id}`, labelHe: source.labelHe, amount: source.price, quantity: 1 });

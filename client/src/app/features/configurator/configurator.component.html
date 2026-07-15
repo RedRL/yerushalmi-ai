@@ -1,65 +1,71 @@
 <section id="configurator" class="configurator">
   <app-section-heading
+    appReveal
     eyebrow="בניית הפרויקט"
-    title="בניית הפרויקט שלכם"
+    heading="בניית הפרויקט שלכם"
     subtitle="עוברים שלב אחר שלב, רואים מחיר משוער בזמן אמת, ושולחים בקשה מפורטת בלי שום התחייבות."
   />
 
-  <div class="configurator__panel">
-    <app-configurator-progress />
+  <div class="configurator__layout" appReveal>
+    <div class="configurator__panel">
+      <app-configurator-progress />
 
-    <div class="configurator__body">
-      @switch (store.currentStep().id) {
-        @case ('product') {
-          <app-product-step />
+      <div class="configurator__body">
+        @switch (store.currentStep().id) {
+          @case ('product') {
+            <app-product-step />
+          }
+          @case ('song') {
+            <app-song-step />
+          }
+          @case ('video') {
+            <app-video-step />
+          }
+          @case ('details') {
+            <app-project-details-step />
+          }
+          @case ('upload') {
+            <app-upload-step />
+          }
+          @case ('summary') {
+            <app-summary-step />
+          }
+          @case ('contact') {
+            <app-contact-step />
+          }
         }
-        @case ('song') {
-          <app-song-step />
+      </div>
+
+      @if (!store.submitResult()) {
+        @if (store.mainProduct() && !isFinalStep && !showSidebarPrice) {
+          <div class="configurator__price-preview" aria-live="polite">
+            <span>הערכת מחיר נוכחית</span>
+            <strong>₪{{ store.priceBreakdown()?.total ?? 0 }}</strong>
+          </div>
         }
-        @case ('video') {
-          <app-video-step />
-        }
-        @case ('addons') {
-          <app-addons-step />
-        }
-        @case ('details') {
-          <app-project-details-step />
-        }
-        @case ('upload') {
-          <app-upload-step />
-        }
-        @case ('summary') {
-          <app-summary-step />
-        }
-        @case ('contact') {
-          <app-contact-step />
-        }
+
+        <div class="configurator__nav">
+          <button type="button" class="configurator__nav-back" [disabled]="isFirstStep" (click)="store.goBack()">
+            הקודם
+          </button>
+          @if (!isFinalStep) {
+            <button
+              type="button"
+              class="configurator__nav-next"
+              [disabled]="!store.isCurrentStepValid()"
+              (click)="store.goNext()"
+            >
+              הבא
+            </button>
+          }
+        </div>
       }
     </div>
 
-    @if (!store.submitResult()) {
-      @if (store.mainProduct() && !isFinalStep) {
-        <div class="configurator__price-preview" aria-live="polite">
-          <span>הערכת מחיר נוכחית</span>
-          <strong>₪{{ store.priceBreakdown()?.total ?? 0 }}</strong>
-        </div>
-      }
-
-      <div class="configurator__nav">
-        <button type="button" class="configurator__nav-back" [disabled]="isFirstStep" (click)="store.goBack()">
-          הקודם
-        </button>
-        @if (!isFinalStep) {
-          <button
-            type="button"
-            class="configurator__nav-next"
-            [disabled]="!store.isCurrentStepValid()"
-            (click)="store.goNext()"
-          >
-            הבא
-          </button>
-        }
-      </div>
+    @if (showSidebarPrice) {
+      <aside class="configurator__sidebar" aria-label="סיכום מחיר">
+        <app-price-summary [breakdown]="store.priceBreakdown()" [mainProductId]="store.mainProduct()" />
+      </aside>
     }
   </div>
 </section>

@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 })
 export class SectionHeadingComponent {
   readonly eyebrow = input<string>();
-  readonly title = input.required<string>();
+  readonly heading = input.required<string>();
   readonly subtitle = input<string>();
   readonly align = input<'center' | 'start'>('center');
 }

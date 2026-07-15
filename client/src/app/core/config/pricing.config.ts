@@ -8,6 +8,7 @@ import type {
   VideoFormatId,
   VideoLengthId,
   VideoSourceId,
+  SongLengthId,
 } from '../../shared/models/pricing.model';
 
 /**
@@ -28,24 +29,41 @@ import type {
 
 export const CURRENCY_SYMBOL = '₪';
 
-export const NEW_SONG_BASE_PRICE = 890; // TODO(pricing): placeholder
-export const VIDEO_BASE_PRICE = 1290; // TODO(pricing): placeholder
+/** Introductory package prices — keep in sync with server `MAIN_PRODUCT_INTRO_PRICES`. */
+export const MAIN_PRODUCT_INTRO_PRICES = {
+  song_only: 290,
+  video_existing_song: 990,
+  video_new_song: 1190,
+} as const;
+
+/** Original list prices shown with strikethrough in marketing UI. */
+export const MAIN_PRODUCT_ORIGINAL_PRICES = {
+  song_only: 450,
+  video_existing_song: 1400,
+  video_new_song: 1700,
+} as const;
+
+/** @deprecated Use MAIN_PRODUCT_INTRO_PRICES.song_only */
+export const NEW_SONG_BASE_PRICE = MAIN_PRODUCT_INTRO_PRICES.song_only;
+/** @deprecated Use MAIN_PRODUCT_INTRO_PRICES.video_existing_song */
+export const VIDEO_BASE_PRICE = MAIN_PRODUCT_INTRO_PRICES.video_existing_song;
 
 export const MAIN_PRODUCT_OPTIONS: readonly MainProductOption[] = [
   {
     id: 'song_only',
-    titleHe: 'שיר אישי בלבד',
-    descriptionHe: 'שיר מקורי שנכתב לפי האדם, הסיפור, הזיכרונות והסגנון שתבחרו.',
+    titleHe: 'שיר אישי',
+    descriptionHe:
+      'שיר מקורי שנכתב והופק במיוחד עבורכם, בהשראת הסיפור, האנשים והרגעים החשובים שלכם.',
   },
   {
     id: 'video_existing_song',
-    titleHe: 'סרטון עם שיר קיים',
-    descriptionHe: 'אתם מספקים שיר קיים, ואני יוצר עבורו קליפ מבוסס תמונות, סרטונים או AI.',
+    titleHe: 'סרטון עם שיר לבחירתכם',
+    descriptionHe: 'הופכים את השיר שאתם אוהבים לסרטון מרגש ומרשים שמספר את הסיפור שלכם.',
   },
   {
     id: 'video_new_song',
-    titleHe: 'סרטון עם שיר חדש בהתאמה אישית',
-    descriptionHe: 'חבילה מלאה: כתיבת שיר אישי חדש יחד עם קליפ מוזיקלי מותאם.',
+    titleHe: 'החוויה המלאה',
+    descriptionHe: 'מהרעיון הראשון ועד הסרטון המוגמר – כל החוויה במקום אחד.',
   },
 ];
 
@@ -74,29 +92,31 @@ export const SONG_STYLE_OPTIONS: readonly string[] = [
 ];
 
 export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[] = [
-  { id: 'customer_photos', labelHe: 'מתמונות שהלקוח מספק', descriptionHe: 'תמונות אמיתיות שהופכות לסצנות וידאו.', price: 0 },
-  { id: 'ai_only', labelHe: 'יצירת כל הוויזואליה באמצעות AI', descriptionHe: 'הסצנות נוצרות מהתיאור והסיפור, בלי צורך בתמונות.', price: 350 },
-  { id: 'mixed', labelHe: 'שילוב תמונות אמיתיות ויצירת AI', descriptionHe: 'שילוב של תמונות שהועלו וסצנות AI חדשות.', price: 250 },
-  { id: 'customer_videos', labelHe: 'עריכה מסרטונים אמיתיים שהלקוח מספק', descriptionHe: 'עריכה מוזיקלית מקטעי וידאו שסיפקתם.', price: 150 },
+  { id: 'customer_videos', labelHe: 'עריכה מסרטונים אמיתיים שהלקוח מספק', descriptionHe: 'עריכה מוזיקלית מקטעי וידאו שסיפקתם.', price: 0 },
+  { id: 'mixed', labelHe: 'שילוב תמונות אמיתיות ויצירת AI', descriptionHe: 'שילוב של תמונות שהועלו וסצנות AI חדשות.', price: 200 },
+  { id: 'ai_only', labelHe: 'יצירת כל הוויזואליה באמצעות AI', descriptionHe: 'הסצנות נוצרות מהתיאור והסיפור, בלי צורך בתמונות.', price: 400 },
+];
+
+export const SONG_LENGTH_OPTIONS: readonly PriceableOptionLike<SongLengthId>[] = [
+  { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
+  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
+  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 300 },
 ];
 
 export const VIDEO_LENGTH_OPTIONS: readonly PriceableOptionLike<VideoLengthId>[] = [
-  { id: 'up_to_1_min', labelHe: 'עד דקה', price: 0 },
-  { id: 'up_to_2_min', labelHe: 'עד שתי דקות', price: 150 },
-  { id: 'up_to_3_min', labelHe: 'עד שלוש דקות', price: 300 },
-  { id: 'custom_length', labelHe: 'אורך מיוחד', price: 450 },
+  { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
+  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
+  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 300 },
 ];
 
 export const VIDEO_FORMAT_OPTIONS: readonly PriceableOptionLike<VideoFormatId>[] = [
   { id: 'landscape', labelHe: 'אופקי 16:9', price: 0 },
   { id: 'portrait', labelHe: 'אנכי 9:16', price: 0 },
-  { id: 'both', labelHe: 'שני הפורמטים', price: 120 },
 ];
 
 export const SUBTITLES_OPTIONS: readonly PriceableOptionLike<SubtitlesId>[] = [
   { id: 'none', labelHe: 'ללא כתוביות', price: 0 },
-  { id: 'selected', labelHe: 'כתוביות נבחרות', price: 80 },
-  { id: 'full', labelHe: 'כתוביות מלאות', price: 150 },
+  { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 80 },
 ];
 
 export const ADDON_OPTIONS: readonly AddonOption[] = [

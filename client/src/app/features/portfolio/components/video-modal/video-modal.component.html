@@ -1,4 +1,11 @@
-<div class="video-modal-backdrop" (click)="onBackdropClick($event)">
+<div
+  class="video-modal-backdrop"
+  [style.background-image]="'url(' + backdropUrl() + ')'"
+  (click)="onBackdropClick($event)"
+>
+  <div class="video-modal-backdrop__vignette" aria-hidden="true"></div>
+  <div class="video-modal-backdrop__glow" aria-hidden="true"></div>
+
   <div
     #dialog
     class="video-modal"
@@ -16,13 +23,23 @@
     <div class="video-modal__frame">
       <iframe
         [src]="embedUrl()"
-        [title]="video().titleHe"
+        [attr.aria-label]="video().titleHe"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
       ></iframe>
     </div>
 
-    <p class="video-modal__title">{{ video().titleHe }}</p>
+    <div class="video-modal__meta">
+      <p class="video-modal__title">{{ video().titleHe }}</p>
+      @if (video().tagsHe.length) {
+        <p class="video-modal__genres">
+          <span class="video-modal__genre-label">סגנון:</span>
+          @for (tag of video().tagsHe; track tag) {
+            <span class="video-modal__tag">{{ tag }}</span>
+          }
+        </p>
+      }
+    </div>
   </div>
 </div>

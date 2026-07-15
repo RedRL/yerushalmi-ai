@@ -1,5 +1,9 @@
 @use 'mixins' as *;
 
+:host {
+  display: block;
+}
+
 .section-heading {
   display: flex;
   flex-direction: column;

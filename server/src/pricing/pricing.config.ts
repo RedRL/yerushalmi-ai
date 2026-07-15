@@ -5,6 +5,7 @@ import type {
   VideoFormatId,
   VideoLengthId,
   VideoSourceId,
+  SongLengthId,
 } from './pricing.types';
 
 /**
@@ -20,16 +21,22 @@ import type {
 
 export const CURRENCY = 'ILS' as const;
 
-/** Charged when the request includes a brand new personal song. */
-export const NEW_SONG_BASE_PRICE = 890; // TODO(pricing): placeholder
+/** Charged when the request includes a brand new personal song. @deprecated */
+export const NEW_SONG_BASE_PRICE = 290;
 
-/** Charged when the request includes any video creation. */
-export const VIDEO_BASE_PRICE = 1290; // TODO(pricing): placeholder
+/** Charged when the request includes any video creation. @deprecated */
+export const VIDEO_BASE_PRICE = 990;
+
+export const MAIN_PRODUCT_INTRO_PRICES: Record<MainProductId, number> = {
+  song_only: 290,
+  video_existing_song: 990,
+  video_new_song: 1190,
+};
 
 export const MAIN_PRODUCT_LABELS: Record<MainProductId, string> = {
-  song_only: 'שיר אישי בלבד',
-  video_existing_song: 'סרטון עם שיר קיים',
-  video_new_song: 'סרטון עם שיר חדש בהתאמה אישית',
+  song_only: 'שיר אישי',
+  video_existing_song: 'סרטון עם שיר לבחירתכם',
+  video_new_song: 'החוויה המלאה',
 };
 
 /** Whether a given main product requires a newly written song. */
@@ -47,17 +54,22 @@ export const PRODUCT_INCLUDES_VIDEO: Record<MainProductId, boolean> = {
 };
 
 export const VIDEO_SOURCE_PRICES: Record<VideoSourceId, { labelHe: string; price: number }> = {
-  customer_photos: { labelHe: 'מתמונות שהלקוח מספק', price: 0 }, // TODO(pricing): placeholder
-  ai_only: { labelHe: 'יצירת כל הוויזואליה באמצעות AI', price: 350 }, // TODO(pricing): placeholder
-  mixed: { labelHe: 'שילוב תמונות אמיתיות ויצירת AI', price: 250 }, // TODO(pricing): placeholder
-  customer_videos: { labelHe: 'עריכה מסרטונים אמיתיים שהלקוח מספק', price: 150 }, // TODO(pricing): placeholder
+  customer_photos: { labelHe: 'מתמונות שהלקוח מספק', price: 0 },
+  customer_videos: { labelHe: 'עריכה מסרטונים אמיתיים שהלקוח מספק', price: 0 },
+  mixed: { labelHe: 'שילוב תמונות אמיתיות ויצירת AI', price: 200 },
+  ai_only: { labelHe: 'יצירת כל הוויזואליה באמצעות AI', price: 400 },
+};
+
+export const SONG_LENGTH_PRICES: Record<SongLengthId, { labelHe: string; price: number }> = {
+  up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
+  up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
+  up_to_4_min: { labelHe: 'כ-4 דקות', price: 300 },
 };
 
 export const VIDEO_LENGTH_PRICES: Record<VideoLengthId, { labelHe: string; price: number }> = {
-  up_to_1_min: { labelHe: 'עד דקה', price: 0 }, // TODO(pricing): placeholder
-  up_to_2_min: { labelHe: 'עד שתי דקות', price: 150 }, // TODO(pricing): placeholder
-  up_to_3_min: { labelHe: 'עד שלוש דקות', price: 300 }, // TODO(pricing): placeholder
-  custom_length: { labelHe: 'אורך מיוחד', price: 450 }, // TODO(pricing): placeholder
+  up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
+  up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
+  up_to_4_min: { labelHe: 'כ-4 דקות', price: 300 },
 };
 
 export const VIDEO_FORMAT_PRICES: Record<VideoFormatId, { labelHe: string; price: number }> = {
@@ -67,9 +79,9 @@ export const VIDEO_FORMAT_PRICES: Record<VideoFormatId, { labelHe: string; price
 };
 
 export const SUBTITLES_PRICES: Record<SubtitlesId, { labelHe: string; price: number }> = {
-  none: { labelHe: 'ללא כתוביות', price: 0 }, // TODO(pricing): placeholder
-  selected: { labelHe: 'כתוביות נבחרות', price: 80 }, // TODO(pricing): placeholder
-  full: { labelHe: 'כתוביות מלאות', price: 150 }, // TODO(pricing): placeholder
+  none: { labelHe: 'ללא כתוביות', price: 0 },
+  selected: { labelHe: 'כתוביות מעוצבות', price: 80 },
+  full: { labelHe: 'כתוביות מלאות', price: 150 },
 };
 
 export const ADDON_CONFIG: Record<AddonId, { labelHe: string; price: number }> = {

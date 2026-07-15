@@ -7,6 +7,11 @@ export const routes: Routes = [
     title: 'YERUSHALMI.AI | קליפים מוזיקליים ושירים בהתאמה אישית',
   },
   {
+    path: 'terms',
+    loadComponent: () => import('./features/terms/terms.component').then((m) => m.TermsComponent),
+    title: 'YERUSHALMI.AI | תקנון שירות',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

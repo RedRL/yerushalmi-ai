@@ -1,0 +1,41 @@
+<article
+  class="package-card"
+  [class.package-card--featured]="pkg().featured"
+  [class.package-card--selected]="selected()"
+  [class.package-card--static]="!selectable()"
+  [style.animation-delay.ms]="animateDelay()"
+>
+  @if (pkg().featured && pkg().recommendedBadgeHe) {
+    <span class="package-card__badge">{{ pkg().recommendedBadgeHe }}</span>
+  }
+
+  <div class="package-card__header">
+    <span class="package-card__emoji" aria-hidden="true">{{ pkg().emoji }}</span>
+    <h3 class="package-card__title">{{ pkg().titleHe }}</h3>
+    @if (pkg().subtitleHe) {
+      <p class="package-card__subtitle">{{ pkg().subtitleHe }}</p>
+    }
+  </div>
+
+  <div class="package-card__pricing" aria-label="מחיר">
+    <span class="package-card__price">₪{{ pkg().introPrice }}</span>
+    <span class="package-card__original">₪{{ pkg().originalPrice }}</span>
+    <span class="package-card__promo-badge">מחיר היכרות</span>
+    <span class="package-card__promo-note">לרגל השקת Yerushalmi.AI</span>
+    <span class="package-card__promo-limited">לזמן מוגבל</span>
+  </div>
+
+  <p class="package-card__description">{{ pkg().descriptionHe }}</p>
+
+  <ul class="package-card__features">
+    @for (feature of pkg().featuresHe; track feature) {
+      <li>{{ feature }}</li>
+    }
+  </ul>
+
+  @if (selectable()) {
+    <button type="button" class="package-card__cta" (click)="select.emit()">
+      {{ pkg().ctaHe }}
+    </button>
+  }
+</article>

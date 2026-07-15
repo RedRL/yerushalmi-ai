@@ -4,7 +4,7 @@ export const mainProductSchema = z.enum(['song_only', 'video_existing_song', 'vi
 
 export const videoSourceSchema = z.enum(['customer_photos', 'ai_only', 'mixed', 'customer_videos']);
 
-export const videoLengthSchema = z.enum(['up_to_1_min', 'up_to_2_min', 'up_to_3_min', 'custom_length']);
+export const videoLengthSchema = z.enum(['up_to_2_min', 'up_to_3_min', 'up_to_4_min']);
 
 export const videoFormatSchema = z.enum(['landscape', 'portrait', 'both']);
 

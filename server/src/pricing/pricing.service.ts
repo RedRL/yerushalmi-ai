@@ -1,12 +1,12 @@
 import {
   ADDON_CONFIG,
+  MAIN_PRODUCT_INTRO_PRICES,
   MAIN_PRODUCT_LABELS,
-  NEW_SONG_BASE_PRICE,
   PRODUCT_INCLUDES_NEW_SONG,
   PRODUCT_INCLUDES_VIDEO,
+  SONG_LENGTH_PRICES,
   SUBTITLES_PRICES,
   VAT_RATE,
-  VIDEO_BASE_PRICE,
   VIDEO_FORMAT_PRICES,
   VIDEO_LENGTH_PRICES,
   VIDEO_SOURCE_PRICES,
@@ -20,34 +20,29 @@ import type { PriceBreakdown, PriceLineItem, PricingSelection } from './pricing.
  */
 export function calculatePriceBreakdown(selection: PricingSelection): PriceBreakdown {
   const lineItems: PriceLineItem[] = [];
-
-  const includesNewSong = PRODUCT_INCLUDES_NEW_SONG[selection.mainProduct];
   const includesVideo = PRODUCT_INCLUDES_VIDEO[selection.mainProduct];
+  const includesNewSong = PRODUCT_INCLUDES_NEW_SONG[selection.mainProduct];
 
   lineItems.push({
     id: `main_product:${selection.mainProduct}`,
     labelHe: MAIN_PRODUCT_LABELS[selection.mainProduct],
-    amount: 0,
+    amount: MAIN_PRODUCT_INTRO_PRICES[selection.mainProduct],
     quantity: 1,
   });
 
-  if (includesNewSong) {
-    lineItems.push({
-      id: 'new_song_base',
-      labelHe: 'שיר אישי מקורי',
-      amount: NEW_SONG_BASE_PRICE,
-      quantity: 1,
-    });
+  if (includesNewSong && selection.songLength) {
+    const songLength = SONG_LENGTH_PRICES[selection.songLength];
+    if (songLength && songLength.price > 0) {
+      lineItems.push({
+        id: `song_length:${selection.songLength}`,
+        labelHe: `אורך שיר — ${songLength.labelHe}`,
+        amount: songLength.price,
+        quantity: 1,
+      });
+    }
   }
 
   if (includesVideo) {
-    lineItems.push({
-      id: 'video_base',
-      labelHe: 'יצירת קליפ',
-      amount: VIDEO_BASE_PRICE,
-      quantity: 1,
-    });
-
     if (selection.videoSource) {
       const source = VIDEO_SOURCE_PRICES[selection.videoSource];
       if (source) {

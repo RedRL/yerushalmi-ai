@@ -1,9 +1,9 @@
 <section id="how-it-works" class="process">
-  <app-section-heading eyebrow="התהליך" title="איך זה עובד?" />
+  <app-section-heading appReveal eyebrow="התהליך" heading="האם זה מסובך?" subtitle="לא. ארבעה שלבים ברורים — בוחרים, מספרים, שולחים, ואנחנו חוזרים אליכם." />
 
   <ol class="process__timeline">
-    @for (step of steps; track step.step) {
-      <li class="process__item">
+    @for (step of steps; track step.step; let index = $index) {
+      <li class="process__item" appReveal [appRevealDelay]="index * 120">
         <span class="process__number">{{ step.step }}</span>
         <div class="process__content">
           <h3>{{ step.titleHe }}</h3>

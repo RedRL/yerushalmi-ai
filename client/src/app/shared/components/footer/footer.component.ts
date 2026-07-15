@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { NAV_LINKS, SITE_CONFIG, WHATSAPP_CONFIG } from '../../../core/config/site.config';
 import { scrollToSection } from '../../utils/scroll-to.util';
 
 @Component({
   selector: 'app-footer',
+  imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',

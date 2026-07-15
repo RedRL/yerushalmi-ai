@@ -1,9 +1,8 @@
 <div class="step" [formGroup]="store.songForm">
-  <h3 class="step__title">הגדרת השיר</h3>
-
   @if (store.requiresExistingSongRights()) {
+    <h3 class="step__title">מה עלינו לדעת על השיר הקיים?</h3>
     <p class="step__description">
-      מספקים שיר קיים? נאסוף כאן את הפרטים כדי שאוכל לבנות סביבו קליפ מדויק.
+      נאסוף כאן את הפרטים כדי שנוכל לבנות סביבו קליפ מדויק.
     </p>
 
     <div class="field-grid step__section">
@@ -27,29 +26,28 @@
         formControlName="existingSongLink"
         placeholder="https://..."
       />
-      <p class="field__hint">אפשרות להעלאת קובץ אודיו תתאפשר בהמשך התהליך.</p>
     </div>
   } @else if (store.includesNewSong()) {
-    <p class="step__description">כדי לכתוב שיר מדויק, ספרו לי על הסגנון והתחושה שאתם מחפשים.</p>
+    <h3 class="step__title">איך תרצו שהשיר ירגיש?</h3>
+    <p class="step__description">כדי לכתוב שיר מדויק, ספרו לנו על הסגנון והתחושה שאתם מחפשים.</p>
 
     <div class="step__section">
-      <span class="step__section-title">סגנון מועדף</span>
-      <div class="chip-group" role="radiogroup" aria-label="סגנון מוזיקלי">
+      <span class="step__section-title">סגנונות מועדפים (אפשר לבחור כמה)</span>
+      <div class="chip-group" role="group" aria-label="סגנונות מוזיקליים">
         @for (style of styleOptions; track style) {
           <button
             type="button"
             class="chip"
-            [class.chip--selected]="store.songForm.controls.style.value === style"
-            role="radio"
-            [attr.aria-checked]="store.songForm.controls.style.value === style"
-            (click)="selectStyle(style)"
+            [class.chip--selected]="store.isSongStyleSelected(style)"
+            [attr.aria-pressed]="store.isSongStyleSelected(style)"
+            (click)="store.toggleSongStyle(style)"
           >
             {{ style }}
           </button>
         }
       </div>
 
-      @if (store.songForm.controls.style.value === 'אחר') {
+      @if (store.isSongStyleSelected('אחר')) {
         <input
           class="field__control"
           formControlName="customStyle"
@@ -59,6 +57,10 @@
       }
     </div>
 
+    @if (!store.isSongStepValid() && store.songForm.controls.style.touched) {
+      <p class="field__error step__section">נא לבחור לפחות סגנון מוזיקלי אחד כדי להמשיך.</p>
+    }
+
     <div class="field-grid step__section">
       <div class="field">
         <label class="field__label" for="mood">מצב רוח רצוי</label>
@@ -67,7 +69,14 @@
 
       <div class="field">
         <label class="field__label" for="length">אורך משוער</label>
-        <input id="length" class="field__control" formControlName="length" placeholder="למשל: כ-3 דקות" />
+        <select id="length" class="field__control" formControlName="length">
+          <option value="">בחרו אורך</option>
+          @for (option of lengthOptions; track option.id) {
+            <option [value]="option.id">
+              {{ option.labelHe }}{{ option.price > 0 ? ' (+₪' + option.price + ')' : '' }}
+            </option>
+          }
+        </select>
       </div>
     </div>
 
@@ -93,6 +102,7 @@
       <textarea id="songNotes" class="field__control" formControlName="additionalNotes" rows="3"></textarea>
     </div>
   } @else {
+    <h3 class="step__title">השיר כלול בפרויקט</h3>
     <p class="step__description">בשלב זה לא נדרשת התאמה נוספת לשיר.</p>
   }
 </div>

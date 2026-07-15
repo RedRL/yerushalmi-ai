@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { calculatePriceBreakdown } from '../pricing/pricing.service';
-import type { PriceBreakdown, PricingSelection } from '../pricing/pricing.types';
+import type { PriceBreakdown, PricingSelection, SongLengthId } from '../pricing/pricing.types';
 import type { InquiryInput } from '../schemas/inquiry.schema';
 import { logger } from '../utils/logger';
 import { sendInquiryEmail } from './email.service';
@@ -12,11 +12,16 @@ export interface InquiryResult {
   emailDelivered: boolean;
 }
 
+function isSongLengthId(value?: string): value is SongLengthId {
+  return value === 'up_to_2_min' || value === 'up_to_3_min' || value === 'up_to_4_min';
+}
+
 function toPricingSelection(payload: InquiryInput): PricingSelection {
   return {
     mainProduct: payload.mainProduct,
     videoSource: payload.video?.source,
     videoLength: payload.video?.length,
+    songLength: isSongLengthId(payload.song?.length) ? payload.song.length : undefined,
     videoFormat: payload.video?.format,
     subtitles: payload.video?.subtitles,
     addons: payload.addons ?? [],

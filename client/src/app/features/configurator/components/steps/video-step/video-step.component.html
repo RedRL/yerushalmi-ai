@@ -1,9 +1,9 @@
 <div class="step">
-  <h3 class="step__title">הגדרת הסרטון</h3>
-  <p class="step__description">בחרו את מקור הוויזואליה ואת המפרט הטכני של הקליפ.</p>
+  <h3 class="step__title">איך תרצו לקבל את הסרטון?</h3>
+  <p class="step__description">בחרו מאילו חומרים ניצור את הקליפ, ובאיזה מפרט תרצו לקבל אותו.</p>
 
   <div class="step__section">
-    <span class="step__section-title">מקור הוויזואליה</span>
+    <span class="step__section-title">מאילו חומרים ניצור את הקליפ?</span>
     <div class="option-card-grid" role="radiogroup" aria-label="מקור הוויזואליה">
       @for (option of sourceOptions; track option.id) {
         <button
@@ -18,7 +18,7 @@
           @if (option.descriptionHe) {
             <span class="option-card__description">{{ option.descriptionHe }}</span>
           }
-          <span class="option-card__price">{{ option.price === 0 ? 'ללא תוספת' : '+₪' + option.price }}</span>
+          <span class="option-card__price">{{ option.price === 0 ? 'חינם' : '+₪' + option.price }}</span>
         </button>
       }
     </div>

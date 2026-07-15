@@ -1,0 +1,17 @@
+<section id="pricing" class="pricing">
+  <div class="pricing__intro" appReveal>
+    <app-section-heading
+      eyebrow="חבילות"
+      heading="בחרו איך תרצו להפוך את הרעיון שלכם למתנה בלתי נשכחת"
+      subtitle="כל חבילה נבנתה כדי ליצור רגע מרגש ובלתי נשכח – הבחירה היא רק כמה רחוק תרצו לקחת את החוויה."
+    />
+  </div>
+
+  <div class="pricing__grid">
+    @for (pkg of packages; track pkg.id; let index = $index) {
+      <div appReveal [appRevealDelay]="index * 100">
+        <app-package-card [pkg]="pkg" [animateDelay]="index * 100" (select)="startWithPackage(pkg.id)" />
+      </div>
+    }
+  </div>
+</section>

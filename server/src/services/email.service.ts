@@ -4,10 +4,23 @@ import { logger } from '../utils/logger';
 import type { InquiryInput } from '../schemas/inquiry.schema';
 import type { PriceBreakdown } from '../pricing/pricing.types';
 import { buildInquiryEmailHtml } from './email-template';
+import { buildContactEmailHtml } from './contact-email-template';
+import type { ContactMessageInput } from '../schemas/contact.schema';
 
 export interface SendInquiryEmailResult {
   delivered: boolean;
   provider: 'resend' | 'dev-log';
+}
+
+export interface SendContactEmailResult {
+  delivered: boolean;
+  provider: 'resend' | 'dev-log';
+}
+
+const DEFAULT_CONTACT_RECIPIENT = 'harel.red@gmail.com';
+
+function resolveContactRecipient(): string {
+  return env.contactEmail.trim() || DEFAULT_CONTACT_RECIPIENT;
 }
 
 /**
@@ -51,6 +64,48 @@ export async function sendInquiryEmail(
       error: error instanceof Error ? error.message : String(error),
     });
     logger.info('Generated inquiry email HTML', { html });
+    return { delivered: false, provider: 'dev-log' };
+  }
+}
+
+/**
+ * Sends a simple contact-form message to the business owner.
+ * Falls back to structured logging when Resend is not configured.
+ */
+export async function sendContactMessageEmail(
+  payload: ContactMessageInput,
+  submittedAt: Date,
+): Promise<SendContactEmailResult> {
+  const html = buildContactEmailHtml(payload, submittedAt);
+  const subject = `הודעה חדשה מ-${payload.name} | YERUSHALMI.AI`;
+  const recipient = resolveContactRecipient();
+
+  if (!env.isEmailConfigured) {
+    logger.warn('Email is not configured. Logging simple contact message instead.', {
+      subject,
+      recipient,
+      contact: payload,
+    });
+    logger.info('Generated contact email HTML', { html });
+    return { delivered: false, provider: 'dev-log' };
+  }
+
+  try {
+    const resend = new Resend(env.resendApiKey);
+    await resend.emails.send({
+      from: env.emailFrom,
+      to: recipient,
+      subject,
+      html,
+      replyTo: payload.email,
+    });
+    logger.info('Contact message email sent via Resend', { to: recipient });
+    return { delivered: true, provider: 'resend' };
+  } catch (error) {
+    logger.error('Failed to send contact message via Resend - logging content as fallback', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    logger.info('Generated contact email HTML', { html });
     return { delivered: false, provider: 'dev-log' };
   }
 }

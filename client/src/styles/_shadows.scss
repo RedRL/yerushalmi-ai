@@ -1,10 +1,9 @@
-// Design tokens - shadows and glows.
-
 :root {
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
-  --shadow-glow-purple: 0 0 48px rgba(139, 92, 246, 0.35);
-  --shadow-glow-magenta: 0 0 48px rgba(217, 70, 239, 0.3);
+  --shadow-glow-purple: 0 0 48px rgba(155, 109, 255, 0.28);
+  --shadow-glow-blue: 0 0 48px rgba(79, 124, 255, 0.3);
+  --shadow-glow-pink: 0 0 48px rgba(244, 114, 182, 0.25);
   --shadow-inset-border: inset 0 0 0 1px var(--color-border-subtle);
 }

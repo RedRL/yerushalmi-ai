@@ -1,4 +1,5 @@
 @use 'mixins' as *;
+@use 'breakpoints' as bp;
 
 .video-modal-backdrop {
   position: fixed;
@@ -8,30 +9,74 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
-  background: rgba(3, 3, 8, 0.85);
-  backdrop-filter: blur(6px);
+  background-color: rgba(3, 3, 8, 0.92);
+  background-size: cover;
+  background-position: center;
   animation: fade-in var(--transition-base) var(--ease-out);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(28px) saturate(1.2);
+    background: rgba(5, 5, 12, 0.72);
+  }
+}
+
+.video-modal-backdrop__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 85% 70% at 50% 45%, transparent 25%, rgba(3, 3, 8, 0.85) 100%),
+    linear-gradient(180deg, rgba(8, 7, 20, 0.5), rgba(3, 3, 8, 0.9));
+  pointer-events: none;
+}
+
+.video-modal-backdrop__glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(217, 70, 239, 0.14), transparent 40%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: glow-drift 12s ease-in-out infinite alternate;
 }
 
 .video-modal {
   position: relative;
   z-index: var(--z-modal);
-  width: min(920px, 100%);
+  width: min(1180px, 96vw);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
   outline: none;
   animation: scale-in var(--transition-slow) var(--ease-out);
+
+  @include bp.respond-up('lg') {
+    width: min(1280px, 94vw);
+  }
 }
 
 .video-modal__frame {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  background: var(--color-bg-elevated);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 24px 80px rgba(0, 0, 0, 0.65),
+    0 0 120px rgba(139, 92, 246, 0.25);
+  background: #000;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.35);
+  }
 
   iframe {
     position: absolute;
@@ -44,17 +89,18 @@
 .video-modal__close {
   @include button-reset;
   position: absolute;
-  top: calc(-1 * var(--space-6));
+  top: calc(-1 * var(--space-7));
   inset-inline-end: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   color: var(--color-text-primary);
-  background: var(--color-bg-glass-strong);
+  background: rgba(8, 7, 20, 0.75);
   border: 1px solid var(--color-border-strong);
+  backdrop-filter: blur(10px);
   transition: transform var(--transition-fast) var(--ease-out), border-color var(--transition-fast);
 
   &:hover {
@@ -63,10 +109,42 @@
   }
 }
 
+.video-modal__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .video-modal__title {
   text-align: center;
   color: var(--color-text-primary);
-  font-size: var(--font-size-body-lg);
+  font-size: clamp(1.1rem, 1vw + 1rem, 1.5rem);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+
+.video-modal__genres {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.video-modal__genre-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-tiny);
+  font-weight: var(--font-weight-medium);
+}
+
+.video-modal__tag {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-accent);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-accent-purple-light);
+  font-size: var(--font-size-tiny);
   font-weight: var(--font-weight-medium);
 }
 
@@ -76,13 +154,19 @@
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes glow-drift {
+  from { opacity: 0.7; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.05); }
 }
 
 @include reduced-motion {
   .video-modal-backdrop,
-  .video-modal {
+  .video-modal,
+  .video-modal-backdrop__glow {
     animation: none;
   }
 }

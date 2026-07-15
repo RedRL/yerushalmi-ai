@@ -1,21 +1,41 @@
-<article class="video-card">
+<article
+  class="video-card"
+  [class.video-card--featured]="size() === 'featured'"
+  [class.video-card--gallery]="size() === 'gallery'"
+>
   <button
     type="button"
     class="video-card__media"
     (click)="onActivate()"
     [attr.aria-label]="'צפייה בקליפ: ' + video().titleHe"
   >
-    <img [src]="thumbnailUrl()" [alt]="video().titleHe" loading="lazy" width="480" height="270" />
+    <img
+      [src]="thumbnailUrl()"
+      [alt]="video().titleHe"
+      loading="lazy"
+      decoding="async"
+      width="480"
+      height="270"
+    />
     <span class="video-card__play" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="26" height="26">
         <path d="M8 5v14l11-7-11-7Z" fill="currentColor" />
       </svg>
     </span>
-    <span class="video-card__badge">{{ categoryLabel() }}</span>
   </button>
 
   <div class="video-card__body">
     <h3 class="video-card__title">{{ video().titleHe }}</h3>
     <p class="video-card__description">{{ descriptionHe() }}</p>
+    @if (video().tagsHe.length) {
+      <div class="video-card__genres">
+        <span class="video-card__genre-label">סגנון:</span>
+        <ul class="video-card__tags" aria-label="סגנונות מוזיקליים">
+          @for (tag of video().tagsHe; track tag) {
+            <li class="video-card__tag">{{ tag }}</li>
+          }
+        </ul>
+      </div>
+    }
   </div>
 </article>

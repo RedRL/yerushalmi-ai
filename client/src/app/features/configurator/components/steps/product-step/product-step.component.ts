@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAIN_PRODUCT_OPTIONS } from '../../../../../core/config/pricing.config';
-import type { MainProductId } from '../../../../../shared/models/pricing.model';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
+import type { MainProductId } from '../../../../../shared/models/pricing.model';
 
 @Component({
   selector: 'app-product-step',

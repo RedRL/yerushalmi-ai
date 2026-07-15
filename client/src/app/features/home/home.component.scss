@@ -1,3 +1,24 @@
 :host {
   display: block;
 }
+
+main {
+  display: flex;
+  flex-direction: column;
+}
+
+main > app-portfolio {
+  background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.04) 40%, transparent);
+}
+
+main > app-process-section {
+  background: linear-gradient(180deg, transparent, rgba(20, 19, 42, 0.45) 50%, transparent);
+}
+
+main > app-pricing-section {
+  background: linear-gradient(180deg, rgba(79, 124, 255, 0.05), transparent 80%);
+}
+
+main > app-configurator {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), transparent 80%);
+}

@@ -1,19 +1,74 @@
 <section id="contact" class="contact">
-  <div class="contact__panel">
-    <app-section-heading
-      align="start"
-      eyebrow="יצירת קשר"
-      title="מוכנים להתחיל?"
-      subtitle="אפשר לבנות הצעת מחיר מפורטת במסך בניית הפרויקט, או לשלוח הודעה ישירה בוואטסאפ ולקבל מענה מהיר."
-    />
+  <div class="contact__inner" appReveal>
+    <span class="contact__eyebrow">יצירת קשר</span>
+    <h2 class="contact__headline">יש שאלות?</h2>
+    <p class="contact__subtitle">
+      אפשר לשלוח הודעה קצרה — או לבנות הצעת מחיר מפורטת במסך בניית הפרויקט.
+    </p>
 
-    <div class="contact__actions">
-      <button type="button" class="contact__cta contact__cta--primary" (click)="goToConfigurator()">
-        בניית הצעת מחיר
-      </button>
-      <a class="contact__cta contact__cta--whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
-        שליחת הודעה בוואטסאפ · {{ localPhone }}
-      </a>
-    </div>
+    @if (submitSuccess()) {
+      <div class="contact__success" role="status" aria-live="polite">
+        <p>תודה! ההודעה התקבלה. נחזור אליכם בהקדם.</p>
+        <button type="button" class="contact__cta contact__cta--secondary" (click)="submitSuccess.set(false)">
+          שליחת הודעה נוספת
+        </button>
+      </div>
+    } @else {
+      <form class="contact__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="contact__fields">
+          <div class="field">
+            <label class="field__label" for="simpleContactName">שם *</label>
+            <input id="simpleContactName" class="field__control" formControlName="name" autocomplete="name" />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <span class="field__error">נא להזין שם</span>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="simpleContactPhone">טלפון *</label>
+            <input id="simpleContactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" />
+            @if (form.controls.phone.invalid && form.controls.phone.touched) {
+              <span class="field__error">נא להזין מספר טלפון תקין</span>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="simpleContactEmail">אימייל *</label>
+            <input id="simpleContactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" />
+            @if (form.controls.email.invalid && form.controls.email.touched) {
+              <span class="field__error">נא להזין כתובת אימייל תקינה</span>
+            }
+          </div>
+
+          <div class="field contact__message-field">
+            <label class="field__label" for="simpleContactMessage">הודעה *</label>
+            <textarea id="simpleContactMessage" class="field__control" formControlName="message" rows="4" placeholder="ספרו בקצרה על מה שאתם מחפשים..."></textarea>
+            @if (form.controls.message.invalid && form.controls.message.touched) {
+              <span class="field__error">נא לכתוב הודעה קצרה</span>
+            }
+          </div>
+        </div>
+
+        @if (submitError()) {
+          <p class="contact__error" role="alert">{{ submitError() }}</p>
+        }
+
+        <div class="contact__actions">
+          <button type="submit" class="contact__cta contact__cta--primary" [disabled]="isSubmitting()" [attr.aria-busy]="isSubmitting()">
+            @if (isSubmitting()) {
+              שולח...
+            } @else {
+              שלחו הודעה
+            }
+          </button>
+          <button type="button" class="contact__cta contact__cta--secondary" (click)="goToConfigurator()">
+            בניית הצעת מחיר
+          </button>
+          <a class="contact__cta contact__cta--whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
+            וואטסאפ · {{ localPhone }}
+          </a>
+        </div>
+      </form>
+    }
   </div>
 </section>

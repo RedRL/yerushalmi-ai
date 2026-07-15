@@ -44,7 +44,12 @@ body {
 
 body {
   min-height: 100vh;
-  background: var(--color-bg-base);
+  background-color: var(--color-bg-base);
+  background-image:
+    radial-gradient(ellipse 90% 60% at 15% -5%, rgba(79, 124, 255, 0.18), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 5%, rgba(244, 114, 182, 0.1), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(155, 109, 255, 0.08), transparent 55%),
+    linear-gradient(180deg, #060a18 0%, #081022 35%, #050914 100%);
   color: var(--color-text-primary);
   font-family: var(--font-family-base);
   font-size: var(--font-size-body);
@@ -92,7 +97,7 @@ video {
 }
 
 ::selection {
-  background: var(--color-accent-purple);
+  background: var(--color-accent-blue);
   color: var(--color-text-on-accent);
 }
 
@@ -110,11 +115,37 @@ body.scroll-locked {
   @include visually-hidden;
 }
 
+/* Scroll-triggered reveal, driven by the shared RevealOnScrollDirective.
+   Kept global so every section reuses the same restrained motion language. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition: opacity 0.75s var(--ease-out), transform 0.75s var(--ease-out);
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: none;
+}
+
 /* Shared layout for configurator step content - kept global since every step
-   component repeats the same title/description scaffold. */
+   component repeats the same title/description scaffold. Re-plays on every
+   step switch because the `.step` element itself is re-created by @switch. */
 .step {
   display: flex;
   flex-direction: column;
+  animation: step-enter 0.5s var(--ease-out);
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .step__title {
@@ -238,6 +269,7 @@ textarea.field__control {
 
 .option-card {
   @include button-reset;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -246,15 +278,22 @@ textarea.field__control {
   border: 1px solid var(--color-border-subtle);
   background: var(--color-bg-glass);
   text-align: start;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast) var(--ease-out), background var(--transition-fast),
+    transform var(--transition-fast) var(--ease-out), box-shadow var(--transition-fast) var(--ease-out);
 
   &:hover {
     border-color: var(--color-border-accent);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.99);
   }
 
   &--selected {
-    border-color: var(--color-accent-purple-light);
+    border-color: var(--color-accent-blue-light);
     background: var(--gradient-brand-soft);
+    box-shadow: 0 0 0 1px rgba(79, 124, 255, 0.25), 0 12px 28px rgba(79, 124, 255, 0.18);
   }
 }
 

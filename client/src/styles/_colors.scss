@@ -1,37 +1,37 @@
-// Design tokens - colors.
-// Dark, cinematic base with purple / blue / magenta accents.
-
 :root {
-  // Backgrounds
-  --color-bg-base: #05050a;
-  --color-bg-elevated: #0c0c17;
-  --color-bg-surface: #13131f;
-  --color-bg-surface-hover: #191928;
+  // Backgrounds — deep navy-blue base
+  --color-bg-base: #060a18;
+  --color-bg-deep: #040812;
+  --color-bg-elevated: #0c1228;
+  --color-bg-surface: #101832;
+  --color-bg-surface-hover: #152040;
   --color-bg-glass: rgba(255, 255, 255, 0.045);
   --color-bg-glass-strong: rgba(255, 255, 255, 0.08);
 
   // Borders
   --color-border-subtle: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.18);
-  --color-border-accent: rgba(139, 92, 246, 0.4);
+  --color-border-accent: rgba(99, 102, 241, 0.45);
 
   // Text
-  --color-text-primary: #f6f5fb;
-  --color-text-secondary: #b7b5c9;
-  --color-text-muted: #817f96;
+  --color-text-primary: #f4f6fc;
+  --color-text-secondary: #b4bdd4;
+  --color-text-muted: #7a849e;
   --color-text-on-accent: #ffffff;
 
-  // Accents
-  --color-accent-purple: #8b5cf6;
-  --color-accent-purple-light: #a78bfa;
-  --color-accent-blue: #6366f1;
-  --color-accent-magenta: #d946ef;
-  --color-accent-cyan: #22d3ee;
+  // Accents — blue + pink + purple balance
+  --color-accent-blue: #4f7cff;
+  --color-accent-blue-light: #7ba4ff;
+  --color-accent-purple: #9b6dff;
+  --color-accent-purple-light: #b794ff;
+  --color-accent-pink: #f472b6;
+  --color-accent-magenta: #e879f9;
+  --color-accent-cyan: #38bdf8;
 
   // Gradients
-  --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #d946ef 100%);
-  --gradient-brand-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.25) 45%, rgba(217, 70, 239, 0.25) 100%);
-  --gradient-radial-glow: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.35), transparent 60%);
+  --gradient-brand: linear-gradient(135deg, #4f7cff 0%, #9b6dff 42%, #f472b6 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(79, 124, 255, 0.22) 0%, rgba(155, 109, 255, 0.2) 42%, rgba(244, 114, 182, 0.18) 100%);
+  --gradient-radial-glow: radial-gradient(circle at 50% 0%, rgba(79, 124, 255, 0.3), transparent 60%);
   --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
 
   // Feedback
