@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
 import type { ServiceItem } from '../../../../shared/models/service-item.model';
-import { scrollToSection } from '../../../../shared/utils/scroll-to.util';
+import { scrollToConfigurator } from '../../../../shared/utils/scroll-to.util';
 
 const SERVICES: readonly ServiceItem[] = [
   {
@@ -52,6 +52,6 @@ export class ServicesSectionComponent {
   readonly supporting: readonly ServiceItem[] = SERVICES.filter((service) => service.id !== HIGHLIGHTED_ID);
 
   goToConfigurator(): void {
-    scrollToSection('configurator');
+    scrollToConfigurator();
   }
 }

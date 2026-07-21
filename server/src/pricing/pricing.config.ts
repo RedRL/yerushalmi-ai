@@ -55,21 +55,31 @@ export const PRODUCT_INCLUDES_VIDEO: Record<MainProductId, boolean> = {
 
 export const VIDEO_SOURCE_PRICES: Record<VideoSourceId, { labelHe: string; price: number }> = {
   customer_photos: { labelHe: 'מתמונות שהלקוח מספק', price: 0 },
-  customer_videos: { labelHe: 'עריכה מסרטונים אמיתיים שהלקוח מספק', price: 0 },
-  mixed: { labelHe: 'שילוב תמונות אמיתיות ויצירת AI', price: 200 },
-  ai_only: { labelHe: 'יצירת כל הוויזואליה באמצעות AI', price: 400 },
+  customer_videos: { labelHe: 'עריכה מתמונות ו/או סרטונים אמיתיים שהלקוח מספק', price: 0 },
+  mixed: { labelHe: 'שילוב חלקי של סרטוני AI שלא ממה שסיפק הלקוח', price: 100 },
+  ai_only: { labelHe: 'רוב או כל הסרטון מסרטוני AI שלא מהחומרים שסיפק הלקוח', price: 200 },
 };
 
 export const SONG_LENGTH_PRICES: Record<SongLengthId, { labelHe: string; price: number }> = {
   up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
-  up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
-  up_to_4_min: { labelHe: 'כ-4 דקות', price: 300 },
+  up_to_3_min: { labelHe: 'כ-3 דקות', price: 50 },
+  up_to_4_min: { labelHe: 'כ-4 דקות', price: 100 },
 };
+
+export const SONG_LENGTH_FULL_EXPERIENCE_PRICES: Record<SongLengthId, { labelHe: string; price: number }> = {
+  up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
+  up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
+  up_to_4_min: { labelHe: 'כ-4 דקות', price: 400 },
+};
+
+export function usesCombinedSongVideoLength(mainProduct: MainProductId): boolean {
+  return mainProduct === 'video_new_song';
+}
 
 export const VIDEO_LENGTH_PRICES: Record<VideoLengthId, { labelHe: string; price: number }> = {
   up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
   up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
-  up_to_4_min: { labelHe: 'כ-4 דקות', price: 300 },
+  up_to_4_min: { labelHe: 'כ-4 דקות', price: 400 },
 };
 
 export const VIDEO_FORMAT_PRICES: Record<VideoFormatId, { labelHe: string; price: number }> = {

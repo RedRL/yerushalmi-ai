@@ -3,6 +3,7 @@ export type ConfiguratorStepId =
   | 'song'
   | 'video'
   | 'details'
+  | 'extras'
   | 'upload'
   | 'summary'
   | 'contact';
@@ -14,9 +15,10 @@ export interface ConfiguratorStepDef {
 
 export const CONFIGURATOR_STEPS: readonly ConfiguratorStepDef[] = [
   { id: 'product', labelHe: 'סוג הפרויקט' },
+  { id: 'details', labelHe: 'הסיפור' },
   { id: 'song', labelHe: 'השיר' },
   { id: 'video', labelHe: 'הסרטון' },
-  { id: 'details', labelHe: 'הסיפור' },
+  { id: 'extras', labelHe: 'פרטים נוספים' },
   { id: 'upload', labelHe: 'חומרים' },
   { id: 'summary', labelHe: 'סיכום' },
   { id: 'contact', labelHe: 'פרטי קשר' },

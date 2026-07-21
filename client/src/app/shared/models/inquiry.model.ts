@@ -53,6 +53,7 @@ export interface InquiryUploadedFilePayload {
 export interface InquiryConsentsPayload {
   mediaRights: true;
   contactPermission: true;
+  termsAccepted: true;
   musicRights?: boolean;
 }
 

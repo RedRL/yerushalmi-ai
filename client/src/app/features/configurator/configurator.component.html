@@ -1,71 +1,137 @@
 <section id="configurator" class="configurator">
+
   <app-section-heading
     appReveal
+    [fullWidth]="true"
     eyebrow="בניית הפרויקט"
-    heading="בניית הפרויקט שלכם"
     subtitle="עוברים שלב אחר שלב, רואים מחיר משוער בזמן אמת, ושולחים בקשה מפורטת בלי שום התחייבות."
   />
 
+
+
   <div class="configurator__layout" appReveal>
+
     <div class="configurator__panel">
+
       <app-configurator-progress />
 
-      <div class="configurator__body">
+
+
+      <div
+        class="configurator__body"
+        [class.configurator__body--scrollable]="store.currentStep().id === 'upload'"
+      >
+
         @switch (store.currentStep().id) {
+
           @case ('product') {
+
             <app-product-step />
+
           }
+
           @case ('song') {
+
             <app-song-step />
+
           }
+
           @case ('video') {
+
             <app-video-step />
+
           }
+
           @case ('details') {
+
             <app-project-details-step />
+
           }
+
+          @case ('extras') {
+
+            <app-optional-details-step />
+
+          }
+
           @case ('upload') {
+
             <app-upload-step />
+
           }
+
           @case ('summary') {
+
             <app-summary-step />
+
           }
+
           @case ('contact') {
+
             <app-contact-step />
+
           }
+
         }
+
       </div>
 
+
+
       @if (!store.submitResult()) {
-        @if (store.mainProduct() && !isFinalStep && !showSidebarPrice) {
-          <div class="configurator__price-preview" aria-live="polite">
-            <span>הערכת מחיר נוכחית</span>
-            <strong>₪{{ store.priceBreakdown()?.total ?? 0 }}</strong>
-          </div>
-        }
 
         <div class="configurator__nav">
-          <button type="button" class="configurator__nav-back" [disabled]="isFirstStep" (click)="store.goBack()">
+
+          <button type="button" class="configurator__nav-back" [disabled]="isFirstStep" (click)="goBack()">
+
             הקודם
+
           </button>
+
           @if (!isFinalStep) {
+
             <button
+
               type="button"
+
               class="configurator__nav-next"
+
               [disabled]="!store.isCurrentStepValid()"
-              (click)="store.goNext()"
+
+              (click)="goNext()"
+
             >
+
               הבא
+
             </button>
+
           }
+
         </div>
+
       }
+
     </div>
 
+
+
     @if (showSidebarPrice) {
+
       <aside class="configurator__sidebar" aria-label="סיכום מחיר">
-        <app-price-summary [breakdown]="store.priceBreakdown()" [mainProductId]="store.mainProduct()" />
+
+        <app-price-summary
+          [breakdown]="store.priceBreakdown()"
+          [originalTotal]="store.originalPriceTotal()"
+          [mainProductId]="store.mainProduct()"
+        />
+
       </aside>
+
     }
+
   </div>
+
 </section>
+
+

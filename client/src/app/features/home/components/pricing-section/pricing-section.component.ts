@@ -4,7 +4,7 @@ import { SectionHeadingComponent } from '../../../../shared/components/section-h
 import { PackageCardComponent } from '../../../../shared/components/package-card/package-card.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
 import type { MainProductId } from '../../../../shared/models/pricing.model';
-import { scrollToSection } from '../../../../shared/utils/scroll-to.util';
+import { scrollToConfigurator } from '../../../../shared/utils/scroll-to.util';
 import { ConfiguratorStoreService } from '../../../configurator/state/configurator-store.service';
 
 @Component({
@@ -21,6 +21,6 @@ export class PricingSectionComponent {
 
   startWithPackage(id: MainProductId): void {
     this.store.beginWithPackage(id);
-    scrollToSection('configurator');
+    scrollToConfigurator();
   }
 }

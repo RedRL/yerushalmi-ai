@@ -1,0 +1,56 @@
+:root {
+  --scrollbar-size: 8px;
+  --scrollbar-track: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(155, 109, 255, 0.55);
+  --scrollbar-thumb-hover: rgba(123, 164, 255, 0.8);
+}
+
+@mixin app-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+
+  &::-webkit-scrollbar {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: var(--radius-full);
+    margin-block: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(123, 164, 255, 0.72) 0%,
+      rgba(155, 109, 255, 0.78) 50%,
+      rgba(244, 114, 182, 0.68) 100%
+    );
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    min-height: 2.5rem;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(123, 164, 255, 0.95) 0%,
+      rgba(183, 148, 255, 0.95) 50%,
+      rgba(244, 114, 182, 0.88) 100%
+    );
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/** RTL scroll containers — scrollbar sits on the physical left; keep content padded from the right only. */
+@mixin scroll-area-rtl {
+  direction: rtl;
+  padding-inline-start: var(--space-2);
+  padding-inline-end: 0;
+}

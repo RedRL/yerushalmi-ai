@@ -10,10 +10,17 @@ import type { MainProductId, PriceBreakdown } from '../../models/pricing.model';
 })
 export class PriceSummaryComponent {
   readonly breakdown = input<PriceBreakdown | null>(null);
+  readonly originalTotal = input<number | null>(null);
   readonly compact = input(false);
   readonly mainProductId = input<MainProductId | null>(null);
 
   readonly justUpdated = signal(false);
+
+  readonly showIntroPricing = computed(() => {
+    const intro = this.breakdown()?.total;
+    const original = this.originalTotal();
+    return intro != null && original != null && original > intro;
+  });
 
   readonly packageInfo = computed(() => {
     const id = this.mainProductId();

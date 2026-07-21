@@ -140,6 +140,7 @@ export function buildInquiryEmailHtml(payload: InquiryInput, breakdown: PriceBre
         <table role="presentation" width="100%">
           ${row('הרשאת שימוש בחומרים', payload.consents.mediaRights ? 'כן' : 'לא')}
           ${row('אישור חזרה', payload.consents.contactPermission ? 'כן' : 'לא')}
+          ${row('אישור תקנון', payload.consents.termsAccepted ? 'כן' : 'לא')}
           ${payload.consents.musicRights !== undefined ? row('הרשאת שימוש בשיר קיים', payload.consents.musicRights ? 'כן' : 'לא') : ''}
         </table>
 

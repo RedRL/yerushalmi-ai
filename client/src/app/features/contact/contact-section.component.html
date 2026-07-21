@@ -17,35 +17,43 @@
       <form class="contact__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <div class="contact__fields">
           <div class="field">
-            <label class="field__label" for="simpleContactName">שם *</label>
-            <input id="simpleContactName" class="field__control" formControlName="name" autocomplete="name" />
-            @if (form.controls.name.invalid && form.controls.name.touched) {
-              <span class="field__error">נא להזין שם</span>
-            }
+            <div class="field__label-row">
+              <label class="field__label" for="simpleContactName">שם *</label>
+              @if (form.controls.name.invalid && form.controls.name.touched) {
+                <span class="field__error">נא להזין שם</span>
+              }
+            </div>
+            <input id="simpleContactName" class="field__control" formControlName="name" autocomplete="name" [maxlength]="limits.contactName" />
           </div>
 
           <div class="field">
-            <label class="field__label" for="simpleContactPhone">טלפון *</label>
-            <input id="simpleContactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" />
-            @if (form.controls.phone.invalid && form.controls.phone.touched) {
-              <span class="field__error">נא להזין מספר טלפון תקין</span>
-            }
+            <div class="field__label-row">
+              <label class="field__label" for="simpleContactPhone">טלפון *</label>
+              @if (form.controls.phone.invalid && form.controls.phone.touched) {
+                <span class="field__error">נא להזין מספר טלפון תקין</span>
+              }
+            </div>
+            <input id="simpleContactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" [maxlength]="limits.contactPhone" />
           </div>
 
           <div class="field">
-            <label class="field__label" for="simpleContactEmail">אימייל *</label>
-            <input id="simpleContactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" />
-            @if (form.controls.email.invalid && form.controls.email.touched) {
-              <span class="field__error">נא להזין כתובת אימייל תקינה</span>
-            }
+            <div class="field__label-row">
+              <label class="field__label" for="simpleContactEmail">אימייל *</label>
+              @if (form.controls.email.invalid && form.controls.email.touched) {
+                <span class="field__error">נא להזין כתובת אימייל תקינה</span>
+              }
+            </div>
+            <input id="simpleContactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" [maxlength]="limits.contactEmail" />
           </div>
 
           <div class="field contact__message-field">
-            <label class="field__label" for="simpleContactMessage">הודעה *</label>
-            <textarea id="simpleContactMessage" class="field__control" formControlName="message" rows="4" placeholder="ספרו בקצרה על מה שאתם מחפשים..."></textarea>
-            @if (form.controls.message.invalid && form.controls.message.touched) {
-              <span class="field__error">נא לכתוב הודעה קצרה</span>
-            }
+            <div class="field__label-row">
+              <label class="field__label" for="simpleContactMessage">הודעה *</label>
+              @if (form.controls.message.invalid && form.controls.message.touched) {
+                <span class="field__error">נא לכתוב הודעה קצרה</span>
+              }
+            </div>
+            <textarea id="simpleContactMessage" class="field__control" formControlName="message" rows="4" placeholder="ספרו בקצרה על מה שאתם מחפשים..." [maxlength]="limits.simpleContactMessage"></textarea>
           </div>
         </div>
 

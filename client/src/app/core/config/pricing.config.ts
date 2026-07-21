@@ -58,7 +58,7 @@ export const MAIN_PRODUCT_OPTIONS: readonly MainProductOption[] = [
   {
     id: 'video_existing_song',
     titleHe: 'סרטון עם שיר לבחירתכם',
-    descriptionHe: 'הופכים את השיר שאתם אוהבים לסרטון מרגש ומרשים שמספר את הסיפור שלכם.',
+    descriptionHe: 'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
   },
   {
     id: 'video_new_song',
@@ -92,21 +92,58 @@ export const SONG_STYLE_OPTIONS: readonly string[] = [
 ];
 
 export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[] = [
-  { id: 'customer_videos', labelHe: 'עריכה מסרטונים אמיתיים שהלקוח מספק', descriptionHe: 'עריכה מוזיקלית מקטעי וידאו שסיפקתם.', price: 0 },
-  { id: 'mixed', labelHe: 'שילוב תמונות אמיתיות ויצירת AI', descriptionHe: 'שילוב של תמונות שהועלו וסצנות AI חדשות.', price: 200 },
-  { id: 'ai_only', labelHe: 'יצירת כל הוויזואליה באמצעות AI', descriptionHe: 'הסצנות נוצרות מהתיאור והסיפור, בלי צורך בתמונות.', price: 400 },
+  {
+    id: 'customer_videos',
+    labelHe: 'עריכה מתמונות ו/או סרטונים אמיתיים שהלקוח מספק',
+    descriptionHe: 'עריכה מוזיקלית מתמונות וקטעי וידאו שסיפקתם.',
+    price: 0,
+  },
+  {
+    id: 'mixed',
+    labelHe: 'שילוב חלקי של סרטוני AI שלא ממה שסיפק הלקוח',
+    descriptionHe: 'חלק מהסצנות נוצרות ב-AI, לצד חומרים שהעליתם.',
+    price: 100,
+  },
+  {
+    id: 'ai_only',
+    labelHe: 'קליפ מ-AI — ללא שימוש בחומרים שהעליתם',
+    descriptionHe: 'הסצנות נוצרות מהתיאור והסיפור, בלי להסתמך על החומרים שלכם.',
+    price: 200,
+  },
 ];
 
 export const SONG_LENGTH_OPTIONS: readonly PriceableOptionLike<SongLengthId>[] = [
   { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
-  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
-  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 300 },
+  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 50 },
+  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 100 },
 ];
+
+export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE: readonly PriceableOptionLike<SongLengthId>[] = [
+  { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
+  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
+  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 400 },
+];
+
+export function getSongLengthOptions(
+  mainProduct: MainProductId | null,
+): readonly PriceableOptionLike<SongLengthId>[] {
+  return mainProduct === 'video_new_song' ? SONG_LENGTH_OPTIONS_FULL_EXPERIENCE : SONG_LENGTH_OPTIONS;
+}
+
+export function getSongLengthPrice(mainProduct: MainProductId, lengthId: SongLengthId): number {
+  const options =
+    mainProduct === 'video_new_song' ? SONG_LENGTH_OPTIONS_FULL_EXPERIENCE : SONG_LENGTH_OPTIONS;
+  return options.find((option) => option.id === lengthId)?.price ?? 0;
+}
+
+export function usesCombinedSongVideoLength(mainProduct: MainProductId | null): boolean {
+  return mainProduct === 'video_new_song';
+}
 
 export const VIDEO_LENGTH_OPTIONS: readonly PriceableOptionLike<VideoLengthId>[] = [
   { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
   { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
-  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 300 },
+  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 400 },
 ];
 
 export const VIDEO_FORMAT_OPTIONS: readonly PriceableOptionLike<VideoFormatId>[] = [

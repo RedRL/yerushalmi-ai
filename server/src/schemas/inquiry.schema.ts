@@ -64,7 +64,7 @@ export const projectDetailsSchema = z.object({
   occupation: z.string().trim().max(200).optional(),
   peopleToMention: z.string().trim().max(500).optional(),
   desiredAtmosphere: z.string().trim().max(500).optional(),
-  story: z.string().trim().min(10, 'נא לשתף כמה שיותר פרטים על האדם והסיפור').max(5000),
+  story: z.string().trim().min(10, 'נא לשתף כמה שיותר פרטים על האדם והסיפור').max(800),
   additionalNotes: z.string().trim().max(2000).optional(),
 });
 
@@ -82,6 +82,9 @@ export const consentsSchema = z.object({
   }),
   contactPermission: z.literal(true, {
     message: 'יש לאשר חזרה בנוגע לבקשה',
+  }),
+  termsAccepted: z.literal(true, {
+    message: 'יש לאשר את תקנון השירות',
   }),
   musicRights: z.boolean().optional(),
 });
@@ -132,7 +135,7 @@ export const inquirySchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['consents', 'musicRights'],
-          message: 'יש לאשר הרשאת שימוש בשיר הקיים',
+          message: 'יש לאשר הרשאת שימוש בחומרים (כולל השיר הקיים)',
         });
       }
     }

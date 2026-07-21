@@ -1,0 +1,9 @@
+<div class="intro-price" [class.intro-price--compact]="compact()">
+  <span class="intro-price__current">₪{{ introTotal() }}</span>
+  @if (hasIntroDiscount()) {
+    <span class="intro-price__original">₪{{ originalTotal() }}</span>
+    @if (showBadge()) {
+      <span class="intro-price__badge">מחיר היכרות · לזמן מוגבל</span>
+    }
+  }
+</div>

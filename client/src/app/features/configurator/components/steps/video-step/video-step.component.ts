@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
   VIDEO_FORMAT_OPTIONS,
@@ -28,6 +28,9 @@ export class VideoStepComponent {
   readonly lengthOptions = VIDEO_LENGTH_OPTIONS;
   readonly formatOptions = VIDEO_FORMAT_OPTIONS;
   readonly subtitlesOptions = SUBTITLES_OPTIONS;
+
+  readonly hideVideoLength = computed(() => this.store.isFullExperience());
+  readonly showSongLengthHint = computed(() => this.store.requiresExistingSongRights());
 
   selectSource(id: VideoSourceId): void {
     this.store.videoForm.controls.source.setValue(id);

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, signal } from '@angular/core';
 import { NAV_LINKS, SITE_CONFIG, WHATSAPP_CONFIG } from '../../../core/config/site.config';
-import { scrollToSection } from '../../utils/scroll-to.util';
+import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
 
 @Component({
   selector: 'app-header',
@@ -33,6 +33,6 @@ export class HeaderComponent {
       return;
     }
 
-    scrollToSection(sectionId);
+    scrollToSectionFromNav(sectionId);
   }
 }

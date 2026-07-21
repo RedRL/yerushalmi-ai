@@ -12,14 +12,14 @@ import {
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
-import { scrollToSection } from '../../../../shared/utils/scroll-to.util';
+import { scrollToConfigurator, scrollToSectionFromNav } from '../../../../shared/utils/scroll-to.util';
 
 /** Dor 34 — background video for the hero stage. */
 const HERO_VIDEO_ID = '8LqiYpObWZc';
 
-/** Native pixel dimensions of `og-image-16-9-high res-short-large.png`. */
+/** Native pixel dimensions of `og-image-16-9-high res-shortest-large-centered.png`. */
 const BANNER_WIDTH = 3344;
-const BANNER_HEIGHT = 1508;
+const BANNER_HEIGHT = 1453;
 
 @Component({
   selector: 'app-hero',
@@ -34,7 +34,7 @@ export class HeroComponent implements AfterViewInit {
   private readonly bannerRef = viewChild<ElementRef<HTMLElement>>('banner');
   private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
 
-  readonly bannerImageUrl = '/og-image-16-9-high%20res-short-large.png';
+  readonly bannerImageUrl = '/og-image-16-9-high%20res-shortest-large-centered.png';
   readonly bannerWidth = BANNER_WIDTH;
   readonly bannerHeight = BANNER_HEIGHT;
   readonly heroPosterUrl = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;
@@ -110,14 +110,14 @@ export class HeroComponent implements AfterViewInit {
   }
 
   goToConfigurator(): void {
-    scrollToSection('configurator');
+    scrollToConfigurator();
   }
 
   goToPortfolio(): void {
-    scrollToSection('portfolio');
+    scrollToSectionFromNav('portfolio');
   }
 
   goToStage(): void {
-    scrollToSection('hero-stage');
+    scrollToSectionFromNav('hero-stage');
   }
 }

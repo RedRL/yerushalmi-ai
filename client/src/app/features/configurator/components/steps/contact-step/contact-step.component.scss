@@ -1,9 +1,20 @@
 @use 'mixins' as *;
 
+.consent-checkbox label a {
+  color: var(--color-accent-purple-light);
+  text-decoration: underline;
+}
+
+.contact-step form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
 .contact-step__consents {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .contact-step__error {

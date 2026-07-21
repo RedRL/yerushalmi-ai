@@ -1,0 +1,46 @@
+<div class="step optional-details-step" [formGroup]="store.projectDetailsForm">
+  <h3 class="step__title">עוד כמה פרטים שיעזרו (לא חובה)</h3>
+
+  <div class="field-grid step__section">
+    <div class="field">
+      <label class="field__label" for="age">גיל (אם רלוונטי)</label>
+      <input id="age" class="field__control" formControlName="age" [maxlength]="limits.age" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="relationship">הקשר שלכם לאדם</label>
+      <input
+        id="relationship"
+        class="field__control"
+        formControlName="relationship"
+        placeholder="בן/בת זוג, הורה..."
+        [maxlength]="limits.relationship"
+      />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="characterTraits">תכונות אופי</label>
+      <input id="characterTraits" class="field__control" formControlName="characterTraits" [maxlength]="limits.characterTraits" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="hobbies">תחביבים</label>
+      <input id="hobbies" class="field__control" formControlName="hobbies" [maxlength]="limits.hobbies" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="occupation">מקצוע או עיסוק</label>
+      <input id="occupation" class="field__control" formControlName="occupation" [maxlength]="limits.occupation" />
+    </div>
+
+    <div class="field field--full">
+      <label class="field__label" for="additionalNotes">מידע נוסף (כל דבר שתרצו להוסיף או לפרט עליו)</label>
+      <textarea
+        id="additionalNotes"
+        class="field__control optional-details-step__notes"
+        formControlName="additionalNotes"
+        [maxlength]="limits.projectAdditionalNotes"
+      ></textarea>
+    </div>
+  </div>
+</div>

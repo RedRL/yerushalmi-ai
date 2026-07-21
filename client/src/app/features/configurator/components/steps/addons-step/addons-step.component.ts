@@ -4,6 +4,7 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 
 @Component({
   selector: 'app-addons-step',
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './addons-step.component.html',
   styleUrl: './addons-step.component.scss',

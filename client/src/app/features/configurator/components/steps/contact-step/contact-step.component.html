@@ -1,4 +1,4 @@
-<div class="step">
+<div class="step contact-step">
   @if (store.submitResult(); as result) {
     <div class="contact-step__success" role="status" aria-live="polite">
       <h3 class="step__title">הבקשה נשלחה בהצלחה!</h3>
@@ -17,61 +17,100 @@
     </div>
   } @else {
     <h3 class="step__title">כמעט סיימנו - איך נחזור אליכם?</h3>
-    <p class="step__description">אלו הפרטים שדרכם אחזור אליכם לאחר קבלת הבקשה.</p>
 
     <form [formGroup]="store.contactForm" (ngSubmit)="submit()">
-      <div class="field-grid step__section">
+      <div class="field-grid field-grid--pair step__section">
         <div class="field">
-          <label class="field__label" for="contactName">שם מלא *</label>
-          <input id="contactName" class="field__control" formControlName="name" autocomplete="name" />
-          @if (store.contactForm.controls.name.invalid && store.contactForm.controls.name.touched) {
-            <span class="field__error">נא להזין שם מלא</span>
-          }
+          <div class="field__label-row">
+            <label class="field__label" for="contactName">שם מלא *</label>
+            @if (store.contactForm.controls.name.invalid && store.contactForm.controls.name.touched) {
+              <span class="field__error">נא להזין שם מלא</span>
+            }
+          </div>
+          <input id="contactName" class="field__control" formControlName="name" autocomplete="name" [maxlength]="limits.contactName" />
         </div>
 
         <div class="field">
-          <label class="field__label" for="contactPhone">טלפון *</label>
-          <input id="contactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" />
-          @if (store.contactForm.controls.phone.invalid && store.contactForm.controls.phone.touched) {
-            <span class="field__error">נא להזין מספר טלפון תקין</span>
-          }
+          <div class="field__label-row">
+            <label class="field__label" for="contactPhone">טלפון *</label>
+            @if (store.contactForm.controls.phone.invalid && store.contactForm.controls.phone.touched) {
+              <span class="field__error">נא להזין מספר טלפון תקין</span>
+            }
+          </div>
+          <input id="contactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" [maxlength]="limits.contactPhone" />
         </div>
-      </div>
 
-      <div class="field-grid step__section">
         <div class="field">
-          <label class="field__label" for="contactEmail">מייל (אופציונלי)</label>
-          <input id="contactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" />
-          @if (store.contactForm.controls.email.invalid && store.contactForm.controls.email.touched) {
-            <span class="field__error">כתובת אימייל לא תקינה</span>
-          }
+          <div class="field__label-row">
+            <label class="field__label" for="contactEmail">מייל *</label>
+            @if (store.contactForm.controls.email.invalid && store.contactForm.controls.email.touched) {
+              <span class="field__error">
+                @if (store.contactForm.controls.email.hasError('required')) {
+                  נא להזין כתובת אימייל
+                } @else {
+                  כתובת אימייל לא תקינה
+                }
+              </span>
+            }
+          </div>
+          <input id="contactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" [maxlength]="limits.contactEmail" />
         </div>
-      </div>
 
-      <div class="field step__section">
-        <label class="field__label" for="contactMessage">הודעה נוספת (אופציונלי)</label>
-        <textarea id="contactMessage" class="field__control" formControlName="message" rows="3"></textarea>
+        <div class="field">
+          <label class="field__label" for="contactMessage">הודעה נוספת (אופציונלי)</label>
+          <input id="contactMessage" class="field__control" formControlName="message" [maxlength]="limits.contactMessage" />
+        </div>
       </div>
 
       <div class="step__section contact-step__consents">
         <div class="consent-checkbox">
           <input id="mediaRightsConsent" type="checkbox" formControlName="mediaRightsConsent" />
-          <label for="mediaRightsConsent">
-            אני מאשר/ת שיש לי הרשאה להשתמש ולשלוח את התמונות, הסרטונים, קובצי האודיו והמידע שסיפקתי.
-          </label>
+          <div class="consent-checkbox__content">
+            <div class="field__label-row">
+              <label for="mediaRightsConsent">
+                אני מאשר/ת שיש לי הרשאה להשתמש ולשלוח את התמונות, הסרטונים, קובצי האודיו והמידע שסיפקתי. *
+              </label>
+              @if (store.contactForm.controls.mediaRightsConsent.touched) {
+                <span
+                  class="field__error"
+                  [class.field__error--hidden]="store.contactForm.controls.mediaRightsConsent.valid"
+                >נא לאשר</span>
+              }
+            </div>
+          </div>
         </div>
 
         <div class="consent-checkbox">
           <input id="contactPermissionConsent" type="checkbox" formControlName="contactPermissionConsent" />
-          <label for="contactPermissionConsent">אני מאשר/ת שיחזרו אליי בנוגע לבקשה.</label>
+          <div class="consent-checkbox__content">
+            <div class="field__label-row">
+              <label for="contactPermissionConsent">אני מאשר/ת שיחזרו אליי בנוגע לבקשה. *</label>
+              @if (store.contactForm.controls.contactPermissionConsent.touched) {
+                <span
+                  class="field__error"
+                  [class.field__error--hidden]="store.contactForm.controls.contactPermissionConsent.valid"
+                >נא לאשר</span>
+              }
+            </div>
+          </div>
         </div>
 
-        @if (store.requiresExistingSongRights()) {
-          <div class="consent-checkbox">
-            <input id="musicRightsConsent" type="checkbox" formControlName="musicRightsConsent" />
-            <label for="musicRightsConsent">אני מאשר/ת שיש לי הרשאה להשתמש בשיר או בחומר המוזיקלי שסיפקתי.</label>
+        <div class="consent-checkbox">
+          <input id="termsConsent" type="checkbox" formControlName="termsConsent" />
+          <div class="consent-checkbox__content">
+            <div class="field__label-row">
+              <label for="termsConsent">
+                אני מאשר/ת שקראתי והסכמתי ל<a href="/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a>. *
+              </label>
+              @if (store.contactForm.controls.termsConsent.touched) {
+                <span
+                  class="field__error"
+                  [class.field__error--hidden]="store.contactForm.controls.termsConsent.valid"
+                >נא לאשר</span>
+              }
+            </div>
           </div>
-        }
+        </div>
       </div>
 
       @if (store.submitError()) {

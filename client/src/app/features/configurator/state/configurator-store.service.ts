@@ -4,13 +4,20 @@ import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { firstValueFrom, merge } from 'rxjs';
 
 import { InquiryApiService } from '../../../core/services/inquiry-api.service';
-import { PricingCalculatorService } from '../../../core/services/pricing-calculator.service';
+import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
 import { ADDON_OPTIONS } from '../../../core/config/pricing.config';
 import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
+import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
+import {
+  clearConfiguratorState,
+  loadConfiguratorState,
+  saveConfiguratorState,
+  type PersistedConfiguratorState,
+} from './configurator-persistence.util';
 
 function splitToList(value: string): string[] {
   return value
@@ -69,16 +76,16 @@ export class ConfiguratorStoreService {
 
   readonly songForm = this.fb.group({
     style: this.fb.control(''),
-    customStyle: this.fb.control(''),
-    mood: this.fb.control(''),
-    length: this.fb.control<SongLengthId | ''>(''),
-    namesToInclude: this.fb.control(''),
-    importantWords: this.fb.control(''),
-    excludedTopics: this.fb.control(''),
-    additionalNotes: this.fb.control(''),
-    existingSongName: this.fb.control(''),
-    existingSongArtist: this.fb.control(''),
-    existingSongLink: this.fb.control(''),
+    customStyle: this.fb.control('', Validators.maxLength(FIELD_LIMITS.customStyle)),
+    mood: this.fb.control('', Validators.maxLength(FIELD_LIMITS.mood)),
+    length: this.fb.control<SongLengthId | ''>('up_to_2_min'),
+    namesToInclude: this.fb.control('', Validators.maxLength(FIELD_LIMITS.namesToInclude)),
+    importantWords: this.fb.control('', Validators.maxLength(FIELD_LIMITS.importantWords)),
+    excludedTopics: this.fb.control('', Validators.maxLength(FIELD_LIMITS.excludedTopics)),
+    additionalNotes: this.fb.control('', Validators.maxLength(FIELD_LIMITS.songAdditionalNotes)),
+    existingSongName: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongName)),
+    existingSongArtist: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongArtist)),
+    existingSongLink: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongLink)),
   });
 
   readonly videoForm = this.fb.group({
@@ -89,38 +96,44 @@ export class ConfiguratorStoreService {
   });
 
   readonly projectDetailsForm = this.fb.group({
-    personName: this.fb.control('', Validators.required),
-    occasion: this.fb.control('', Validators.required),
-    age: this.fb.control(''),
-    relationship: this.fb.control(''),
-    characterTraits: this.fb.control(''),
-    hobbies: this.fb.control(''),
-    occupation: this.fb.control(''),
-    peopleToMention: this.fb.control(''),
-    desiredAtmosphere: this.fb.control(''),
-    story: this.fb.control('', [Validators.required, Validators.minLength(10)]),
-    additionalNotes: this.fb.control(''),
+    personName: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.personName)]),
+    occasion: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.occasion)]),
+    age: this.fb.control('', Validators.maxLength(FIELD_LIMITS.age)),
+    relationship: this.fb.control('', Validators.maxLength(FIELD_LIMITS.relationship)),
+    characterTraits: this.fb.control('', Validators.maxLength(FIELD_LIMITS.characterTraits)),
+    hobbies: this.fb.control('', Validators.maxLength(FIELD_LIMITS.hobbies)),
+    occupation: this.fb.control('', Validators.maxLength(FIELD_LIMITS.occupation)),
+    peopleToMention: this.fb.control('', Validators.maxLength(FIELD_LIMITS.peopleToMention)),
+    desiredAtmosphere: this.fb.control('', Validators.maxLength(FIELD_LIMITS.desiredAtmosphere)),
+    story: this.fb.control('', [
+      Validators.required,
+      Validators.minLength(10),
+      Validators.maxLength(FIELD_LIMITS.story),
+    ]),
+    additionalNotes: this.fb.control('', Validators.maxLength(FIELD_LIMITS.projectAdditionalNotes)),
   });
 
   readonly contactForm = this.fb.group({
-    name: this.fb.control('', Validators.required),
-    phone: this.fb.control('', [Validators.required, Validators.pattern(/^[0-9+\-\s()]{7,20}$/)]),
-    email: this.fb.control('', {
-      validators: [
-        (control) => {
-          const value = control.value?.trim?.() ?? control.value;
-          if (!value) return null;
-          return Validators.email(control);
-        },
-      ],
-    }),
-    message: this.fb.control(''),
-    mediaRightsConsent: this.fb.control(false),
-    contactPermissionConsent: this.fb.control(false),
-    musicRightsConsent: this.fb.control(false),
+    name: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.contactName)]),
+    phone: this.fb.control('', [
+      Validators.required,
+      Validators.pattern(/^[0-9+\-\s()]{7,20}$/),
+      Validators.maxLength(FIELD_LIMITS.contactPhone),
+    ]),
+    email: this.fb.control('', [
+      Validators.required,
+      Validators.email,
+      Validators.maxLength(FIELD_LIMITS.contactEmail),
+    ]),
+    message: this.fb.control('', Validators.maxLength(FIELD_LIMITS.contactMessage)),
+    mediaRightsConsent: this.fb.control(false, Validators.requiredTrue),
+    contactPermissionConsent: this.fb.control(false, Validators.requiredTrue),
+    termsConsent: this.fb.control(false, Validators.requiredTrue),
   });
 
   constructor() {
+    this.restorePersistedState();
+
     merge(
       this.songForm.valueChanges,
       this.videoForm.valueChanges,
@@ -128,7 +141,18 @@ export class ConfiguratorStoreService {
       this.contactForm.valueChanges,
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.formRevision.update((value) => value + 1));
+      .subscribe(() => {
+        this.formRevision.update((value) => value + 1);
+        this.persistState();
+      });
+
+    this.songForm.controls.length.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((length) => {
+        if (this.mainProduct() === 'video_new_song' && isSongLengthId(length)) {
+          this.videoForm.controls.length.setValue(length, { emitEvent: false });
+        }
+      });
   }
 
   private songValue() {
@@ -153,6 +177,8 @@ export class ConfiguratorStoreService {
 
   readonly selectedSongStyles = computed(() => parseSongStyles(this.songValue().style));
 
+  readonly isFullExperience = computed(() => this.mainProduct() === 'video_new_song');
+
   readonly includesNewSong = computed(
     () => this.mainProduct() === 'song_only' || this.mainProduct() === 'video_new_song',
   );
@@ -163,7 +189,10 @@ export class ConfiguratorStoreService {
 
   readonly requiresUploadStep = computed(() => {
     const source = this.videoValue().source;
-    return this.includesVideo() && (source === 'mixed' || source === 'customer_videos');
+    return (
+      this.includesVideo() &&
+      (source === 'customer_photos' || source === 'mixed' || source === 'customer_videos')
+    );
   });
 
   readonly visibleSteps = computed(() =>
@@ -187,17 +216,35 @@ export class ConfiguratorStoreService {
     this.mainProduct() ? this.pricingCalculator.calculate(this.pricingSelection()) : null,
   );
 
+  readonly originalPriceTotal = computed<number | null>(() =>
+    this.mainProduct() ? this.pricingCalculator.calculateOriginal(this.pricingSelection()).total : null,
+  );
+
+  estimateTotals(overrides: Partial<PricingSelection> = {}): PriceTotals {
+    const current = this.pricingSelection();
+    const selection: PricingSelection = {
+      ...current,
+      ...overrides,
+      addons: overrides.addons ?? current.addons,
+    };
+    return this.pricingCalculator.estimateTotals(selection);
+  }
+
   readonly isProductStepValid = computed(() => this.mainProduct() !== null);
 
   readonly isSongStepValid = computed(() => {
     if (!this.mainProduct()) return false;
     const value = this.songValue();
+    if (this.songForm.controls.additionalNotes.invalid) return false;
     if (this.requiresExistingSongRights()) {
       return value.existingSongName.trim().length > 0;
     }
     if (this.includesNewSong()) {
       const styles = parseSongStyles(value.style);
-      return styles.length > 0 || value.customStyle.trim().length > 0;
+      if (styles.length === 0) return false;
+      const onlyOther = styles.length === 1 && styles[0] === 'אחר';
+      if (onlyOther) return value.customStyle.trim().length > 0;
+      return true;
     }
     return true;
   });
@@ -221,21 +268,16 @@ export class ConfiguratorStoreService {
     return files.some((file) => file.type === 'image');
   });
 
+  readonly isExtrasStepValid = computed(() => {
+    this.formRevision();
+    return this.projectDetailsForm.valid;
+  });
+
   readonly isSummaryStepValid = computed(() => true);
 
   readonly isContactStepValid = computed(() => {
-    const value = this.contactValue();
-    const baseValid =
-      this.contactForm.controls.name.valid &&
-      this.contactForm.controls.phone.valid &&
-      this.contactForm.controls.email.valid &&
-      value.mediaRightsConsent &&
-      value.contactPermissionConsent;
-
-    if (this.requiresExistingSongRights()) {
-      return baseValid && value.musicRightsConsent;
-    }
-    return baseValid;
+    this.formRevision();
+    return this.contactForm.valid;
   });
 
   isStepVisible(id: ConfiguratorStepId): boolean {
@@ -259,6 +301,8 @@ export class ConfiguratorStoreService {
         return this.isVideoStepValid();
       case 'details':
         return this.isDetailsStepValid();
+      case 'extras':
+        return this.isExtrasStepValid();
       case 'upload':
         return this.isUploadStepValid();
       case 'summary':
@@ -280,11 +324,13 @@ export class ConfiguratorStoreService {
 
   selectMainProduct(id: MainProductId): void {
     this.mainProduct.set(id);
+    this.persistState();
   }
 
   beginWithPackage(id: MainProductId): void {
     this.mainProduct.set(id);
     this.currentStepIndex.set(1);
+    this.persistState();
   }
 
   isSongStyleSelected(style: string): boolean {
@@ -299,9 +345,6 @@ export class ConfiguratorStoreService {
         ? current.filter((item) => item !== 'אחר')
         : [...current, 'אחר'];
       this.songForm.controls.style.setValue(joinSongStyles(next));
-      if (!next.includes('אחר')) {
-        this.songForm.controls.customStyle.setValue('');
-      }
     } else {
       const next = current.includes(style)
         ? current.filter((item) => item !== style)
@@ -338,18 +381,43 @@ export class ConfiguratorStoreService {
   }
 
   goNext(): void {
-    if (!this.isCurrentStepValid()) return;
+    if (!this.isCurrentStepValid()) {
+      this.markCurrentStepTouched();
+      return;
+    }
     const total = this.visibleSteps().length;
     this.currentStepIndex.update((index) => Math.min(index + 1, total - 1));
+    this.persistState();
+  }
+
+  private markCurrentStepTouched(): void {
+    const stepId = this.currentStep()?.id;
+    switch (stepId) {
+      case 'details':
+      case 'extras':
+        this.projectDetailsForm.markAllAsTouched();
+        break;
+      case 'contact':
+        this.contactForm.markAllAsTouched();
+        break;
+      case 'song':
+        this.songForm.controls.style.markAsTouched();
+        break;
+      default:
+        break;
+    }
+    this.formRevision.update((value) => value + 1);
   }
 
   goBack(): void {
     this.currentStepIndex.update((index) => Math.max(index - 1, 0));
+    this.persistState();
   }
 
   goToStep(index: number): void {
     if (index <= this.currentStepIndex()) {
       this.currentStepIndex.set(index);
+      this.persistState();
       return;
     }
 
@@ -358,6 +426,7 @@ export class ConfiguratorStoreService {
       if (!step || !this.isStepValid(step.id)) return;
     }
     this.currentStepIndex.set(index);
+    this.persistState();
   }
 
   private buildInquiryPayload(): InquiryPayload {
@@ -373,7 +442,7 @@ export class ConfiguratorStoreService {
       contact: {
         name: contact.name.trim(),
         phone: contact.phone.trim(),
-        email: undefinedIfEmpty(contact.email),
+        email: contact.email.trim(),
       },
       mainProduct,
       addons: this.addons(),
@@ -396,15 +465,17 @@ export class ConfiguratorStoreService {
       consents: {
         mediaRights: true,
         contactPermission: true,
-        musicRights: this.requiresExistingSongRights() ? contact.musicRightsConsent : undefined,
+        termsAccepted: true,
+        musicRights: this.requiresExistingSongRights() ? true : undefined,
       },
       clientPricePreview: { total: this.priceBreakdown()?.total ?? 0 },
     };
 
     if (this.includesNewSong() || this.requiresExistingSongRights()) {
+      const styles = parseSongStyles(song.style);
       payload.song = {
         style: undefinedIfEmpty(song.style),
-        customStyle: undefinedIfEmpty(song.customStyle),
+        customStyle: styles.includes('אחר') ? undefinedIfEmpty(song.customStyle) : undefined,
         mood: undefinedIfEmpty(song.mood),
         length: undefinedIfEmpty(song.length),
         namesToInclude: splitToList(song.namesToInclude),
@@ -440,6 +511,7 @@ export class ConfiguratorStoreService {
         inquiryId: response.data.inquiryId,
         priceBreakdown: response.data.priceBreakdown,
       });
+      clearConfiguratorState();
     } catch (error) {
       this.submitError.set(error instanceof Error ? error.message : 'שליחת הבקשה נכשלה. נסו שוב.');
     } finally {
@@ -457,7 +529,7 @@ export class ConfiguratorStoreService {
       style: '',
       customStyle: '',
       mood: '',
-      length: '',
+      length: 'up_to_2_min',
       namesToInclude: '',
       importantWords: '',
       excludedTopics: '',
@@ -475,10 +547,51 @@ export class ConfiguratorStoreService {
       message: '',
       mediaRightsConsent: false,
       contactPermissionConsent: false,
-      musicRightsConsent: false,
+      termsConsent: false,
     });
     this.submitError.set(null);
     this.submitResult.set(null);
+    clearConfiguratorState();
+  }
+
+  private persistState(): void {
+    if (this.submitResult()) return;
+
+    const state: PersistedConfiguratorState = {
+      currentStepIndex: this.currentStepIndex(),
+      mainProduct: this.mainProduct(),
+      addons: this.addons(),
+      songForm: this.songForm.getRawValue() as Record<string, string>,
+      videoForm: this.videoForm.getRawValue(),
+      projectDetailsForm: this.projectDetailsForm.getRawValue(),
+      contactForm: this.contactForm.getRawValue(),
+      uploadedFiles: this.uploadedFiles().map((file) => ({
+        id: file.id,
+        type: file.type,
+        name: file.name,
+        storageKey: file.storageKey,
+        url: file.url,
+        status: file.status,
+        sizeBytes: file.sizeBytes,
+        errorMessageHe: file.errorMessageHe,
+      })),
+    };
+    saveConfiguratorState(state);
+  }
+
+  private restorePersistedState(): void {
+    const saved = loadConfiguratorState();
+    if (!saved) return;
+
+    if (saved.mainProduct) this.mainProduct.set(saved.mainProduct);
+    this.addons.set(saved.addons ?? []);
+    this.currentStepIndex.set(saved.currentStepIndex ?? 0);
+    this.songForm.patchValue(saved.songForm ?? {}, { emitEvent: false });
+    this.videoForm.patchValue(saved.videoForm as typeof this.videoForm.value, { emitEvent: false });
+    this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
+    this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });
+    this.uploadedFiles.set((saved.uploadedFiles ?? []) as UploadedFileReference[]);
+    this.formRevision.update((value) => value + 1);
   }
 
   generateFileId(): string {

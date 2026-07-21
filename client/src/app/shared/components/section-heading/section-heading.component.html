@@ -1,8 +1,10 @@
-<div class="section-heading" [class.section-heading--start]="align() === 'start'">
+<div class="section-heading" [class.section-heading--start]="align() === 'start'" [class.section-heading--full]="fullWidth()">
   @if (eyebrow()) {
     <span class="section-heading__eyebrow">{{ eyebrow() }}</span>
   }
-  <h2 class="section-heading__title">{{ heading() }}</h2>
+  @if (heading()) {
+    <h2 class="section-heading__title">{{ heading() }}</h2>
+  }
   @if (subtitle()) {
     <p class="section-heading__subtitle">{{ subtitle() }}</p>
   }

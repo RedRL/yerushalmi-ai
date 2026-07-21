@@ -14,6 +14,9 @@ export interface PackageDefinition {
   readonly recommendedBadgeHe?: string;
 }
 
+/** Introductory package CTA label — shared across all packages. */
+export const PACKAGE_CTA_HE = 'בואו נתחיל';
+
 export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
   {
     id: 'song_only',
@@ -29,14 +32,14 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
     ],
     introPrice: 290,
     originalPrice: 450,
-    ctaHe: 'התחילו עכשיו',
+    ctaHe: PACKAGE_CTA_HE,
     featured: false,
   },
   {
     id: 'video_existing_song',
     emoji: '🎬',
     titleHe: 'קליפ לשיר לבחירתכם',
-    descriptionHe: 'הופכים את השיר שאתם אוהבים לסרטון מרגש ומרשים שמספר את הסיפור שלכם.',
+    descriptionHe: 'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
     featuresHe: [
       '✔ קליפ בהתאמה אישית',
       '✔ שימוש בשיר לבחירתכם',
@@ -45,7 +48,7 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
     ],
     introPrice: 990,
     originalPrice: 1400,
-    ctaHe: 'התחילו עכשיו',
+    ctaHe: PACKAGE_CTA_HE,
     featured: false,
   },
   {
@@ -62,9 +65,9 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
     ],
     introPrice: 1190,
     originalPrice: 1700,
-    ctaHe: 'בואו נתחיל',
+    ctaHe: PACKAGE_CTA_HE,
     featured: true,
-    recommendedBadgeHe: '⭐ הכי פופולרית',
+    recommendedBadgeHe: 'מומלץ',
   },
 ];
 

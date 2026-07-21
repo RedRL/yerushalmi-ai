@@ -2,16 +2,24 @@ import { Injectable } from '@angular/core';
 import {
   ADDON_OPTIONS,
   MAIN_PRODUCT_INTRO_PRICES,
+  MAIN_PRODUCT_ORIGINAL_PRICES,
   MAIN_PRODUCT_OPTIONS,
   PRODUCT_INCLUDES_NEW_SONG,
   PRODUCT_INCLUDES_VIDEO,
-  SONG_LENGTH_OPTIONS,
+  getSongLengthPrice,
+  getSongLengthOptions,
+  usesCombinedSongVideoLength,
   SUBTITLES_OPTIONS,
   VIDEO_FORMAT_OPTIONS,
   VIDEO_LENGTH_OPTIONS,
   VIDEO_SOURCE_OPTIONS,
 } from '../config/pricing.config';
-import type { PriceBreakdown, PricingLineItem, PricingSelection } from '../../shared/models/pricing.model';
+import type { MainProductId, PriceBreakdown, PricingLineItem, PricingSelection } from '../../shared/models/pricing.model';
+
+export interface PriceTotals {
+  introTotal: number;
+  originalTotal: number;
+}
 
 /**
  * Client-side price estimator for immediate UX feedback while configuring a
@@ -22,6 +30,24 @@ import type { PriceBreakdown, PricingLineItem, PricingSelection } from '../../sh
 @Injectable({ providedIn: 'root' })
 export class PricingCalculatorService {
   calculate(selection: PricingSelection): PriceBreakdown {
+    return this.calculateWithBasePrices(selection, MAIN_PRODUCT_INTRO_PRICES);
+  }
+
+  calculateOriginal(selection: PricingSelection): PriceBreakdown {
+    return this.calculateWithBasePrices(selection, MAIN_PRODUCT_ORIGINAL_PRICES);
+  }
+
+  estimateTotals(selection: PricingSelection): PriceTotals {
+    return {
+      introTotal: this.calculate(selection).total,
+      originalTotal: this.calculateOriginal(selection).total,
+    };
+  }
+
+  private calculateWithBasePrices(
+    selection: PricingSelection,
+    basePrices: Record<MainProductId, number>,
+  ): PriceBreakdown {
     const lineItems: PricingLineItem[] = [];
     const includesVideo = PRODUCT_INCLUDES_VIDEO[selection.mainProduct];
     const includesNewSong = PRODUCT_INCLUDES_NEW_SONG[selection.mainProduct];
@@ -30,20 +56,20 @@ export class PricingCalculatorService {
     lineItems.push({
       id: `main_product:${selection.mainProduct}`,
       labelHe: productLabel,
-      amount: MAIN_PRODUCT_INTRO_PRICES[selection.mainProduct],
+      amount: basePrices[selection.mainProduct],
       quantity: 1,
     });
 
     if (includesNewSong && selection.songLength) {
-      const songLength = SONG_LENGTH_OPTIONS.find((option) => option.id === selection.songLength);
-      if (songLength && songLength.price > 0) {
-        lineItems.push({
-          id: `song_length:${songLength.id}`,
-          labelHe: `אורך שיר — ${songLength.labelHe}`,
-          amount: songLength.price,
-          quantity: 1,
-        });
-      }
+      const songLengthPrice = getSongLengthPrice(selection.mainProduct, selection.songLength);
+      const options = getSongLengthOptions(selection.mainProduct);
+      const songLength = options.find((option) => option.id === selection.songLength);
+      lineItems.push({
+        id: `song_length:${selection.songLength}`,
+        labelHe: `אורך — ${songLength?.labelHe ?? selection.songLength}`,
+        amount: songLengthPrice,
+        quantity: 1,
+      });
     }
 
     if (includesVideo) {
@@ -53,7 +79,7 @@ export class PricingCalculatorService {
       }
 
       const length = VIDEO_LENGTH_OPTIONS.find((option) => option.id === selection.videoLength);
-      if (length) {
+      if (length && !usesCombinedSongVideoLength(selection.mainProduct)) {
         lineItems.push({ id: `video_length:${length.id}`, labelHe: length.labelHe, amount: length.price, quantity: 1 });
       }
 

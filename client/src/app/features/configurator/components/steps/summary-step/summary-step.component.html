@@ -1,67 +1,77 @@
-<div class="step">
+<div class="step summary-step">
   <h3 class="step__title">כך נראה הפרויקט שבנינו יחד</h3>
-  <p class="step__description">אפשר לחזור ולערוך כל שלב לפני שמסכמים ושולחים את הבקשה.</p>
 
-  <div class="summary-step__grid">
-    <div class="summary-step__details">
+  <div class="summary-step__details">
+    <div class="summary-step__row">
+      <div class="summary-step__row-header">
+        <h4>סוג הפרויקט</h4>
+        <button type="button" (click)="goToStep('product')">עריכה</button>
+      </div>
+      <p class="summary-step__text">{{ productLabel() }}</p>
+    </div>
+
+    <div class="summary-step__row">
+      <div class="summary-step__row-header">
+        <h4>הסיפור</h4>
+        <button type="button" (click)="goToStep('details')">עריכה</button>
+      </div>
+      <p class="summary-step__text">עבור: {{ personNameDisplay() }}</p>
+      <p class="summary-step__text">אירוע: {{ occasionDisplay() }}</p>
+      <p class="summary-step__text summary-step__story">{{ storyPreview() }}</p>
+      @if (storyIsTruncated()) {
+        <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">הצג את הסיפור המלא</button>
+      }
+    </div>
+
+    @if (store.includesNewSong() || store.requiresExistingSongRights()) {
       <div class="summary-step__row">
         <div class="summary-step__row-header">
-          <h4>סוג הפרויקט</h4>
-          <button type="button" (click)="goToStep('product')">עריכה</button>
+          <h4>השיר</h4>
+          <button type="button" (click)="goToStep('song')">עריכה</button>
         </div>
-        <p>{{ productLabel() }}</p>
-      </div>
-
-      @if (store.includesNewSong() || store.requiresExistingSongRights()) {
-        <div class="summary-step__row">
-          <div class="summary-step__row-header">
-            <h4>השיר</h4>
-            <button type="button" (click)="goToStep('song')">עריכה</button>
-          </div>
-          @if (store.requiresExistingSongRights()) {
-            <p>שיר קיים: {{ store.songForm.controls.existingSongName.value || '—' }}</p>
-          } @else {
-            <p>
-              סגנון: {{ songStyleSummary() }}
-            </p>
+        @if (store.requiresExistingSongRights()) {
+          <p class="summary-step__text">שיר קיים: {{ existingSongDisplay() }}</p>
+        } @else {
+          <p class="summary-step__text">סגנון: {{ songStyleSummary() }}</p>
+          @if (store.isFullExperience() && songLengthLabel()) {
+            <p class="summary-step__text">אורך: {{ songLengthLabel() }}</p>
           }
-        </div>
-      }
+        }
+      </div>
+    }
 
-      @if (store.includesVideo()) {
-        <div class="summary-step__row">
-          <div class="summary-step__row-header">
-            <h4>הסרטון</h4>
-            <button type="button" (click)="goToStep('video')">עריכה</button>
-          </div>
-          <p>מקור: {{ sourceLabel() || '—' }}</p>
-          <p>אורך: {{ lengthLabel() }} · פורמט: {{ formatLabel() }} · כתוביות: {{ subtitlesLabel() }}</p>
-        </div>
-      }
-
+    @if (store.includesVideo()) {
       <div class="summary-step__row">
         <div class="summary-step__row-header">
-          <h4>הסיפור</h4>
-          <button type="button" (click)="goToStep('details')">עריכה</button>
+          <h4>הסרטון</h4>
+          <button type="button" (click)="goToStep('video')">עריכה</button>
         </div>
-        <p>עבור: {{ store.projectDetailsForm.controls.personName.value || '—' }}</p>
-        <p>אירוע: {{ store.projectDetailsForm.controls.occasion.value || '—' }}</p>
-        <p class="summary-step__story">{{ store.projectDetailsForm.controls.story.value }}</p>
+        <p class="summary-step__text">מקור: {{ sourceLabel() }}</p>
+        <p class="summary-step__text">{{ videoDetailsSummary() }}</p>
       </div>
+    }
 
-      @if (store.requiresUploadStep()) {
-        <div class="summary-step__row">
-          <div class="summary-step__row-header">
-            <h4>קבצים</h4>
-            <button type="button" (click)="goToStep('upload')">עריכה</button>
-          </div>
-          <p>{{ store.uploadedFiles().length }} קבצים הועלו</p>
+    @if (store.requiresUploadStep()) {
+      <div class="summary-step__row">
+        <div class="summary-step__row-header">
+          <h4>קבצים</h4>
+          <button type="button" (click)="goToStep('upload')">עריכה</button>
         </div>
-      }
-    </div>
-
-    <div class="summary-step__price">
-      <app-price-summary [breakdown]="store.priceBreakdown()" [mainProductId]="store.mainProduct()" />
-    </div>
+        <p class="summary-step__text">{{ store.uploadedFiles().length }} קבצים הועלו</p>
+      </div>
+    }
   </div>
+
+  @if (storyDialogOpen()) {
+    <div class="summary-step__dialog-backdrop" (click)="closeStoryDialog()" aria-hidden="true"></div>
+    <div class="summary-step__dialog" role="dialog" aria-modal="true" aria-labelledby="story-dialog-title" (wheel)="onStoryDialogWheel($event)">
+      <div class="summary-step__dialog-header">
+        <h4 id="story-dialog-title">הסיפור המלא</h4>
+        <button type="button" class="summary-step__dialog-close" (click)="closeStoryDialog()" aria-label="סגירה">×</button>
+      </div>
+      <div class="summary-step__dialog-body">
+        <p class="summary-step__dialog-story">{{ storyText() }}</p>
+      </div>
+    </div>
+  }
 </div>

@@ -16,6 +16,13 @@
         <span class="product-step__text">
           <span class="product-step__option-title">{{ option.titleHe }}</span>
           <span class="product-step__option-description">{{ option.descriptionHe }}</span>
+          <app-intro-price
+            class="product-step__pricing"
+            [introTotal]="introPrices[option.id]"
+            [originalTotal]="originalPrices[option.id]"
+            [compact]="true"
+            [showBadge]="false"
+          />
         </span>
       </button>
     }

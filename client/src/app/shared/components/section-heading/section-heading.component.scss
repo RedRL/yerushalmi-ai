@@ -17,6 +17,13 @@
     text-align: start;
     align-items: flex-start;
   }
+
+  &--full {
+    max-width: none;
+    width: 100%;
+    margin-inline: 0;
+    text-align: center;
+  }
 }
 
 .section-heading__eyebrow {

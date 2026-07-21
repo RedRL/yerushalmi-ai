@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { FIELD_LIMITS } from '../../core/config/field-limits.config';
 import { ContactApiService } from '../../core/services/contact-api.service';
 import { WHATSAPP_CONFIG } from '../../core/config/site.config';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
-import { scrollToSection } from '../../shared/utils/scroll-to.util';
+import { scrollToConfigurator } from '../../shared/utils/scroll-to.util';
 
 @Component({
   selector: 'app-contact-section',
@@ -25,14 +26,28 @@ export class ContactSectionComponent {
   readonly submitSuccess = signal(false);
 
   readonly form = this.fb.group({
-    name: this.fb.control('', Validators.required),
-    phone: this.fb.control('', [Validators.required, Validators.pattern(/^[0-9+\-\s()]{7,20}$/)]),
-    email: this.fb.control('', [Validators.required, Validators.email]),
-    message: this.fb.control('', [Validators.required, Validators.minLength(5)]),
+    name: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.contactName)]),
+    phone: this.fb.control('', [
+      Validators.required,
+      Validators.pattern(/^[0-9+\-\s()]{7,20}$/),
+      Validators.maxLength(FIELD_LIMITS.contactPhone),
+    ]),
+    email: this.fb.control('', [
+      Validators.required,
+      Validators.email,
+      Validators.maxLength(FIELD_LIMITS.contactEmail),
+    ]),
+    message: this.fb.control('', [
+      Validators.required,
+      Validators.minLength(5),
+      Validators.maxLength(FIELD_LIMITS.simpleContactMessage),
+    ]),
   });
 
+  readonly limits = FIELD_LIMITS;
+
   goToConfigurator(): void {
-    scrollToSection('configurator');
+    scrollToConfigurator();
   }
 
   async submit(): Promise<void> {

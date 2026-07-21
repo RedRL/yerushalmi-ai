@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import { WHATSAPP_CONFIG } from '../../../../../core/config/site.config';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 
@@ -13,6 +14,7 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 export class ContactStepComponent {
   readonly store = inject(ConfiguratorStoreService);
   readonly whatsappUrl = WHATSAPP_CONFIG.url;
+  readonly limits = FIELD_LIMITS;
 
   submit(): void {
     if (this.store.isSubmitting() || this.store.submitResult()) return;

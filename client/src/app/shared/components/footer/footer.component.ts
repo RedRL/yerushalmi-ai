@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NAV_LINKS, SITE_CONFIG, WHATSAPP_CONFIG } from '../../../core/config/site.config';
-import { scrollToSection } from '../../utils/scroll-to.util';
+import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
 
 @Component({
   selector: 'app-footer',
@@ -19,6 +19,6 @@ export class FooterComponent {
   readonly currentYear = new Date().getFullYear();
 
   navigateTo(sectionId: string): void {
-    scrollToSection(sectionId);
+    scrollToSectionFromNav(sectionId);
   }
 }

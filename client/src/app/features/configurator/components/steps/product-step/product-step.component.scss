@@ -3,21 +3,22 @@
 .product-step__options {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  margin-top: var(--space-5);
+  gap: var(--space-3);
+  margin-top: var(--space-3);
 }
 
 .product-step__option {
   @include button-reset;
   display: flex;
   align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-5);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  min-height: 4.75rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-subtle);
   background: var(--color-bg-glass);
   text-align: start;
-  transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
 
   &:hover {
     border-color: var(--color-border-accent);
@@ -31,8 +32,8 @@
 
 .product-step__radio {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   margin-top: 2px;
   border-radius: var(--radius-full);
   border: 2px solid var(--color-border-strong);
@@ -54,11 +55,11 @@
 .product-step__text {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
 }
 
 .product-step__option-title {
-  font-size: var(--font-size-body-lg);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
 }
@@ -66,4 +67,9 @@
 .product-step__option-description {
   color: var(--color-text-secondary);
   font-size: var(--font-size-small);
+  line-height: 1.5;
+}
+
+.product-step__pricing {
+  margin-top: var(--space-2);
 }

@@ -7,6 +7,7 @@
 @use 'transitions';
 @use 'containers';
 @use 'breakpoints' as bp;
+@use 'scrollbars';
 @use 'mixins' as *;
 
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap');
@@ -19,6 +20,11 @@
 
 html {
   scroll-behavior: smooth;
+  @include scrollbars.app-scrollbar;
+}
+
+body {
+  @include scrollbars.app-scrollbar;
 }
 
 @include reduced-motion {
@@ -189,9 +195,21 @@ body.scroll-locked {
   color: var(--color-text-muted);
 }
 
+.field__label-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .field__error {
   font-size: var(--font-size-tiny);
   color: var(--color-error);
+  flex-shrink: 0;
+
+  &--hidden {
+    visibility: hidden;
+  }
 }
 
 .field__control {
@@ -213,12 +231,21 @@ body.scroll-locked {
     border-color: var(--color-accent-purple-light);
     background: var(--color-bg-surface);
   }
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--color-error);
+
+    &:focus-visible {
+      border-color: var(--color-error);
+    }
+  }
 }
 
 textarea.field__control {
-  resize: vertical;
-  min-height: 120px;
+  resize: none;
+  min-height: 96px;
   line-height: var(--line-height-body);
+  @include scrollbars.app-scrollbar;
 }
 
 .field-grid {
@@ -312,6 +339,8 @@ textarea.field__control {
   color: var(--color-accent-purple-light);
   font-size: var(--font-size-tiny);
   font-weight: var(--font-weight-semibold);
+  width: 100%;
+  margin-top: auto;
 }
 
 .consent-checkbox {
@@ -321,11 +350,18 @@ textarea.field__control {
   padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
+  transition: border-color var(--transition-fast);
+
+  &:has(input.ng-invalid.ng-touched) {
+    border-color: var(--color-error);
+  }
 
   input {
-    margin-top: 3px;
+    margin-top: 0.2em;
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
     accent-color: var(--color-accent-purple);
     flex-shrink: 0;
   }
@@ -335,4 +371,34 @@ textarea.field__control {
     font-size: var(--font-size-small);
     line-height: var(--line-height-body);
   }
+
+  .field__label-row {
+    align-items: center;
+  }
+
+  .field__error {
+    white-space: nowrap;
+
+    &--hidden {
+      visibility: hidden;
+    }
+  }
+}
+
+.consent-checkbox__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Styled scrollbars for overflow containers across the app. */
+:where(
+  .configurator__body,
+  .summary-step__dialog-body,
+  .price-summary,
+  .file-upload__list,
+  .terms__content
+) {
+  @include scrollbars.app-scrollbar;
 }

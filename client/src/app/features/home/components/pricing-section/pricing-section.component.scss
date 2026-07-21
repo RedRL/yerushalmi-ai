@@ -6,12 +6,17 @@
   padding-block: var(--section-padding-y);
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-4);
 }
 
 .pricing__intro {
-  max-width: 780px;
-  margin-inline: auto;
+  width: 100%;
+
+  ::ng-deep .section-heading__title {
+    font-size: var(--font-size-h4);
+    line-height: 1.4;
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
 .pricing__grid {
@@ -27,7 +32,7 @@
   @include bp.respond-up('xl') {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-5);
-    align-items: center;
+    align-items: start;
   }
 
   > div {

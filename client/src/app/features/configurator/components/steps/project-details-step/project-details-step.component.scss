@@ -3,17 +3,11 @@
 .project-details-step__counter-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .project-details-step__story-field {
   margin-top: var(--space-3);
-}
-
-.project-details-step__story-label {
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
 }
 
 .project-details-step__counter {
@@ -22,10 +16,11 @@
 }
 
 .project-details-step__story {
-  min-height: 220px;
-  font-size: var(--font-size-body-lg);
-  line-height: 1.7;
-  padding: var(--space-5);
+  min-height: 200px;
+  overscroll-behavior: contain;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  padding: var(--space-3) var(--space-4);
   border-width: 1px;
   background: var(--color-bg-glass);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -34,12 +29,13 @@
     border-color: var(--color-accent-purple-light);
     box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.16);
   }
-}
 
-.project-details-step__extra {
-  margin-top: var(--space-6);
-  padding-top: var(--space-5);
-  border-top: 1px dashed var(--color-border-subtle);
-  display: flex;
-  flex-direction: column;
+  &.ng-invalid.ng-touched {
+    border-color: var(--color-error);
+
+    &:focus-visible {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+    }
+  }
 }

@@ -5,6 +5,8 @@ import {
   PRODUCT_INCLUDES_NEW_SONG,
   PRODUCT_INCLUDES_VIDEO,
   SONG_LENGTH_PRICES,
+  SONG_LENGTH_FULL_EXPERIENCE_PRICES,
+  usesCombinedSongVideoLength,
   SUBTITLES_PRICES,
   VAT_RATE,
   VIDEO_FORMAT_PRICES,
@@ -31,7 +33,11 @@ export function calculatePriceBreakdown(selection: PricingSelection): PriceBreak
   });
 
   if (includesNewSong && selection.songLength) {
-    const songLength = SONG_LENGTH_PRICES[selection.songLength];
+    const songLengthPrices =
+      selection.mainProduct === 'video_new_song'
+        ? SONG_LENGTH_FULL_EXPERIENCE_PRICES
+        : SONG_LENGTH_PRICES;
+    const songLength = songLengthPrices[selection.songLength];
     if (songLength && songLength.price > 0) {
       lineItems.push({
         id: `song_length:${selection.songLength}`,
@@ -55,7 +61,7 @@ export function calculatePriceBreakdown(selection: PricingSelection): PriceBreak
       }
     }
 
-    if (selection.videoLength) {
+    if (selection.videoLength && !usesCombinedSongVideoLength(selection.mainProduct)) {
       const length = VIDEO_LENGTH_PRICES[selection.videoLength];
       if (length) {
         lineItems.push({
