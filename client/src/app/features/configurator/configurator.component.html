@@ -20,6 +20,7 @@
       <div
         class="configurator__body"
         [class.configurator__body--scrollable]="store.currentStep().id === 'upload'"
+        [class.configurator__body--summary]="store.currentStep().id === 'summary'"
       >
 
         @switch (store.currentStep().id) {

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, HostListener, signal } from '@angular/core';
-import { NAV_LINKS, SITE_CONFIG, WHATSAPP_CONFIG } from '../../../core/config/site.config';
+import { NAV_LINKS, SITE_CONFIG } from '../../../core/config/site.config';
 import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
 
 @Component({
@@ -11,7 +11,6 @@ import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
 export class HeaderComponent {
   readonly brandName = SITE_CONFIG.brandName;
   readonly navLinks = NAV_LINKS;
-  readonly whatsappUrl = WHATSAPP_CONFIG.url;
 
   readonly isScrolled = signal(false);
   readonly isMobileMenuOpen = signal(false);

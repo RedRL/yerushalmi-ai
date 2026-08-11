@@ -98,36 +98,58 @@ export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[]
     descriptionHe: 'עריכה מוזיקלית מתמונות וקטעי וידאו שסיפקתם.',
     price: 0,
   },
-  {
-    id: 'mixed',
-    labelHe: 'שילוב חלקי של סרטוני AI שלא ממה שסיפק הלקוח',
-    descriptionHe: 'חלק מהסצנות נוצרות ב-AI, לצד חומרים שהעליתם.',
-    price: 100,
-  },
-  {
-    id: 'ai_only',
-    labelHe: 'קליפ מ-AI — ללא שימוש בחומרים שהעליתם',
-    descriptionHe: 'הסצנות נוצרות מהתיאור והסיפור, בלי להסתמך על החומרים שלכם.',
-    price: 200,
-  },
 ];
 
-export const SONG_LENGTH_OPTIONS: readonly PriceableOptionLike<SongLengthId>[] = [
-  { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
-  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 50 },
-  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 100 },
+export const DEFAULT_VIDEO_SOURCE: VideoSourceId = 'customer_videos';
+
+export const LENGTH_HALF_STEP_PRICE = 120;
+
+export const DEFAULT_LENGTH_ID: VideoLengthId = 'min_2_0';
+
+type PriceableOptionLike<TId extends string> = SelectableOption<TId> & { price: number };
+
+const LENGTH_OPTION_DEFS: readonly {
+  id: VideoLengthId;
+  labelHe: string;
+  halfStepsFromBase: number;
+}[] = [
+  { id: 'min_2_0', labelHe: 'כ-2 דקות', halfStepsFromBase: 0 },
+  { id: 'min_2_5', labelHe: 'כ-2.5 דקות', halfStepsFromBase: 1 },
+  { id: 'min_3_0', labelHe: 'כ-3 דקות', halfStepsFromBase: 2 },
+  { id: 'min_3_5', labelHe: 'כ-3.5 דקות', halfStepsFromBase: 3 },
+  { id: 'min_4_0', labelHe: 'כ-4 דקות', halfStepsFromBase: 4 },
+  { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromBase: 5 },
 ];
 
-export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE: readonly PriceableOptionLike<SongLengthId>[] = [
-  { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
-  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
-  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 400 },
-];
+function buildLengthOptions(maxId: VideoLengthId): readonly PriceableOptionLike<VideoLengthId>[] {
+  const maxIndex = LENGTH_OPTION_DEFS.findIndex((option) => option.id === maxId);
+  if (maxIndex < 0) return [];
+  return LENGTH_OPTION_DEFS.slice(0, maxIndex + 1).map((option) => ({
+    id: option.id,
+    labelHe: option.labelHe,
+    price: option.halfStepsFromBase * LENGTH_HALF_STEP_PRICE,
+  }));
+}
+
+/** Existing-song video: 2–4.5 minutes in half-minute steps. */
+export const VIDEO_LENGTH_OPTIONS = buildLengthOptions('min_4_5');
+
+/** Full experience combined length: 2–3.5 minutes in half-minute steps. */
+export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions('min_3_5');
+
+/** Personal song only — length is fixed in UI at 2 minutes. */
+export const SONG_LENGTH_OPTIONS = buildLengthOptions('min_2_0');
 
 export function getSongLengthOptions(
   mainProduct: MainProductId | null,
 ): readonly PriceableOptionLike<SongLengthId>[] {
   return mainProduct === 'video_new_song' ? SONG_LENGTH_OPTIONS_FULL_EXPERIENCE : SONG_LENGTH_OPTIONS;
+}
+
+export function getVideoLengthOptions(
+  _mainProduct: MainProductId | null,
+): readonly PriceableOptionLike<VideoLengthId>[] {
+  return VIDEO_LENGTH_OPTIONS;
 }
 
 export function getSongLengthPrice(mainProduct: MainProductId, lengthId: SongLengthId): number {
@@ -136,15 +158,25 @@ export function getSongLengthPrice(mainProduct: MainProductId, lengthId: SongLen
   return options.find((option) => option.id === lengthId)?.price ?? 0;
 }
 
+export function getVideoLengthPrice(lengthId: VideoLengthId): number {
+  return VIDEO_LENGTH_OPTIONS.find((option) => option.id === lengthId)?.price ?? 0;
+}
+
 export function usesCombinedSongVideoLength(mainProduct: MainProductId | null): boolean {
   return mainProduct === 'video_new_song';
 }
 
-export const VIDEO_LENGTH_OPTIONS: readonly PriceableOptionLike<VideoLengthId>[] = [
-  { id: 'up_to_2_min', labelHe: 'כ-2 דקות', price: 0 },
-  { id: 'up_to_3_min', labelHe: 'כ-3 דקות', price: 200 },
-  { id: 'up_to_4_min', labelHe: 'כ-4 דקות', price: 400 },
-];
+export const LEGACY_LENGTH_ID_MAP: Record<string, VideoLengthId> = {
+  up_to_2_min: 'min_2_0',
+  up_to_3_min: 'min_3_0',
+  up_to_4_min: 'min_4_0',
+};
+
+export function normalizeLengthId(value: string | null | undefined): VideoLengthId | '' {
+  if (!value) return '';
+  if (LEGACY_LENGTH_ID_MAP[value]) return LEGACY_LENGTH_ID_MAP[value];
+  return LENGTH_OPTION_DEFS.some((option) => option.id === value) ? (value as VideoLengthId) : '';
+}
 
 export const VIDEO_FORMAT_OPTIONS: readonly PriceableOptionLike<VideoFormatId>[] = [
   { id: 'landscape', labelHe: 'אופקי 16:9', price: 0 },
@@ -169,5 +201,3 @@ export const ADDON_OPTIONS: readonly AddonOption[] = [
 export function findAddon(id: AddonId): AddonOption | undefined {
   return ADDON_OPTIONS.find((addon) => addon.id === id);
 }
-
-type PriceableOptionLike<TId extends string> = SelectableOption<TId> & { price: number };

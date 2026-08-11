@@ -1,28 +1,7 @@
 <div class="step video-step" [formGroup]="store.videoForm">
-  <h3 class="step__title">איך תרצו לקבל את הסרטון?</h3>
+  <h3 class="step__title">פרטי הסרטון</h3>
 
   <div class="video-step__layout">
-    <div class="step__section">
-      <span class="step__section-title">מאילו חומרים ניצור את הקליפ?</span>
-      <div class="option-card-grid" role="radiogroup" aria-label="מקור הוויזואליה">
-        @for (option of sourceOptions; track option.id) {
-          <button
-            type="button"
-            class="option-card"
-            role="radio"
-            [attr.aria-checked]="store.videoForm.controls.source.value === option.id"
-            [class.option-card--selected]="store.videoForm.controls.source.value === option.id"
-            (click)="selectSource(option.id)"
-          >
-            <span class="option-card__title">{{ option.labelHe }}</span>
-            @if (option.descriptionHe) {
-              <span class="option-card__description">{{ option.descriptionHe }}</span>
-            }
-          </button>
-        }
-      </div>
-    </div>
-
     @if (!hideVideoLength()) {
       <div class="step__section">
         <div class="video-step__section-heading">
@@ -48,41 +27,39 @@
       </div>
     }
 
-    <div class="video-step__format-subtitles">
-      <div class="step__section">
-        <span class="step__section-title">פורמט יציאה</span>
-        <div class="option-card-grid" role="radiogroup" aria-label="פורמט יציאה">
-          @for (option of formatOptions; track option.id) {
-            <button
-              type="button"
-              class="option-card"
-              role="radio"
-              [attr.aria-checked]="store.videoForm.controls.format.value === option.id"
-              [class.option-card--selected]="store.videoForm.controls.format.value === option.id"
-              (click)="selectFormat(option.id)"
-            >
-              <span class="option-card__title">{{ option.labelHe }}</span>
-            </button>
-          }
-        </div>
+    <div class="step__section">
+      <span class="step__section-title">פורמט יציאה</span>
+      <div class="option-card-grid" role="radiogroup" aria-label="פורמט יציאה">
+        @for (option of formatOptions; track option.id) {
+          <button
+            type="button"
+            class="option-card"
+            role="radio"
+            [attr.aria-checked]="store.videoForm.controls.format.value === option.id"
+            [class.option-card--selected]="store.videoForm.controls.format.value === option.id"
+            (click)="selectFormat(option.id)"
+          >
+            <span class="option-card__title">{{ option.labelHe }}</span>
+          </button>
+        }
       </div>
+    </div>
 
-      <div class="step__section">
-        <span class="step__section-title">כתוביות</span>
-        <div class="option-card-grid" role="radiogroup" aria-label="כתוביות">
-          @for (option of subtitlesOptions; track option.id) {
-            <button
-              type="button"
-              class="option-card"
-              role="radio"
-              [attr.aria-checked]="store.videoForm.controls.subtitles.value === option.id"
-              [class.option-card--selected]="store.videoForm.controls.subtitles.value === option.id"
-              (click)="selectSubtitles(option.id)"
-            >
-              <span class="option-card__title">{{ option.labelHe }}</span>
-            </button>
-          }
-        </div>
+    <div class="step__section">
+      <span class="step__section-title">כתוביות</span>
+      <div class="option-card-grid" role="radiogroup" aria-label="כתוביות">
+        @for (option of subtitlesOptions; track option.id) {
+          <button
+            type="button"
+            class="option-card"
+            role="radio"
+            [attr.aria-checked]="store.videoForm.controls.subtitles.value === option.id"
+            [class.option-card--selected]="store.videoForm.controls.subtitles.value === option.id"
+            (click)="selectSubtitles(option.id)"
+          >
+            <span class="option-card__title">{{ option.labelHe }}</span>
+          </button>
+        }
       </div>
     </div>
   </div>

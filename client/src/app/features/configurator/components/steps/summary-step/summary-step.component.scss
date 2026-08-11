@@ -1,9 +1,14 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
 
+:host {
+  display: block;
+  overflow: visible;
+}
+
 .summary-step {
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);

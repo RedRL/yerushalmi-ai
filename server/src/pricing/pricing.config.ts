@@ -60,27 +60,47 @@ export const VIDEO_SOURCE_PRICES: Record<VideoSourceId, { labelHe: string; price
   ai_only: { labelHe: 'רוב או כל הסרטון מסרטוני AI שלא מהחומרים שסיפק הלקוח', price: 200 },
 };
 
-export const SONG_LENGTH_PRICES: Record<SongLengthId, { labelHe: string; price: number }> = {
-  up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
-  up_to_3_min: { labelHe: 'כ-3 דקות', price: 50 },
-  up_to_4_min: { labelHe: 'כ-4 דקות', price: 100 },
-};
+export const LENGTH_HALF_STEP_PRICE = 120;
 
-export const SONG_LENGTH_FULL_EXPERIENCE_PRICES: Record<SongLengthId, { labelHe: string; price: number }> = {
-  up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
-  up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
-  up_to_4_min: { labelHe: 'כ-4 דקות', price: 400 },
-};
+const LENGTH_PRICE_DEFS: readonly {
+  id: VideoLengthId;
+  labelHe: string;
+  halfStepsFromBase: number;
+}[] = [
+  { id: 'min_2_0', labelHe: 'כ-2 דקות', halfStepsFromBase: 0 },
+  { id: 'min_2_5', labelHe: 'כ-2.5 דקות', halfStepsFromBase: 1 },
+  { id: 'min_3_0', labelHe: 'כ-3 דקות', halfStepsFromBase: 2 },
+  { id: 'min_3_5', labelHe: 'כ-3.5 דקות', halfStepsFromBase: 3 },
+  { id: 'min_4_0', labelHe: 'כ-4 דקות', halfStepsFromBase: 4 },
+  { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromBase: 5 },
+];
+
+function buildLengthPrices(maxId: VideoLengthId): Record<VideoLengthId, { labelHe: string; price: number }> {
+  const maxIndex = LENGTH_PRICE_DEFS.findIndex((option) => option.id === maxId);
+  return LENGTH_PRICE_DEFS.slice(0, maxIndex + 1).reduce(
+    (acc, option) => {
+      acc[option.id] = {
+        labelHe: option.labelHe,
+        price: option.halfStepsFromBase * LENGTH_HALF_STEP_PRICE,
+      };
+      return acc;
+    },
+    {} as Record<VideoLengthId, { labelHe: string; price: number }>,
+  );
+}
+
+export const SONG_LENGTH_PRICES = buildLengthPrices('min_2_0') as Record<SongLengthId, { labelHe: string; price: number }>;
+
+export const SONG_LENGTH_FULL_EXPERIENCE_PRICES = buildLengthPrices('min_3_5') as Record<
+  SongLengthId,
+  { labelHe: string; price: number }
+>;
 
 export function usesCombinedSongVideoLength(mainProduct: MainProductId): boolean {
   return mainProduct === 'video_new_song';
 }
 
-export const VIDEO_LENGTH_PRICES: Record<VideoLengthId, { labelHe: string; price: number }> = {
-  up_to_2_min: { labelHe: 'כ-2 דקות', price: 0 },
-  up_to_3_min: { labelHe: 'כ-3 דקות', price: 200 },
-  up_to_4_min: { labelHe: 'כ-4 דקות', price: 400 },
-};
+export const VIDEO_LENGTH_PRICES = buildLengthPrices('min_4_5');
 
 export const VIDEO_FORMAT_PRICES: Record<VideoFormatId, { labelHe: string; price: number }> = {
   landscape: { labelHe: 'אופקי 16:9', price: 0 }, // TODO(pricing): placeholder

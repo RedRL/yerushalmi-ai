@@ -5,8 +5,8 @@ import { firstValueFrom, merge } from 'rxjs';
 
 import { InquiryApiService } from '../../../core/services/inquiry-api.service';
 import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
-import { ADDON_OPTIONS } from '../../../core/config/pricing.config';
-import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId } from '../../../shared/models/pricing.model';
+import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, normalizeLengthId, getSongLengthOptions } from '../../../core/config/pricing.config';
+import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoLengthId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
@@ -43,7 +43,13 @@ function undefinedIfEmpty(value: string): string | undefined {
 }
 
 function isSongLengthId(value: string): value is SongLengthId {
-  return value === 'up_to_2_min' || value === 'up_to_3_min' || value === 'up_to_4_min';
+  return normalizeLengthId(value) !== '';
+}
+
+function resolveSongLength(length: string | null | undefined, mainProduct: MainProductId | null): SongLengthId {
+  const normalized = normalizeLengthId(length) || DEFAULT_LENGTH_ID;
+  const options = getSongLengthOptions(mainProduct);
+  return options.some((option) => option.id === normalized) ? normalized : DEFAULT_LENGTH_ID;
 }
 
 export interface SubmitResult {
@@ -78,7 +84,7 @@ export class ConfiguratorStoreService {
     style: this.fb.control(''),
     customStyle: this.fb.control('', Validators.maxLength(FIELD_LIMITS.customStyle)),
     mood: this.fb.control('', Validators.maxLength(FIELD_LIMITS.mood)),
-    length: this.fb.control<SongLengthId | ''>('up_to_2_min'),
+    length: this.fb.control<SongLengthId | ''>(DEFAULT_LENGTH_ID),
     namesToInclude: this.fb.control('', Validators.maxLength(FIELD_LIMITS.namesToInclude)),
     importantWords: this.fb.control('', Validators.maxLength(FIELD_LIMITS.importantWords)),
     excludedTopics: this.fb.control('', Validators.maxLength(FIELD_LIMITS.excludedTopics)),
@@ -89,8 +95,8 @@ export class ConfiguratorStoreService {
   });
 
   readonly videoForm = this.fb.group({
-    source: this.fb.control<'customer_photos' | 'ai_only' | 'mixed' | 'customer_videos' | ''>(''),
-    length: this.fb.control<'up_to_2_min' | 'up_to_3_min' | 'up_to_4_min'>('up_to_2_min'),
+    source: this.fb.control<'customer_photos' | 'ai_only' | 'mixed' | 'customer_videos' | ''>(DEFAULT_VIDEO_SOURCE),
+    length: this.fb.control<VideoLengthId>(DEFAULT_LENGTH_ID),
     format: this.fb.control<'landscape' | 'portrait' | 'both'>('landscape'),
     subtitles: this.fb.control<'none' | 'selected' | 'full'>('none'),
   });
@@ -133,6 +139,7 @@ export class ConfiguratorStoreService {
 
   constructor() {
     this.restorePersistedState();
+    this.ensureSongLengthDefault();
 
     merge(
       this.songForm.valueChanges,
@@ -177,6 +184,13 @@ export class ConfiguratorStoreService {
 
   readonly selectedSongStyles = computed(() => parseSongStyles(this.songValue().style));
 
+  readonly songCustomStyleText = computed(() => this.songValue().customStyle);
+
+  readonly songCustomStyleTouched = computed(() => {
+    this.formRevision();
+    return this.songForm.controls.customStyle.touched;
+  });
+
   readonly isFullExperience = computed(() => this.mainProduct() === 'video_new_song');
 
   readonly includesNewSong = computed(
@@ -187,13 +201,7 @@ export class ConfiguratorStoreService {
   );
   readonly requiresExistingSongRights = computed(() => this.mainProduct() === 'video_existing_song');
 
-  readonly requiresUploadStep = computed(() => {
-    const source = this.videoValue().source;
-    return (
-      this.includesVideo() &&
-      (source === 'customer_photos' || source === 'mixed' || source === 'customer_videos')
-    );
-  });
+  readonly requiresUploadStep = computed(() => this.includesVideo());
 
   readonly visibleSteps = computed(() =>
     this.steps.filter((step) => this.isStepVisible(step.id)),
@@ -203,7 +211,7 @@ export class ConfiguratorStoreService {
     const songLength = this.songValue().length;
     return {
       mainProduct: this.mainProduct() ?? 'song_only',
-      videoSource: this.videoValue().source || undefined,
+      videoSource: this.includesVideo() ? DEFAULT_VIDEO_SOURCE : undefined,
       videoLength: this.videoValue().length,
       songLength: isSongLengthId(songLength) ? songLength : undefined,
       videoFormat: this.videoValue().format,
@@ -252,7 +260,7 @@ export class ConfiguratorStoreService {
   readonly isVideoStepValid = computed(() => {
     if (!this.includesVideo()) return true;
     const value = this.videoValue();
-    return Boolean(value.source && value.length && value.format && value.subtitles);
+    return Boolean(value.length && value.format && value.subtitles);
   });
 
   readonly isDetailsStepValid = computed(() => {
@@ -262,10 +270,8 @@ export class ConfiguratorStoreService {
 
   readonly isUploadStepValid = computed(() => {
     if (!this.requiresUploadStep()) return true;
-    const source = this.videoValue().source;
     const files = this.uploadedFiles();
-    if (source === 'customer_videos') return files.some((file) => file.type === 'video');
-    return files.some((file) => file.type === 'image');
+    return files.some((file) => file.status === 'complete');
   });
 
   readonly isExtrasStepValid = computed(() => {
@@ -324,17 +330,35 @@ export class ConfiguratorStoreService {
 
   selectMainProduct(id: MainProductId): void {
     this.mainProduct.set(id);
+    if (id === 'video_existing_song' || id === 'video_new_song') {
+      this.videoForm.controls.source.setValue(DEFAULT_VIDEO_SOURCE, { emitEvent: false });
+    }
+    this.ensureSongLengthDefault();
     this.persistState();
   }
 
   beginWithPackage(id: MainProductId): void {
     this.mainProduct.set(id);
+    if (id === 'video_existing_song' || id === 'video_new_song') {
+      this.videoForm.controls.source.setValue(DEFAULT_VIDEO_SOURCE, { emitEvent: false });
+    }
+    this.ensureSongLengthDefault();
     this.currentStepIndex.set(1);
     this.persistState();
   }
 
   isSongStyleSelected(style: string): boolean {
     return this.selectedSongStyles().includes(style);
+  }
+
+  private isOtherStyleOnly(): boolean {
+    const styles = this.selectedSongStyles();
+    return styles.length === 1 && styles[0] === 'אחר';
+  }
+
+  markSongCustomStyleTouched(): void {
+    this.songForm.controls.customStyle.markAsTouched();
+    this.formRevision.update((value) => value + 1);
   }
 
   toggleSongStyle(style: string): void {
@@ -402,6 +426,9 @@ export class ConfiguratorStoreService {
         break;
       case 'song':
         this.songForm.controls.style.markAsTouched();
+        if (this.isOtherStyleOnly()) {
+          this.songForm.controls.customStyle.markAsTouched();
+        }
         break;
       default:
         break;
@@ -490,7 +517,7 @@ export class ConfiguratorStoreService {
 
     if (this.includesVideo()) {
       payload.video = {
-        source: video.source || undefined,
+        source: DEFAULT_VIDEO_SOURCE,
         length: video.length,
         format: video.format,
         subtitles: video.subtitles,
@@ -529,7 +556,7 @@ export class ConfiguratorStoreService {
       style: '',
       customStyle: '',
       mood: '',
-      length: 'up_to_2_min',
+      length: DEFAULT_LENGTH_ID,
       namesToInclude: '',
       importantWords: '',
       excludedTopics: '',
@@ -538,7 +565,7 @@ export class ConfiguratorStoreService {
       existingSongArtist: '',
       existingSongLink: '',
     });
-    this.videoForm.reset({ source: '', length: 'up_to_2_min', format: 'landscape', subtitles: 'none' });
+    this.videoForm.reset({ source: DEFAULT_VIDEO_SOURCE, length: DEFAULT_LENGTH_ID, format: 'landscape', subtitles: 'none' });
     this.projectDetailsForm.reset();
     this.contactForm.reset({
       name: '',
@@ -579,6 +606,16 @@ export class ConfiguratorStoreService {
     saveConfiguratorState(state);
   }
 
+  private ensureSongLengthDefault(): void {
+    const next = resolveSongLength(this.songForm.controls.length.value, this.mainProduct());
+    if (this.songForm.controls.length.value !== next) {
+      this.songForm.controls.length.setValue(next, { emitEvent: false });
+    }
+    if (this.mainProduct() === 'video_new_song') {
+      this.videoForm.controls.length.setValue(next, { emitEvent: false });
+    }
+  }
+
   private restorePersistedState(): void {
     const saved = loadConfiguratorState();
     if (!saved) return;
@@ -587,7 +624,19 @@ export class ConfiguratorStoreService {
     this.addons.set(saved.addons ?? []);
     this.currentStepIndex.set(saved.currentStepIndex ?? 0);
     this.songForm.patchValue(saved.songForm ?? {}, { emitEvent: false });
-    this.videoForm.patchValue(saved.videoForm as typeof this.videoForm.value, { emitEvent: false });
+    this.songForm.controls.length.setValue(
+      resolveSongLength(saved.songForm?.['length'], saved.mainProduct ?? null),
+      { emitEvent: false },
+    );
+    const savedVideoForm = { ...(saved.videoForm ?? {}) };
+    if (savedVideoForm.source !== DEFAULT_VIDEO_SOURCE) {
+      savedVideoForm.source = DEFAULT_VIDEO_SOURCE;
+    }
+    const normalizedVideoLength = normalizeLengthId(savedVideoForm.length);
+    if (normalizedVideoLength) {
+      savedVideoForm.length = normalizedVideoLength;
+    }
+    this.videoForm.patchValue(savedVideoForm as typeof this.videoForm.value, { emitEvent: false });
     this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
     this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });
     this.uploadedFiles.set((saved.uploadedFiles ?? []) as UploadedFileReference[]);

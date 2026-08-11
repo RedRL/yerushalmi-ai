@@ -65,6 +65,10 @@
   gap: var(--space-3);
   align-items: end;
   width: 100%;
+
+  &--mood-only {
+    grid-template-columns: 1fr;
+  }
 }
 
 .song-step__mood-input {

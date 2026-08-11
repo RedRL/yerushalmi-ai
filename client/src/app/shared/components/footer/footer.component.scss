@@ -1,5 +1,4 @@
 @use 'mixins' as *;
-@use 'breakpoints' as bp;
 
 .footer {
   border-top: 1px solid var(--color-border-subtle);
@@ -11,14 +10,15 @@
   @include container('xl');
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  align-items: center;
+  text-align: center;
   padding-bottom: var(--space-7);
+}
 
-  @include bp.respond-up('md') {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .footer__brand-name {
@@ -31,35 +31,6 @@
   margin-top: var(--space-2);
   color: var(--color-text-secondary);
   max-width: 320px;
-}
-
-.footer__nav ul {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-
-  @include bp.respond-up('md') {
-    flex-direction: row;
-    gap: var(--space-5);
-  }
-}
-
-.footer__nav button {
-  @include button-reset;
-  color: var(--color-text-secondary);
-
-  &:hover {
-    color: var(--color-text-primary);
-  }
-}
-
-.footer__contact a {
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
-
-  &:hover {
-    color: var(--color-whatsapp);
-  }
 }
 
 .footer__bottom {

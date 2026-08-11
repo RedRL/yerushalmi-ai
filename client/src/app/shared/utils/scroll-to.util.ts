@@ -8,8 +8,9 @@ const NAV_SCROLL_OFFSET_DEFAULT = 24;
 const NAV_SCROLL_OFFSETS: Readonly<Record<string, number>> = {
   'how-it-works': 112,
   'hero-stage': 105,
-  pricing: 0,
-  configurator: 64,
+  pricing: -25,
+  configurator: 56,
+  contact: -20,
 };
 
 /** Smoothly scrolls to a section by element id, accounting for the sticky header height. */

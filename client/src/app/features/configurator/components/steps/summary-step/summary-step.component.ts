@@ -5,7 +5,6 @@ import {
   getSongLengthOptions,
   VIDEO_FORMAT_OPTIONS,
   VIDEO_LENGTH_OPTIONS,
-  VIDEO_SOURCE_OPTIONS,
   SUBTITLES_OPTIONS,
 } from '../../../../../core/config/pricing.config';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
@@ -58,13 +57,6 @@ export class SummaryStepComponent {
     const label = options.find((option) => option.id === lengthId)?.labelHe ?? null;
     return label ? truncateSummaryText(label, SUMMARY_TEXT_MAX_LENGTH) : null;
   });
-
-  readonly sourceLabel = computed(() =>
-    truncateSummaryText(
-      VIDEO_SOURCE_OPTIONS.find((option) => option.id === this.store.videoForm.controls.source.value)?.labelHe,
-      SUMMARY_TEXT_MAX_LENGTH,
-    ),
-  );
 
   readonly lengthLabel = computed(() =>
     truncateSummaryText(

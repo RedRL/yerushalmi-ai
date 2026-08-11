@@ -40,39 +40,36 @@
   }
 
   @if (files().length > 0) {
-    <ul class="file-upload__list">
+    <ul class="file-upload__grid">
       @for (file of files(); track file.id) {
-        <li class="file-upload__item">
-          @if (file.previewUrl) {
-            <img [src]="file.previewUrl" [alt]="file.name" class="file-upload__thumb" />
-          } @else {
-            <span class="file-upload__icon" aria-hidden="true">{{ kind() === 'audio' ? '🎵' : '🎬' }}</span>
-          }
+        <li class="file-upload__tile" [class.file-upload__tile--error]="file.status === 'error'">
+          <div class="file-upload__preview">
+            @if (file.previewUrl) {
+              <img [src]="file.previewUrl" [alt]="file.name" class="file-upload__thumb" />
+            } @else {
+              <span class="file-upload__icon" aria-hidden="true">{{ kind() === 'audio' ? '🎵' : '🎬' }}</span>
+            }
 
-          <div class="file-upload__meta">
-            <span class="file-upload__name">{{ file.name }}</span>
-            <span class="file-upload__size">{{ formatSize(file.sizeBytes) }}</span>
             @switch (file.status) {
               @case ('uploading') {
-                <span class="file-upload__status file-upload__status--uploading">מעלה...</span>
+                <span class="file-upload__badge file-upload__badge--uploading">מעלה</span>
               }
               @case ('error') {
-                <span class="file-upload__status file-upload__status--error">{{ file.errorMessageHe || 'שגיאה בהעלאה' }}</span>
-              }
-              @default {
-                <span class="file-upload__status file-upload__status--complete">הועלה בהצלחה</span>
+                <span class="file-upload__badge file-upload__badge--error">שגיאה</span>
               }
             }
+
+            <button
+              type="button"
+              class="file-upload__remove"
+              (click)="removeFile.emit(file.id)"
+              [attr.aria-label]="'הסרת הקובץ ' + file.name"
+            >
+              ✕
+            </button>
           </div>
 
-          <button
-            type="button"
-            class="file-upload__remove"
-            (click)="removeFile.emit(file.id)"
-            [attr.aria-label]="'הסרת הקובץ ' + file.name"
-          >
-            ✕
-          </button>
+          <span class="file-upload__name" [title]="file.name">{{ file.name }}</span>
         </li>
       }
     </ul>

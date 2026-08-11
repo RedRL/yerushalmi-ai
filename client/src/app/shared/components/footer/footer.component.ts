@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NAV_LINKS, SITE_CONFIG, WHATSAPP_CONFIG } from '../../../core/config/site.config';
-import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
+import { SITE_CONFIG } from '../../../core/config/site.config';
 
 @Component({
   selector: 'app-footer',
@@ -13,12 +12,5 @@ import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
 export class FooterComponent {
   readonly brandName = SITE_CONFIG.brandName;
   readonly taglineHe = SITE_CONFIG.taglineHe;
-  readonly navLinks = NAV_LINKS;
-  readonly whatsappUrl = WHATSAPP_CONFIG.url;
-  readonly localPhone = WHATSAPP_CONFIG.localPhone;
   readonly currentYear = new Date().getFullYear();
-
-  navigateTo(sectionId: string): void {
-    scrollToSectionFromNav(sectionId);
-  }
 }

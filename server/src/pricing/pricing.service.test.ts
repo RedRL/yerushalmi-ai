@@ -23,7 +23,7 @@ describe('calculatePriceBreakdown', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_existing_song',
       videoSource: 'customer_videos',
-      videoLength: 'up_to_2_min',
+      videoLength: 'min_2_0',
       videoFormat: 'landscape',
       subtitles: 'none',
       addons: [],
@@ -37,7 +37,7 @@ describe('calculatePriceBreakdown', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_new_song',
       videoSource: 'customer_videos',
-      videoLength: 'up_to_2_min',
+      videoLength: 'min_2_0',
       videoFormat: 'landscape',
       subtitles: 'none',
       addons: [],
@@ -51,7 +51,7 @@ describe('calculatePriceBreakdown', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_existing_song',
       videoSource: 'ai_only',
-      videoLength: 'up_to_3_min',
+      videoLength: 'min_3_0',
       videoFormat: 'portrait',
       subtitles: 'selected',
       addons: [],
@@ -61,7 +61,7 @@ describe('calculatePriceBreakdown', () => {
     const expectedTotal =
       MAIN_PRODUCT_INTRO_PRICES.video_existing_song +
       VIDEO_SOURCE_PRICES.ai_only.price +
-      VIDEO_LENGTH_PRICES.up_to_3_min.price +
+      VIDEO_LENGTH_PRICES.min_3_0.price +
       VIDEO_FORMAT_PRICES.portrait.price +
       SUBTITLES_PRICES.selected.price;
 

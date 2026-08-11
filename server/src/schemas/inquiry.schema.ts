@@ -4,7 +4,7 @@ export const mainProductSchema = z.enum(['song_only', 'video_existing_song', 'vi
 
 export const videoSourceSchema = z.enum(['customer_photos', 'ai_only', 'mixed', 'customer_videos']);
 
-export const videoLengthSchema = z.enum(['up_to_2_min', 'up_to_3_min', 'up_to_4_min']);
+export const videoLengthSchema = z.enum(['min_2_0', 'min_2_5', 'min_3_0', 'min_3_5', 'min_4_0', 'min_4_5']);
 
 export const videoFormatSchema = z.enum(['landscape', 'portrait', 'both']);
 
@@ -140,23 +140,16 @@ export const inquirySchema = z
       }
     }
 
-    if (includesVideo && data.video?.source) {
-      const requiresPhotos = data.video.source === 'customer_photos' || data.video.source === 'mixed';
-      const requiresVideos = data.video.source === 'customer_videos';
+    if (includesVideo) {
+      const hasUploadedMedia = data.uploadedFiles?.some(
+        (file) => file.type === 'image' || file.type === 'video',
+      );
 
-      if (requiresPhotos && !data.uploadedFiles?.some((file) => file.type === 'image')) {
+      if (!hasUploadedMedia) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['uploadedFiles'],
-          message: 'נא להעלות תמונות עבור מקור הווידאו שנבחר',
-        });
-      }
-
-      if (requiresVideos && !data.uploadedFiles?.some((file) => file.type === 'video')) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['uploadedFiles'],
-          message: 'נא להעלות סרטונים עבור מקור הווידאו שנבחר',
+          message: 'נא להעלות תמונות ו/או סרטונים לקליפ',
         });
       }
     }

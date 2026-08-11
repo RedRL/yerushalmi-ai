@@ -13,7 +13,14 @@ export interface InquiryResult {
 }
 
 function isSongLengthId(value?: string): value is SongLengthId {
-  return value === 'up_to_2_min' || value === 'up_to_3_min' || value === 'up_to_4_min';
+  return (
+    value === 'min_2_0' ||
+    value === 'min_2_5' ||
+    value === 'min_3_0' ||
+    value === 'min_3_5' ||
+    value === 'min_4_0' ||
+    value === 'min_4_5'
+  );
 }
 
 function toPricingSelection(payload: InquiryInput): PricingSelection {

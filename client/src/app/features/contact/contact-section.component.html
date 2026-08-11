@@ -3,7 +3,13 @@
     <span class="contact__eyebrow">יצירת קשר</span>
     <h2 class="contact__headline">יש שאלות?</h2>
     <p class="contact__subtitle">
-      אפשר לשלוח הודעה קצרה — או לבנות הצעת מחיר מפורטת במסך בניית הפרויקט.
+      אפשר לשלוח הודעה קצרה — או
+      <a
+        class="contact__whatsapp-link"
+        [href]="whatsappUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+      >לשלוח הודעה בוואטסאפ</a>.
     </p>
 
     @if (submitSuccess()) {
@@ -69,12 +75,6 @@
               שלחו הודעה
             }
           </button>
-          <button type="button" class="contact__cta contact__cta--secondary" (click)="goToConfigurator()">
-            בניית הצעת מחיר
-          </button>
-          <a class="contact__cta contact__cta--whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
-            וואטסאפ · {{ localPhone }}
-          </a>
         </div>
       </form>
     }

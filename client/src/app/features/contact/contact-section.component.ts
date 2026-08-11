@@ -5,7 +5,6 @@ import { FIELD_LIMITS } from '../../core/config/field-limits.config';
 import { ContactApiService } from '../../core/services/contact-api.service';
 import { WHATSAPP_CONFIG } from '../../core/config/site.config';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
-import { scrollToConfigurator } from '../../shared/utils/scroll-to.util';
 
 @Component({
   selector: 'app-contact-section',
@@ -19,7 +18,6 @@ export class ContactSectionComponent {
   private readonly contactApi = inject(ContactApiService);
 
   readonly whatsappUrl = WHATSAPP_CONFIG.url;
-  readonly localPhone = WHATSAPP_CONFIG.localPhone;
 
   readonly isSubmitting = signal(false);
   readonly submitError = signal<string | null>(null);
@@ -45,10 +43,6 @@ export class ContactSectionComponent {
   });
 
   readonly limits = FIELD_LIMITS;
-
-  goToConfigurator(): void {
-    scrollToConfigurator();
-  }
 
   async submit(): Promise<void> {
     this.form.markAllAsTouched();

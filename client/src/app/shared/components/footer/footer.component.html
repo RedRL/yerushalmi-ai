@@ -4,22 +4,6 @@
       <span class="footer__brand-name">{{ brandName }}</span>
       <p class="footer__tagline">{{ taglineHe }}</p>
     </div>
-
-    <nav class="footer__nav" aria-label="ניווט בתחתית העמוד">
-      <ul>
-        @for (link of navLinks; track link.sectionId) {
-          <li>
-            <button type="button" (click)="navigateTo(link.sectionId)">{{ link.labelHe }}</button>
-          </li>
-        }
-      </ul>
-    </nav>
-
-    <div class="footer__contact">
-      <a [href]="whatsappUrl" target="_blank" rel="noopener noreferrer" aria-label="שליחת הודעה בוואטסאפ">
-        וואטסאפ: {{ localPhone }}
-      </a>
-    </div>
   </div>
 
   <div class="footer__bottom">

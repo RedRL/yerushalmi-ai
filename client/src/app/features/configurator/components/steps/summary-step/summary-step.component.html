@@ -18,7 +18,7 @@
       <p class="summary-step__text">עבור: {{ personNameDisplay() }}</p>
       <p class="summary-step__text">אירוע: {{ occasionDisplay() }}</p>
       <p class="summary-step__text summary-step__story">{{ storyPreview() }}</p>
-      @if (storyIsTruncated()) {
+      @if (storyText()) {
         <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">הצג את הסיפור המלא</button>
       }
     </div>
@@ -46,7 +46,6 @@
           <h4>הסרטון</h4>
           <button type="button" (click)="goToStep('video')">עריכה</button>
         </div>
-        <p class="summary-step__text">מקור: {{ sourceLabel() }}</p>
         <p class="summary-step__text">{{ videoDetailsSummary() }}</p>
       </div>
     }

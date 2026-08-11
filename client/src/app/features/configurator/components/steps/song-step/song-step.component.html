@@ -69,8 +69,10 @@
     <div class="step__section">
       <div class="song-step__styles-header field__label-row">
         <span class="step__section-title">סגנונות מועדפים (אפשר לבחור כמה)</span>
-        @if (!store.isSongStepValid() && store.songForm.controls.style.touched) {
+        @if (showStyleSelectionError()) {
           <span class="field__error song-step__styles-error" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד כדי להמשיך.</span>
+        } @else if (showCustomStyleError()) {
+          <span class="field__error song-step__styles-error" role="alert">נא לציין את הסגנון המוזיקלי.</span>
         }
       </div>
       <div class="chip-group song-step__chips" role="group" aria-label="סגנונות מוזיקליים">
@@ -111,6 +113,7 @@
               placeholder="הפרידו בפסיקים"
               aria-label="סגנון מותאם אישית"
               [maxlength]="limits.customStyle"
+              (blur)="store.markSongCustomStyleTouched()"
             />
           }
         </div>
@@ -121,7 +124,7 @@
 
     <div class="field-grid field-grid--pair step__section">
 
-      <div class="song-step__mood-length">
+      <div class="song-step__mood-length" [class.song-step__mood-length--mood-only]="!store.isFullExperience()">
 
         <div class="field">
 
@@ -133,25 +136,27 @@
 
 
 
-        <div class="field">
+        @if (store.isFullExperience()) {
+          <div class="field">
 
-          <label class="field__label" for="length">{{ lengthFieldLabel() }}</label>
+            <label class="field__label" for="length">{{ lengthFieldLabel() }}</label>
 
-          <select id="length" class="field__control" formControlName="length">
+            <select id="length" class="field__control" formControlName="length">
 
-            @for (option of lengthOptions(); track option.id) {
+              @for (option of lengthOptions(); track option.id) {
 
-              <option [value]="option.id">
+                <option [value]="option.id">
 
-                {{ lengthOptionLabel(option) }}
+                  {{ lengthOptionLabel(option) }}
 
-              </option>
+                </option>
 
-            }
+              }
 
-          </select>
+            </select>
 
-        </div>
+          </div>
+        }
 
       </div>
 

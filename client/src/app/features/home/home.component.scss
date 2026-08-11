@@ -20,5 +20,6 @@ main > app-pricing-section {
 }
 
 main > app-configurator {
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), transparent 80%);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04) 0%, rgba(99, 102, 241, 0.03) 55%, transparent 100%);
+  padding-bottom: var(--space-9);
 }

@@ -64,17 +64,19 @@ export class PricingCalculatorService {
       const songLengthPrice = getSongLengthPrice(selection.mainProduct, selection.songLength);
       const options = getSongLengthOptions(selection.mainProduct);
       const songLength = options.find((option) => option.id === selection.songLength);
-      lineItems.push({
-        id: `song_length:${selection.songLength}`,
-        labelHe: `אורך — ${songLength?.labelHe ?? selection.songLength}`,
-        amount: songLengthPrice,
-        quantity: 1,
-      });
+      if (songLength) {
+        lineItems.push({
+          id: `song_length:${selection.songLength}`,
+          labelHe: `אורך — ${songLength.labelHe}`,
+          amount: songLengthPrice,
+          quantity: 1,
+        });
+      }
     }
 
     if (includesVideo) {
       const source = VIDEO_SOURCE_OPTIONS.find((option) => option.id === selection.videoSource);
-      if (source) {
+      if (source && source.price > 0) {
         lineItems.push({ id: `video_source:${source.id}`, labelHe: source.labelHe, amount: source.price, quantity: 1 });
       }
 

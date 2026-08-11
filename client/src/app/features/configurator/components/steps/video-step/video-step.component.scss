@@ -20,10 +20,10 @@
 .video-step__layout {
   display: flex;
   flex-direction: column;
+  gap: var(--space-4);
   flex: 1;
   min-height: 0;
-  justify-content: space-between;
-  gap: var(--space-3);
+  overflow-y: auto;
 }
 
 .video-step__section-heading {
@@ -37,18 +37,6 @@
   font-size: var(--font-size-tiny);
 }
 
-.video-step__format-subtitles {
-  display: grid;
-  gap: var(--space-3);
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
-
-  @include bp.respond-up('md') {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 .step {
   gap: var(--space-2);
 }
@@ -60,26 +48,20 @@
 .step__section {
   margin-top: 0;
   gap: var(--space-2);
-  flex: 1;
-  min-height: 0;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
 
 .option-card-grid {
-  flex: 1;
-  min-height: 0;
   gap: var(--space-2);
-  align-content: stretch;
-  grid-auto-rows: 1fr;
 
   @include bp.respond-up('sm') {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
   }
 }
 
 .option-card {
-  height: 100%;
   min-height: 3rem;
   padding: var(--space-2) var(--space-3);
   display: flex;

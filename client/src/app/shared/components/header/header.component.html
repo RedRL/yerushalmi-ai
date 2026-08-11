@@ -17,15 +17,6 @@
     </nav>
 
     <div class="header__actions">
-      <a
-        class="header__whatsapp"
-        [href]="whatsappUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="פתיחת שיחת וואטסאפ"
-      >
-        וואטסאפ
-      </a>
       <button type="button" class="header__cta" (click)="navigateTo('configurator')">
         התחילו ליצור
       </button>
@@ -54,9 +45,6 @@
           </li>
         }
       </ul>
-      <a class="header__mobile-cta" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">
-        שליחת הודעה בוואטסאפ
-      </a>
       <button type="button" class="header__mobile-cta header__mobile-cta--primary" (click)="navigateTo('configurator')">
         התחילו ליצור
       </button>

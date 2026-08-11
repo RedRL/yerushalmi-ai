@@ -23,10 +23,22 @@ export class SongStepComponent {
     this.store.isFullExperience() ? 'אורך משוער (שיר וסרטון)' : 'אורך משוער',
   );
 
+  readonly showStyleSelectionError = computed(
+    () =>
+      this.store.selectedSongStyles().length === 0 && this.store.songForm.controls.style.touched,
+  );
+
+  readonly showCustomStyleError = computed(() => {
+    const styles = this.store.selectedSongStyles();
+    return (
+      styles.length === 1 &&
+      styles[0] === 'אחר' &&
+      this.store.songCustomStyleTouched() &&
+      this.store.songCustomStyleText().trim().length === 0
+    );
+  });
+
   lengthOptionLabel(option: { id: SongLengthId; labelHe: string; price: number }): string {
-    if (option.price === 0) {
-      return option.labelHe;
-    }
-    return `${option.labelHe} (+₪${option.price})`;
+    return option.labelHe;
   }
 }

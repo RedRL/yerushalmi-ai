@@ -1,38 +1,37 @@
 <div class="step">
   <h3 class="step__title">חומרים לקליפ</h3>
   <p class="step__description">
-    מומלץ לספק כ-10–14 תמונות לכל דקה של סרטון (לדוגמה – כ-30–42 תמונות עבור סרטון של 3 דקות). מומלץ לשלוח גם קטעי וידאו אמיתיים אם יש כאלו.
+    מומלץ לספק כ-10–14 תמונות לכל דקה של סרטון (לדוגמה – כ-20–28 תמונות לסרטון של כ-2 דקות, כ-30–42 לכ-3 דקות, וכ-40–56 לכ-4 דקות). מומלץ לשלוח גם קטעי וידאו אמיתיים אם יש כאלו.
+  </p>
+  <p class="step__description">
+    אם חשוב לכם שהתמונות (המונפשות) ו/או הסרטונים יופיעו בסדר מסוים, כדאי לתת לקבצים שמות כרונולוגיים ברורים (למשל 1, 2, 3...).
   </p>
 
-  @if (needsImages()) {
-    <div class="step__section">
-      <span class="step__section-title">תמונות</span>
-      <app-file-upload
-        kind="image"
-        accept="image/jpeg,image/png,image/webp,image/heic"
-        acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
-        [maxFiles]="20"
-        [maxSizeMb]="25"
-        [files]="imageFiles()"
-        (filesSelected)="onFilesSelected($event, 'image')"
-        (removeFile)="onRemoveFile($event)"
-      />
-    </div>
-  }
+  <div class="step__section">
+    <span class="step__section-title">תמונות</span>
+    <app-file-upload
+      kind="image"
+      accept="image/jpeg,image/png,image/webp,image/heic"
+      acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
+      [maxFiles]="20"
+      [maxSizeMb]="25"
+      [files]="imageFiles()"
+      (filesSelected)="onFilesSelected($event, 'image')"
+      (removeFile)="onRemoveFile($event)"
+    />
+  </div>
 
-  @if (needsVideos()) {
-    <div class="step__section">
-      <span class="step__section-title">סרטונים</span>
-      <app-file-upload
-        kind="video"
-        accept="video/mp4,video/quicktime,video/webm"
-        acceptDescriptionHe="MP4, MOV או WEBM"
-        [maxFiles]="10"
-        [maxSizeMb]="200"
-        [files]="videoFiles()"
-        (filesSelected)="onFilesSelected($event, 'video')"
-        (removeFile)="onRemoveFile($event)"
-      />
-    </div>
-  }
+  <div class="step__section">
+    <span class="step__section-title">סרטונים</span>
+    <app-file-upload
+      kind="video"
+      accept="video/mp4,video/quicktime,video/webm"
+      acceptDescriptionHe="MP4, MOV או WEBM"
+      [maxFiles]="10"
+      [maxSizeMb]="200"
+      [files]="videoFiles()"
+      (filesSelected)="onFilesSelected($event, 'video')"
+      (removeFile)="onRemoveFile($event)"
+    />
+  </div>
 </div>

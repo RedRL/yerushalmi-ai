@@ -15,13 +15,6 @@ export class UploadStepComponent {
   readonly store = inject(ConfiguratorStoreService);
   private readonly uploadApi = inject(UploadApiService);
 
-  readonly needsImages = computed(() => {
-    const source = this.store.videoForm.controls.source.value;
-    return source === 'customer_photos' || source === 'mixed';
-  });
-
-  readonly needsVideos = computed(() => this.store.videoForm.controls.source.value === 'customer_videos');
-
   readonly imageFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'image'));
   readonly videoFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'video'));
 
