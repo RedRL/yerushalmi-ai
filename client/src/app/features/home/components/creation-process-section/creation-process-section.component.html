@@ -1,0 +1,34 @@
+<section id="transparency" class="creation">
+  <app-section-heading
+    appReveal
+    eyebrow="שקיפות"
+    heading="איך באמת נוצר קליפ כזה?"
+    subtitle="בינה מלאכותית יכולה לעשות היום הרבה מאוד. אבל כדי ליצור קליפ כזה צריך לשלב כלים שונים — וגם עבודה ידנית מדויקת."
+  />
+
+  <ol class="creation__stages">
+    @for (stage of stages; track stage.step; let index = $index) {
+      <li class="creation__stage" appReveal [appRevealDelay]="index * 80">
+        <div class="creation__stage-top">
+          <span class="creation__number">{{ stage.step }}</span>
+          <span class="creation__method" [attr.data-method]="stage.method">{{ stage.methodLabelHe }}</span>
+        </div>
+        <h3>{{ stage.titleHe }}</h3>
+        <p>{{ stage.descriptionHe }}</p>
+      </li>
+    }
+  </ol>
+
+  <aside class="creation__note" appReveal>
+    <p>
+      מדובר בעבודה ארוכה יחסית, ולכן המחיר בהתאם.
+    </p>
+    <p>
+      חשוב לציין: כלי ה-AI של היום כבר מתקדמים מאוד. התוצאות שתקבלו — הסרטונים שנוצרים מהתמונות, השירים וההגייה הנכונה של המילים — יהיו ברמה גבוהה יותר מהדוגמאות המוצגות באתר, שנוצרו בטכנולוגיות ישנות יותר.
+    </p>
+    <p>
+      לבירורים נוספים אפשר לפנות אלינו. אנחנו בעד שקיפות ותהליך הוגן.
+    </p>
+    <button type="button" class="creation__cta" (click)="goToContact()">דברו איתנו</button>
+  </aside>
+</section>

@@ -64,10 +64,14 @@ export class PricingCalculatorService {
       const songLengthPrice = getSongLengthPrice(selection.mainProduct, selection.songLength);
       const options = getSongLengthOptions(selection.mainProduct);
       const songLength = options.find((option) => option.id === selection.songLength);
-      if (songLength) {
+      const showIncludedSongLength =
+        selection.mainProduct === 'song_only' ||
+        selection.mainProduct === 'video_new_song' ||
+        (songLength != null && songLengthPrice > 0);
+      if (songLength && showIncludedSongLength) {
         lineItems.push({
           id: `song_length:${selection.songLength}`,
-          labelHe: `אורך — ${songLength.labelHe}`,
+          labelHe: songLength.labelHe,
           amount: songLengthPrice,
           quantity: 1,
         });
@@ -87,7 +91,12 @@ export class PricingCalculatorService {
 
       const format = VIDEO_FORMAT_OPTIONS.find((option) => option.id === selection.videoFormat);
       if (format) {
-        lineItems.push({ id: `video_format:${format.id}`, labelHe: format.labelHe, amount: format.price, quantity: 1 });
+        lineItems.push({
+          id: `video_format:${format.id}`,
+          labelHe: `פורמט — ${format.labelHe}`,
+          amount: format.price,
+          quantity: 1,
+        });
       }
 
       const subtitles = SUBTITLES_OPTIONS.find((option) => option.id === selection.subtitles);

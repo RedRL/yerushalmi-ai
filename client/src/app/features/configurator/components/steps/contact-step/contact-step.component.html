@@ -3,7 +3,7 @@
     <div class="contact-step__success" role="status" aria-live="polite">
       <h3 class="step__title">הבקשה נשלחה בהצלחה!</h3>
       <p class="step__description">
-        תודה! קיבלתי את כל הפרטים והחומרים. אחזור אליכם בהקדם לאישור סופי ולתחילת התהליך.
+        תודה! קיבלנו את כל הפרטים והחומרים. נחזור אליכם בהקדם לאישור סופי ולתחילת התהליך.
         מספר הפנייה שלכם: <strong>{{ result.inquiryId.slice(0, 8) }}</strong>
       </p>
       <p class="step__description">שליחת הבקשה אינה מהווה תחילת עבודה בפועל, ולא בוצע כל תשלום בשלב זה.</p>
@@ -21,39 +21,37 @@
     <form [formGroup]="store.contactForm" (ngSubmit)="submit()">
       <div class="field-grid field-grid--pair step__section">
         <div class="field">
-          <div class="field__label-row">
-            <label class="field__label" for="contactName">שם מלא *</label>
-            @if (store.contactForm.controls.name.invalid && store.contactForm.controls.name.touched) {
-              <span class="field__error">נא להזין שם מלא</span>
-            }
-          </div>
+          <label class="field__label" for="contactName">שם מלא *</label>
           <input id="contactName" class="field__control" formControlName="name" autocomplete="name" [maxlength]="limits.contactName" />
+          <span class="field__error" aria-live="polite">
+            @if (store.contactForm.controls.name.invalid && store.contactForm.controls.name.touched) {
+              נא להזין שם מלא
+            }
+          </span>
         </div>
 
         <div class="field">
-          <div class="field__label-row">
-            <label class="field__label" for="contactPhone">טלפון *</label>
-            @if (store.contactForm.controls.phone.invalid && store.contactForm.controls.phone.touched) {
-              <span class="field__error">נא להזין מספר טלפון תקין</span>
-            }
-          </div>
+          <label class="field__label" for="contactPhone">טלפון *</label>
           <input id="contactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" [maxlength]="limits.contactPhone" />
+          <span class="field__error" aria-live="polite">
+            @if (store.contactForm.controls.phone.invalid && store.contactForm.controls.phone.touched) {
+              נא להזין מספר טלפון תקין
+            }
+          </span>
         </div>
 
         <div class="field">
-          <div class="field__label-row">
-            <label class="field__label" for="contactEmail">מייל *</label>
-            @if (store.contactForm.controls.email.invalid && store.contactForm.controls.email.touched) {
-              <span class="field__error">
-                @if (store.contactForm.controls.email.hasError('required')) {
-                  נא להזין כתובת אימייל
-                } @else {
-                  כתובת אימייל לא תקינה
-                }
-              </span>
-            }
-          </div>
+          <label class="field__label" for="contactEmail">מייל *</label>
           <input id="contactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" [maxlength]="limits.contactEmail" />
+          <span class="field__error" aria-live="polite">
+            @if (store.contactForm.controls.email.invalid && store.contactForm.controls.email.touched) {
+              @if (store.contactForm.controls.email.hasError('required')) {
+                נא להזין כתובת אימייל
+              } @else {
+                כתובת אימייל לא תקינה
+              }
+            }
+          </span>
         </div>
 
         <div class="field">
@@ -113,10 +111,6 @@
         </div>
       </div>
 
-      @if (store.submitError()) {
-        <p class="contact-step__error" role="alert" aria-live="assertive">{{ store.submitError() }}</p>
-      }
-
       <button
         type="submit"
         class="contact-step__submit"
@@ -129,6 +123,10 @@
           <span>שליחת הבקשה וקבלת אישור</span>
         }
       </button>
+
+      @if (store.submitError()) {
+        <p class="contact-step__error" role="alert" aria-live="assertive">{{ store.submitError() }}</p>
+      }
     </form>
   }
 </div>

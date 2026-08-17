@@ -19,7 +19,6 @@
 
       <div
         class="configurator__body"
-        [class.configurator__body--scrollable]="store.currentStep().id === 'upload'"
         [class.configurator__body--summary]="store.currentStep().id === 'summary'"
       >
 
@@ -83,30 +82,31 @@
 
         <div class="configurator__nav">
 
-          <button type="button" class="configurator__nav-back" [disabled]="isFirstStep" (click)="goBack()">
-
-            הקודם
-
-          </button>
+          @if (!isFirstStep) {
+            <button type="button" class="configurator__nav-back" (click)="goBack()">
+              הקודם
+            </button>
+          }
 
           @if (!isFinalStep) {
-
-            <button
-
-              type="button"
-
-              class="configurator__nav-next"
-
-              [disabled]="!store.isCurrentStepValid()"
-
-              (click)="goNext()"
-
+            <span
+              class="configurator__nav-next-wrap"
+              [class.configurator__nav-next-wrap--blocked]="!store.isCurrentStepValid()"
             >
+              <button
+                type="button"
+                class="configurator__nav-next"
+                [disabled]="!store.isCurrentStepValid()"
+                [attr.aria-describedby]="!store.isCurrentStepValid() ? 'configurator-next-hint' : null"
+                (click)="goNext()"
+              >
+                הבא
+              </button>
 
-              הבא
-
-            </button>
-
+              @if (!store.isCurrentStepValid() && store.currentStepValidationMessage(); as hint) {
+                <span id="configurator-next-hint" class="configurator__nav-tooltip" role="tooltip">{{ hint }}</span>
+              }
+            </span>
           }
 
         </div>

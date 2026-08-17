@@ -6,7 +6,7 @@ export const videoSourceSchema = z.enum(['customer_photos', 'ai_only', 'mixed', 
 
 export const videoLengthSchema = z.enum(['min_2_0', 'min_2_5', 'min_3_0', 'min_3_5', 'min_4_0', 'min_4_5']);
 
-export const videoFormatSchema = z.enum(['landscape', 'portrait', 'both']);
+export const videoFormatSchema = z.enum(['landscape', 'portrait', 'portrait_3_4', 'classic', 'square', 'both']);
 
 export const subtitlesSchema = z.enum(['none', 'selected', 'full']);
 
@@ -97,7 +97,7 @@ export const inquirySchema = z
     video: videoConfigSchema.optional(),
     addons: z.array(addonSchema).max(20).optional().default([]),
     projectDetails: projectDetailsSchema,
-    uploadedFiles: z.array(uploadedFileReferenceSchema).max(50).optional().default([]),
+    uploadedFiles: z.array(uploadedFileReferenceSchema).max(80).optional().default([]),
     consents: consentsSchema,
     // Accepted for forward-compatibility with the client payload shape, but
     // NEVER used for the trusted price calculation. See pricing.service.ts.
@@ -141,15 +141,13 @@ export const inquirySchema = z
     }
 
     if (includesVideo) {
-      const hasUploadedMedia = data.uploadedFiles?.some(
-        (file) => file.type === 'image' || file.type === 'video',
-      );
+      const hasUploadedImages = data.uploadedFiles?.some((file) => file.type === 'image');
 
-      if (!hasUploadedMedia) {
+      if (!hasUploadedImages) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['uploadedFiles'],
-          message: 'נא להעלות תמונות ו/או סרטונים לקליפ',
+          message: 'נא להעלות תמונות לקליפ',
         });
       }
     }

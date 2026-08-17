@@ -5,8 +5,8 @@ import { firstValueFrom, merge } from 'rxjs';
 
 import { InquiryApiService } from '../../../core/services/inquiry-api.service';
 import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
-import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, normalizeLengthId, getSongLengthOptions } from '../../../core/config/pricing.config';
-import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoLengthId } from '../../../shared/models/pricing.model';
+import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions } from '../../../core/config/pricing.config';
+import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoFormatId, VideoLengthId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
@@ -97,7 +97,7 @@ export class ConfiguratorStoreService {
   readonly videoForm = this.fb.group({
     source: this.fb.control<'customer_photos' | 'ai_only' | 'mixed' | 'customer_videos' | ''>(DEFAULT_VIDEO_SOURCE),
     length: this.fb.control<VideoLengthId>(DEFAULT_LENGTH_ID),
-    format: this.fb.control<'landscape' | 'portrait' | 'both'>('landscape'),
+    format: this.fb.control<VideoFormatId>(DEFAULT_VIDEO_FORMAT),
     subtitles: this.fb.control<'none' | 'selected' | 'full'>('none'),
   });
 
@@ -271,7 +271,7 @@ export class ConfiguratorStoreService {
   readonly isUploadStepValid = computed(() => {
     if (!this.requiresUploadStep()) return true;
     const files = this.uploadedFiles();
-    return files.some((file) => file.status === 'complete');
+    return files.some((file) => file.type === 'image' && file.status === 'complete');
   });
 
   readonly isExtrasStepValid = computed(() => {
@@ -328,10 +328,141 @@ export class ConfiguratorStoreService {
     return this.isStepValid(step.id);
   });
 
+  readonly currentStepValidationMessage = computed(() => {
+    const step = this.currentStep();
+    if (!step || this.isStepValid(step.id)) return null;
+    return this.getStepValidationMessage(step.id);
+  });
+
+  getStepValidationMessage(id: ConfiguratorStepId): string {
+    switch (id) {
+      case 'product':
+        return 'נא לבחור סוג פרויקט כדי להמשיך';
+      case 'song':
+        return this.getSongStepValidationMessage();
+      case 'video':
+        return 'נא להשלים את פרטי הסרטון כדי להמשיך';
+      case 'details':
+        return this.getDetailsStepValidationMessage();
+      case 'extras':
+        return this.getDetailsStepValidationMessage();
+      case 'upload':
+        return this.getUploadStepValidationMessage();
+      case 'summary':
+        return 'נא להשלים את השלב הנוכחי כדי להמשיך';
+      case 'contact':
+        return this.getContactStepValidationMessage();
+      default:
+        return 'נא להשלים את השלב הנוכחי כדי להמשיך';
+    }
+  }
+
+  private getSongStepValidationMessage(): string {
+    this.formRevision();
+    const value = this.songValue();
+
+    if (this.songForm.controls.additionalNotes.invalid) {
+      return 'הערות השיר ארוכות מדי — קצרו את הטקסט כדי להמשיך';
+    }
+
+    if (this.requiresExistingSongRights()) {
+      return 'נא להזין את שם השיר כדי להמשיך';
+    }
+
+    if (this.includesNewSong()) {
+      const styles = parseSongStyles(value.style);
+      if (styles.length === 0) {
+        return 'נא לבחור לפחות סגנון שיר אחד כדי להמשיך';
+      }
+      if (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0) {
+        return 'נא לפרט את הסגנון המוזיקלי כדי להמשיך';
+      }
+    }
+
+    return 'נא להשלים את פרטי השיר כדי להמשיך';
+  }
+
+  private getDetailsStepValidationMessage(): string {
+    this.formRevision();
+    const missing: string[] = [];
+    const form = this.projectDetailsForm;
+
+    if (form.controls.personName.invalid) {
+      missing.push('שם האדם');
+    }
+    if (form.controls.occasion.invalid) {
+      missing.push('סוג האירוע');
+    }
+    if (form.controls.story.hasError('required') || form.controls.story.hasError('minlength')) {
+      missing.push('הסיפור (לפחות 10 תווים)');
+    }
+
+    if (missing.length === 1) {
+      return `נא להשלים: ${missing[0]}`;
+    }
+    if (missing.length > 1) {
+      return `נא להשלים: ${missing.join(', ')}`;
+    }
+
+    return 'נא להשלים את השדות החובה כדי להמשיך';
+  }
+
+  private getUploadStepValidationMessage(): string {
+    const images = this.uploadedFiles().filter((file) => file.type === 'image');
+
+    if (images.some((file) => file.status === 'uploading')) {
+      return 'יש להמתין לסיום העלאת התמונות';
+    }
+
+    if (images.some((file) => file.status === 'error')) {
+      return 'יש תמונות שהעלאה שלהן נכשלה — הסירו אותן או העלו מחדש';
+    }
+
+    return 'נא להעלות תמונות כדי להמשיך';
+  }
+
+  private getContactStepValidationMessage(): string {
+    this.formRevision();
+    const missing: string[] = [];
+    const form = this.contactForm;
+
+    if (form.controls.name.invalid) {
+      missing.push('שם מלא');
+    }
+    if (form.controls.phone.invalid) {
+      missing.push('טלפון');
+    }
+    if (form.controls.email.invalid) {
+      missing.push('אימייל');
+    }
+    if (form.controls.mediaRightsConsent.invalid) {
+      missing.push('אישור הרשאות לחומרים');
+    }
+    if (form.controls.contactPermissionConsent.invalid) {
+      missing.push('אישור ליצירת קשר');
+    }
+    if (form.controls.termsConsent.invalid) {
+      missing.push('אישור תקנון');
+    }
+
+    if (missing.length === 1) {
+      return `נא להשלים: ${missing[0]}`;
+    }
+    if (missing.length > 1) {
+      return `נא להשלים: ${missing.join(', ')}`;
+    }
+
+    return 'נא להשלים את פרטי הקשר כדי להמשיך';
+  }
+
   selectMainProduct(id: MainProductId): void {
     this.mainProduct.set(id);
     if (id === 'video_existing_song' || id === 'video_new_song') {
       this.videoForm.controls.source.setValue(DEFAULT_VIDEO_SOURCE, { emitEvent: false });
+      this.videoForm.controls.format.setValue(DEFAULT_VIDEO_FORMAT, { emitEvent: false });
+    }
+    if (id === 'song_only' || id === 'video_new_song') {
+      this.songForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
     }
     this.ensureSongLengthDefault();
     this.persistState();
@@ -341,6 +472,10 @@ export class ConfiguratorStoreService {
     this.mainProduct.set(id);
     if (id === 'video_existing_song' || id === 'video_new_song') {
       this.videoForm.controls.source.setValue(DEFAULT_VIDEO_SOURCE, { emitEvent: false });
+      this.videoForm.controls.format.setValue(DEFAULT_VIDEO_FORMAT, { emitEvent: false });
+    }
+    if (id === 'song_only' || id === 'video_new_song') {
+      this.songForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
     }
     this.ensureSongLengthDefault();
     this.currentStepIndex.set(1);
@@ -388,20 +523,23 @@ export class ConfiguratorStoreService {
 
   addUploadedFile(file: UploadedFileReference): void {
     this.uploadedFiles.update((files) => [...files, file]);
+    this.persistState();
   }
 
   updateUploadedFile(id: string, patch: Partial<UploadedFileReference>): void {
     this.uploadedFiles.update((files) => files.map((file) => (file.id === id ? { ...file, ...patch } : file)));
+    this.persistState();
   }
 
   removeUploadedFile(id: string): void {
     this.uploadedFiles.update((files) => {
       const target = files.find((file) => file.id === id);
-      if (target?.previewUrl) {
+      if (target?.previewUrl?.startsWith('blob:')) {
         URL.revokeObjectURL(target.previewUrl);
       }
       return files.filter((file) => file.id !== id);
     });
+    this.persistState();
   }
 
   goNext(): void {
@@ -550,7 +688,11 @@ export class ConfiguratorStoreService {
     this.currentStepIndex.set(0);
     this.mainProduct.set(null);
     this.addons.set([]);
-    this.uploadedFiles().forEach((file) => file.previewUrl && URL.revokeObjectURL(file.previewUrl));
+    this.uploadedFiles().forEach((file) => {
+      if (file.previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(file.previewUrl);
+      }
+    });
     this.uploadedFiles.set([]);
     this.songForm.reset({
       style: '',
@@ -565,7 +707,7 @@ export class ConfiguratorStoreService {
       existingSongArtist: '',
       existingSongLink: '',
     });
-    this.videoForm.reset({ source: DEFAULT_VIDEO_SOURCE, length: DEFAULT_LENGTH_ID, format: 'landscape', subtitles: 'none' });
+    this.videoForm.reset({ source: DEFAULT_VIDEO_SOURCE, length: DEFAULT_LENGTH_ID, format: DEFAULT_VIDEO_FORMAT, subtitles: 'none' });
     this.projectDetailsForm.reset();
     this.contactForm.reset({
       name: '',
@@ -601,6 +743,7 @@ export class ConfiguratorStoreService {
         status: file.status,
         sizeBytes: file.sizeBytes,
         errorMessageHe: file.errorMessageHe,
+        thumbnailDataUrl: file.thumbnailDataUrl,
       })),
     };
     saveConfiguratorState(state);
@@ -636,6 +779,7 @@ export class ConfiguratorStoreService {
     if (normalizedVideoLength) {
       savedVideoForm.length = normalizedVideoLength;
     }
+    savedVideoForm.format = normalizeVideoFormatId(savedVideoForm.format);
     this.videoForm.patchValue(savedVideoForm as typeof this.videoForm.value, { emitEvent: false });
     this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
     this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });

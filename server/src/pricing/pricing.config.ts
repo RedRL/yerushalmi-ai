@@ -89,9 +89,15 @@ function buildLengthPrices(maxId: VideoLengthId): Record<VideoLengthId, { labelH
   );
 }
 
-export const SONG_LENGTH_PRICES = buildLengthPrices('min_2_0') as Record<SongLengthId, { labelHe: string; price: number }>;
+function buildFreeLengthPrices(maxId: VideoLengthId): Record<SongLengthId, { labelHe: string; price: number }> {
+  return Object.fromEntries(
+    Object.entries(buildLengthPrices(maxId)).map(([id, entry]) => [id, { ...entry, price: 0 }]),
+  ) as Record<SongLengthId, { labelHe: string; price: number }>;
+}
 
-export const SONG_LENGTH_FULL_EXPERIENCE_PRICES = buildLengthPrices('min_3_5') as Record<
+export const SONG_LENGTH_PRICES = buildFreeLengthPrices('min_3_0');
+
+export const SONG_LENGTH_FULL_EXPERIENCE_PRICES = buildLengthPrices('min_3_0') as Record<
   SongLengthId,
   { labelHe: string; price: number }
 >;
@@ -103,14 +109,17 @@ export function usesCombinedSongVideoLength(mainProduct: MainProductId): boolean
 export const VIDEO_LENGTH_PRICES = buildLengthPrices('min_4_5');
 
 export const VIDEO_FORMAT_PRICES: Record<VideoFormatId, { labelHe: string; price: number }> = {
-  landscape: { labelHe: 'אופקי 16:9', price: 0 }, // TODO(pricing): placeholder
-  portrait: { labelHe: 'אנכי 9:16', price: 0 }, // TODO(pricing): placeholder
-  both: { labelHe: 'שני הפורמטים', price: 120 }, // TODO(pricing): placeholder
+  landscape: { labelHe: '16:9', price: 0 },
+  portrait: { labelHe: '9:16', price: 0 },
+  portrait_3_4: { labelHe: '3:4', price: 0 },
+  classic: { labelHe: '4:3', price: 0 },
+  square: { labelHe: '1:1', price: 0 },
+  both: { labelHe: 'שני הפורמטים', price: 0 },
 };
 
 export const SUBTITLES_PRICES: Record<SubtitlesId, { labelHe: string; price: number }> = {
   none: { labelHe: 'ללא כתוביות', price: 0 },
-  selected: { labelHe: 'כתוביות מעוצבות', price: 80 },
+  selected: { labelHe: 'כתוביות מעוצבות', price: 120 },
   full: { labelHe: 'כתוביות מלאות', price: 150 },
 };
 

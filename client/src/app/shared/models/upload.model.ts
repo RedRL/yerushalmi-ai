@@ -12,5 +12,7 @@ export interface UploadedFileReference {
   status: UploadStatus;
   /** Local preview URL (object URL) - must be revoked with URL.revokeObjectURL on cleanup. */
   previewUrl?: string;
+  /** Small persisted thumbnail (data URL) for gallery tiles after refresh. */
+  thumbnailDataUrl?: string;
   errorMessageHe?: string;
 }

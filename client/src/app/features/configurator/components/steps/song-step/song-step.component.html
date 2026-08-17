@@ -124,7 +124,7 @@
 
     <div class="field-grid field-grid--pair step__section">
 
-      <div class="song-step__mood-length" [class.song-step__mood-length--mood-only]="!store.isFullExperience()">
+      <div class="song-step__mood-length">
 
         <div class="field">
 
@@ -136,27 +136,25 @@
 
 
 
-        @if (store.isFullExperience()) {
-          <div class="field">
+        <div class="field">
 
-            <label class="field__label" for="length">{{ lengthFieldLabel() }}</label>
+          <label class="field__label" for="length">{{ lengthFieldLabel() }}</label>
 
-            <select id="length" class="field__control" formControlName="length">
+          <select id="length" class="field__control" formControlName="length">
 
-              @for (option of lengthOptions(); track option.id) {
+            @for (option of lengthOptions(); track option.id) {
 
-                <option [value]="option.id">
+              <option [value]="option.id">
 
-                  {{ lengthOptionLabel(option) }}
+                {{ lengthOptionLabel(option) }}
 
-                </option>
+              </option>
 
-              }
+            }
 
-            </select>
+          </select>
 
-          </div>
-        }
+        </div>
 
       </div>
 

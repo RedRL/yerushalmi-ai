@@ -18,9 +18,11 @@
 }
 
 .contact-step__error {
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
+  margin-bottom: 0;
   color: var(--color-error);
   font-size: var(--font-size-small);
+  text-align: center;
 }
 
 .contact-step__submit {

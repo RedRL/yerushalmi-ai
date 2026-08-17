@@ -75,7 +75,7 @@ export function calculatePriceBreakdown(selection: PricingSelection): PriceBreak
 
     if (selection.videoFormat) {
       const format = VIDEO_FORMAT_PRICES[selection.videoFormat];
-      if (format) {
+      if (format && format.price > 0) {
         lineItems.push({
           id: `video_format:${selection.videoFormat}`,
           labelHe: format.labelHe,

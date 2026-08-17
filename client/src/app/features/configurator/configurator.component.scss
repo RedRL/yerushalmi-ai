@@ -34,17 +34,23 @@ $configurator-sidebar-width: 380px;
 
     app-optional-details-step {
       .step__title {
-        margin-bottom: var(--space-1);
+        margin-bottom: var(--space-4);
         flex-shrink: 0;
       }
 
       .step__section {
-        margin-top: var(--space-3);
-        gap: var(--space-3);
+        margin-top: var(--space-2);
+        row-gap: var(--space-6);
+        column-gap: var(--space-4);
       }
 
       .field-grid {
-        gap: var(--space-3);
+        row-gap: var(--space-6);
+        column-gap: var(--space-4);
+      }
+
+      .field {
+        gap: var(--space-1);
       }
 
       .field__control {
@@ -99,6 +105,7 @@ $configurator-sidebar-width: 380px;
 
     .step__title {
       font-size: var(--font-size-h4);
+      margin-top: var(--space-3);
       margin-bottom: var(--space-2);
     }
 
@@ -132,6 +139,13 @@ $configurator-sidebar-width: 380px;
         outline: 2px solid rgba(139, 92, 246, 0.45);
         outline-offset: 1px;
       }
+    }
+
+    select.field__control {
+      padding-block: var(--space-2);
+      padding-inline-start: var(--space-3);
+      padding-inline-end: calc(var(--space-3) + 1.35rem);
+      background-position: 0.65rem 50%;
     }
 
     .field-grid {
@@ -347,6 +361,9 @@ $configurator-sidebar-width: 380px;
       .file-upload {
 
         gap: var(--space-2);
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
 
       }
 
@@ -355,6 +372,7 @@ $configurator-sidebar-width: 380px;
       .file-upload__dropzone {
 
         padding: var(--space-4) var(--space-3);
+        flex-shrink: 0;
 
 
 
@@ -384,6 +402,25 @@ $configurator-sidebar-width: 380px;
 
       }
 
+    }
+
+
+
+    app-upload-step {
+      .file-upload__files {
+        max-height: calc(#{$configurator-panel-height} - 17rem);
+
+        @include bp.respond-down('sm') {
+          max-height: none;
+        }
+      }
+
+      .file-upload__gallery {
+        @include bp.respond-down('sm') {
+          height: auto;
+          max-height: min(42dvh, 20rem);
+        }
+      }
     }
 
   }
@@ -419,6 +456,10 @@ $configurator-sidebar-width: 380px;
 .configurator__panel {
 
   @include glass-surface;
+
+  position: relative;
+  z-index: 2;
+  overflow: visible;
 
   border-radius: var(--radius-xl);
 
@@ -496,7 +537,9 @@ $configurator-sidebar-width: 380px;
 
   > app-video-step,
 
-  > app-optional-details-step {
+  > app-optional-details-step,
+
+  > app-upload-step {
 
     flex: 1;
 
@@ -527,6 +570,7 @@ $configurator-sidebar-width: 380px;
   @include glass-surface;
 
   position: sticky;
+  z-index: 1;
 
   top: calc(var(--space-6) + 72px);
 
@@ -636,6 +680,10 @@ $configurator-sidebar-width: 380px;
 
   flex-shrink: 0;
 
+  position: relative;
+  z-index: 3;
+  overflow: visible;
+
   padding-top: var(--space-2);
 
 
@@ -684,6 +732,46 @@ $configurator-sidebar-width: 380px;
 
 }
 
+.configurator__nav-next-wrap {
+  position: relative;
+  display: inline-flex;
+  margin-inline-start: auto;
+
+  &--blocked:hover .configurator__nav-tooltip,
+  &--blocked:focus-within .configurator__nav-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
+}
+
+.configurator__nav-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  z-index: 100;
+  width: max-content;
+  max-width: 20rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-accent);
+  background: var(--color-bg-elevated, #1a1a2e);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-tiny);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: pretty;
+  box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.28));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--transition-fast) var(--ease-out),
+    visibility var(--transition-fast) var(--ease-out),
+    transform var(--transition-fast) var(--ease-out);
+}
+
 
 
 .configurator__nav-back {
@@ -703,8 +791,6 @@ $configurator-sidebar-width: 380px;
   color: var(--color-text-on-accent);
 
   box-shadow: var(--shadow-glow-blue);
-
-  margin-inline-start: auto;
 
 }
 

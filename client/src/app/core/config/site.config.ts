@@ -17,6 +17,7 @@ export const SITE_CONFIG = {
 export const NAV_LINKS: readonly NavLink[] = [
   { labelHe: 'דוגמאות', sectionId: 'portfolio' },
   { labelHe: 'איך זה עובד', sectionId: 'how-it-works' },
+  { labelHe: 'שקיפות', sectionId: 'transparency' },
   { labelHe: 'חבילות', sectionId: 'pricing' },
   { labelHe: 'בניית הפרויקט', sectionId: 'configurator' },
   { labelHe: 'יצירת קשר', sectionId: 'contact' },

@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, input, output, signal, viewChild } from '@angular/core';
 import type { UploadedFileKind, UploadedFileReference } from '../../models/upload.model';
-import { formatFileSize } from '../../utils/file-size.util';
-
+import { isAcceptedFileType } from '../../utils/file-type.util';
+import { resolveUploadedFilePreviewUrl } from '../../utils/image-thumbnail.util';
 @Component({
   selector: 'app-file-upload',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,12 +24,11 @@ export class FileUploadComponent {
 
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  readonly totalSizeLabel = computed(() =>
-    formatFileSize(this.files().reduce((sum, file) => sum + file.sizeBytes, 0)),
-  );
+  previewUrl(file: UploadedFileReference): string | undefined {
+    return resolveUploadedFilePreviewUrl(file);
+  }
 
-  openFileDialog(): void {
-    this.fileInput()?.nativeElement.click();
+  openFileDialog(): void {    this.fileInput()?.nativeElement.click();
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -69,14 +68,22 @@ export class FileUploadComponent {
 
     const remainingSlots = this.maxFiles() - this.files().length;
     if (remainingSlots <= 0) {
-      this.errorMessage.set(`ניתן להעלות עד ${this.maxFiles()} קבצים.`);
+      this.errorMessage.set(`ניתן להעלות עד ${this.maxFiles()} תמונות.`);
       return;
     }
 
     const maxBytes = this.maxSizeMb() * 1024 * 1024;
     const validFiles: File[] = [];
+    const accept = this.accept();
+    const acceptLabel = this.acceptDescriptionHe() || 'קבצים מהסוג המותר';
 
     for (const file of candidateFiles.slice(0, remainingSlots)) {
+      if (!isAcceptedFileType(file, accept)) {
+        const typeLabel = this.kind() === 'image' ? 'תמונה נתמכת' : 'קובץ נתמך';
+        this.errorMessage.set(`"${file.name}" אינו ${typeLabel}. ניתן להעלות ${acceptLabel}.`);
+        continue;
+      }
+
       if (file.size > maxBytes) {
         this.errorMessage.set(`הקובץ "${file.name}" חורג מהגודל המקסימלי המותר (${this.maxSizeMb()}MB).`);
         continue;
@@ -87,9 +94,5 @@ export class FileUploadComponent {
     if (validFiles.length > 0) {
       this.filesSelected.emit(validFiles);
     }
-  }
-
-  formatSize(bytes: number): string {
-    return formatFileSize(bytes);
   }
 }

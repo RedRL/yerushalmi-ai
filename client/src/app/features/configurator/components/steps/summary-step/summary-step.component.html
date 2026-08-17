@@ -17,9 +17,9 @@
       </div>
       <p class="summary-step__text">עבור: {{ personNameDisplay() }}</p>
       <p class="summary-step__text">אירוע: {{ occasionDisplay() }}</p>
-      <p class="summary-step__text summary-step__story">{{ storyPreview() }}</p>
-      @if (storyText()) {
-        <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">הצג את הסיפור המלא</button>
+      <p #storyTextEl class="summary-step__text summary-step__story">הסיפור: {{ storyText() }}</p>
+      @if (storyOverflows()) {
+        <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">הצג עוד</button>
       }
     </div>
 
@@ -33,7 +33,7 @@
           <p class="summary-step__text">שיר קיים: {{ existingSongDisplay() }}</p>
         } @else {
           <p class="summary-step__text">סגנון: {{ songStyleSummary() }}</p>
-          @if (store.isFullExperience() && songLengthLabel()) {
+          @if (songLengthLabel()) {
             <p class="summary-step__text">אורך: {{ songLengthLabel() }}</p>
           }
         }
@@ -47,6 +47,24 @@
           <button type="button" (click)="goToStep('video')">עריכה</button>
         </div>
         <p class="summary-step__text">{{ videoDetailsSummary() }}</p>
+      </div>
+    }
+
+    @if (hasOptionalDetails()) {
+      <div class="summary-step__row">
+        <div class="summary-step__row-header">
+          <h4>פרטים נוספים</h4>
+          <button type="button" (click)="goToStep('extras')">עריכה</button>
+        </div>
+        @for (line of optionalDetailsLines(); track line.label) {
+          <p class="summary-step__text">{{ line.label }}: {{ line.value }}</p>
+        }
+        @if (additionalNotesText()) {
+          <p #additionalNotesEl class="summary-step__text summary-step__story">מידע נוסף: {{ additionalNotesText() }}</p>
+          @if (additionalNotesOverflows()) {
+            <button type="button" class="summary-step__story-expand" (click)="openAdditionalNotesDialog()">הצג עוד</button>
+          }
+        }
       </div>
     }
 
@@ -70,6 +88,25 @@
       </div>
       <div class="summary-step__dialog-body">
         <p class="summary-step__dialog-story">{{ storyText() }}</p>
+      </div>
+    </div>
+  }
+
+  @if (additionalNotesDialogOpen()) {
+    <div class="summary-step__dialog-backdrop" (click)="closeAdditionalNotesDialog()" aria-hidden="true"></div>
+    <div
+      class="summary-step__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="additional-notes-dialog-title"
+      (wheel)="onAdditionalNotesDialogWheel($event)"
+    >
+      <div class="summary-step__dialog-header">
+        <h4 id="additional-notes-dialog-title">מידע נוסף</h4>
+        <button type="button" class="summary-step__dialog-close" (click)="closeAdditionalNotesDialog()" aria-label="סגירה">×</button>
+      </div>
+      <div class="summary-step__dialog-body">
+        <p class="summary-step__dialog-story">{{ additionalNotesText() }}</p>
       </div>
     </div>
   }

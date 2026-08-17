@@ -10,6 +10,10 @@
   margin-top: var(--space-3);
 }
 
+.project-details-step__story-error {
+  min-height: 2.7em;
+}
+
 .project-details-step__counter {
   color: var(--color-text-muted);
   font-size: var(--font-size-small);

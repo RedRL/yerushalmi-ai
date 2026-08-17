@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type { UploadedFileKind } from '../../shared/models/upload.model';
+import { resolveFileMimeType } from '../../shared/utils/file-type.util';
 
 export interface InitiateUploadResponse {
   success: true;
@@ -38,7 +39,7 @@ export class UploadApiService {
       this.http.post<InitiateUploadResponse>(`${this.baseUrl}/uploads/initiate`, {
         fileName: file.name,
         fileType: type,
-        mimeType: file.type || 'application/octet-stream',
+        mimeType: resolveFileMimeType(file),
         sizeBytes: file.size,
       }),
     );

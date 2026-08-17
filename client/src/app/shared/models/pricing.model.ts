@@ -12,7 +12,7 @@ export type VideoLengthId =
 
 export type SongLengthId = VideoLengthId;
 
-export type VideoFormatId = 'landscape' | 'portrait' | 'both';
+export type VideoFormatId = 'landscape' | 'portrait' | 'portrait_3_4' | 'classic' | 'square' | 'both';
 
 export type SubtitlesId = 'none' | 'selected' | 'full';
 

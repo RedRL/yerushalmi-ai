@@ -42,7 +42,11 @@
   ul {
     display: flex;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-4);
+
+    @include bp.respond-up('xl') {
+      gap: var(--space-6);
+    }
   }
 
   @include bp.respond-up('lg') {

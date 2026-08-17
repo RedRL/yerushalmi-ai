@@ -203,6 +203,8 @@ body.scroll-locked {
 }
 
 .field__error {
+  min-height: 1.35em;
+  line-height: 1.35;
   font-size: var(--font-size-tiny);
   color: var(--color-error);
   flex-shrink: 0;
@@ -217,11 +219,11 @@ body.scroll-locked {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-glass);
+  background-color: var(--color-bg-glass);
   color: var(--color-text-primary);
   font-family: inherit;
   font-size: var(--font-size-body);
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
 
   &::placeholder {
     color: var(--color-text-muted);
@@ -229,7 +231,7 @@ body.scroll-locked {
 
   &:focus-visible {
     border-color: var(--color-accent-purple-light);
-    background: var(--color-bg-surface);
+    background-color: var(--color-bg-surface);
   }
 
   &.ng-invalid.ng-touched {
@@ -246,6 +248,23 @@ textarea.field__control {
   min-height: 96px;
   line-height: var(--line-height-body);
   @include scrollbars.app-scrollbar;
+}
+
+select.field__control {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding-inline-end: calc(var(--space-4) + 1.25rem);
+  background-color: var(--color-bg-glass);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6 8 10 12 6' stroke='%237a849e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  background-position: 0.65rem 50%;
+
+  &:focus-visible {
+    background-color: var(--color-bg-surface);
+  }
 }
 
 .field-grid {

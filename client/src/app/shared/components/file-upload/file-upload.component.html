@@ -4,7 +4,7 @@
     [class.file-upload__dropzone--dragging]="isDragging()"
     role="button"
     tabindex="0"
-    [attr.aria-label]="'העלאת קבצים - ' + acceptDescriptionHe()"
+    [attr.aria-label]="'העלאת תמונות - ' + acceptDescriptionHe()"
     (click)="openFileDialog()"
     (keydown)="onKeydown($event)"
     (dragover)="onDragOver($event)"
@@ -32,7 +32,7 @@
       />
     </svg>
 
-    <p class="file-upload__prompt">גררו קבצים לכאן או לחצו לבחירה</p>
+    <p class="file-upload__prompt">גררו תמונות לכאן או לחצו לבחירה</p>
   </div>
 
   @if (errorMessage()) {
@@ -40,40 +40,50 @@
   }
 
   @if (files().length > 0) {
-    <ul class="file-upload__grid">
-      @for (file of files(); track file.id) {
-        <li class="file-upload__tile" [class.file-upload__tile--error]="file.status === 'error'">
-          <div class="file-upload__preview">
-            @if (file.previewUrl) {
-              <img [src]="file.previewUrl" [alt]="file.name" class="file-upload__thumb" />
-            } @else {
-              <span class="file-upload__icon" aria-hidden="true">{{ kind() === 'audio' ? '🎵' : '🎬' }}</span>
-            }
+    <div class="file-upload__files">
+      <div class="file-upload__gallery">
+        <ul class="file-upload__grid">
+          @for (file of files(); track file.id) {
+            <li class="file-upload__tile" [class.file-upload__tile--error]="file.status === 'error'">
+              <div class="file-upload__preview">
+                @if (previewUrl(file); as thumbUrl) {
+                  <img [src]="thumbUrl" [alt]="file.name" class="file-upload__thumb" />
+                } @else {
+                  <span class="file-upload__icon" aria-hidden="true">
+                    @switch (kind()) {
+                      @case ('audio') { 🎵 }
+                      @case ('image') { 🖼️ }
+                      @default { 🎬 }
+                    }
+                  </span>
+                }
 
-            @switch (file.status) {
-              @case ('uploading') {
-                <span class="file-upload__badge file-upload__badge--uploading">מעלה</span>
-              }
-              @case ('error') {
-                <span class="file-upload__badge file-upload__badge--error">שגיאה</span>
-              }
-            }
+                @switch (file.status) {
+                  @case ('uploading') {
+                    <span class="file-upload__badge file-upload__badge--uploading">מעלה</span>
+                  }
+                  @case ('error') {
+                    <span class="file-upload__badge file-upload__badge--error">שגיאה</span>
+                  }
+                }
 
-            <button
-              type="button"
-              class="file-upload__remove"
-              (click)="removeFile.emit(file.id)"
-              [attr.aria-label]="'הסרת הקובץ ' + file.name"
-            >
-              ✕
-            </button>
-          </div>
+                <button
+                  type="button"
+                  class="file-upload__remove"
+                  (click)="removeFile.emit(file.id)"
+                  [attr.aria-label]="'הסרת הקובץ ' + file.name"
+                >
+                  ✕
+                </button>
+              </div>
 
-          <span class="file-upload__name" [title]="file.name">{{ file.name }}</span>
-        </li>
-      }
-    </ul>
+              <span class="file-upload__name" [title]="file.name">{{ file.name }}</span>
+            </li>
+          }
+        </ul>
+      </div>
 
-    <p class="file-upload__summary">{{ files().length }} קבצים · {{ totalSizeLabel() }} בסה"כ</p>
+      <p class="file-upload__summary">{{ files().length }} תמונות</p>
+    </div>
   }
 </div>

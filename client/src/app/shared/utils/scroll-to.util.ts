@@ -7,9 +7,10 @@ const NAV_SCROLL_OFFSET_DEFAULT = 24;
 /** Per-section nav offsets — higher value lands higher on the page. */
 const NAV_SCROLL_OFFSETS: Readonly<Record<string, number>> = {
   'how-it-works': 112,
+  transparency: 15,
   'hero-stage': 105,
-  pricing: -25,
-  configurator: 56,
+  pricing: 0,
+  configurator: 65,
   contact: -20,
 };
 

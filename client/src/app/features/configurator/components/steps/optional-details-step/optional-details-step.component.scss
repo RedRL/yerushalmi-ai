@@ -21,18 +21,29 @@
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr;
-  align-content: stretch;
-  margin-top: var(--space-3);
+  align-content: start;
+  row-gap: var(--space-6);
+  column-gap: var(--space-4);
+  margin-top: var(--space-2);
 
   @include bp.respond-up('md') {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto minmax(5rem, 1fr);
   }
+}
+
+.optional-details-step .field {
+  gap: var(--space-1);
 }
 
 .optional-details-step .field--full {
   display: flex;
   flex-direction: column;
   min-height: 0;
+
+  @include bp.respond-up('md') {
+    height: 100%;
+  }
 }
 
 .optional-details-step__notes {

@@ -1,36 +1,21 @@
 <div class="step">
   <h3 class="step__title">חומרים לקליפ</h3>
   <p class="step__description">
-    מומלץ לספק כ-10–14 תמונות לכל דקה של סרטון (לדוגמה – כ-20–28 תמונות לסרטון של כ-2 דקות, כ-30–42 לכ-3 דקות, וכ-40–56 לכ-4 דקות). מומלץ לשלוח גם קטעי וידאו אמיתיים אם יש כאלו.
+    מומלץ לספק 18–22 תמונות לכל דקה של סרטון (לדוגמה – כ-36–44 תמונות לסרטון של כ-2 דקות, כ-45–55 לכ-2.5 דקות, וכ-54–66 לכ-3 דקות).
   </p>
   <p class="step__description">
-    אם חשוב לכם שהתמונות (המונפשות) ו/או הסרטונים יופיעו בסדר מסוים, כדאי לתת לקבצים שמות כרונולוגיים ברורים (למשל 1, 2, 3...).
+    אם חשוב לכם שהתמונות יופיעו בסדר מסוים, כדאי לתת לתמונות שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר את התמונות כפי שנראה לנו לנכון בהתאם לתמונות עצמן ולשיר ברקע.
   </p>
 
   <div class="step__section">
-    <span class="step__section-title">תמונות</span>
     <app-file-upload
       kind="image"
-      accept="image/jpeg,image/png,image/webp,image/heic"
+      accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
       acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
-      [maxFiles]="20"
+      [maxFiles]="80"
       [maxSizeMb]="25"
       [files]="imageFiles()"
-      (filesSelected)="onFilesSelected($event, 'image')"
-      (removeFile)="onRemoveFile($event)"
-    />
-  </div>
-
-  <div class="step__section">
-    <span class="step__section-title">סרטונים</span>
-    <app-file-upload
-      kind="video"
-      accept="video/mp4,video/quicktime,video/webm"
-      acceptDescriptionHe="MP4, MOV או WEBM"
-      [maxFiles]="10"
-      [maxSizeMb]="200"
-      [files]="videoFiles()"
-      (filesSelected)="onFilesSelected($event, 'video')"
+      (filesSelected)="onFilesSelected($event)"
       (removeFile)="onRemoveFile($event)"
     />
   </div>

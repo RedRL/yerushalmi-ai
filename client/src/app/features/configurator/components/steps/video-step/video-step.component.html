@@ -28,17 +28,29 @@
     }
 
     <div class="step__section">
-      <span class="step__section-title">פורמט יציאה</span>
-      <div class="option-card-grid" role="radiogroup" aria-label="פורמט יציאה">
+      <div class="video-step__section-heading">
+        <span class="step__section-title">פורמט יציאה</span>
+        <span class="field__hint video-step__inline-hint">הבחירה לא משפיעה על העלות.</span>
+      </div>
+      <div class="option-card-grid format-option-grid" role="radiogroup" aria-label="פורמט יציאה">
         @for (option of formatOptions; track option.id) {
           <button
             type="button"
-            class="option-card"
+            class="option-card format-option-card"
             role="radio"
             [attr.aria-checked]="store.videoForm.controls.format.value === option.id"
             [class.option-card--selected]="store.videoForm.controls.format.value === option.id"
             (click)="selectFormat(option.id)"
           >
+            <span class="format-option-card__preview-stage" aria-hidden="true">
+              <span
+                class="format-option-card__preview"
+                [class.format-option-card__preview--landscape]="option.previewOrientation === 'landscape'"
+                [class.format-option-card__preview--portrait]="option.previewOrientation === 'portrait'"
+                [class.format-option-card__preview--square]="option.previewOrientation === 'square'"
+                [style.aspect-ratio]="option.previewAspectRatio"
+              ></span>
+            </span>
             <span class="option-card__title">{{ option.labelHe }}</span>
           </button>
         }

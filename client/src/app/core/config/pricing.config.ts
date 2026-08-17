@@ -85,7 +85,7 @@ export const SONG_STYLE_OPTIONS: readonly string[] = [
   'ים תיכוני',
   'בלדה',
   'היפ הופ',
-  'ילדים',
+  'גוספל',
   'קצבי',
   'מרגש',
   'אחר',
@@ -102,11 +102,20 @@ export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[]
 
 export const DEFAULT_VIDEO_SOURCE: VideoSourceId = 'customer_videos';
 
+/** Default output format for new video projects. */
+export const DEFAULT_VIDEO_FORMAT: VideoFormatId = 'landscape';
+
 export const LENGTH_HALF_STEP_PRICE = 120;
 
 export const DEFAULT_LENGTH_ID: VideoLengthId = 'min_2_0';
 
 type PriceableOptionLike<TId extends string> = SelectableOption<TId> & { price: number };
+
+export interface VideoFormatOption extends PriceableOptionLike<VideoFormatId> {
+  /** CSS `aspect-ratio` value shown as a visual preview in the configurator. */
+  previewAspectRatio: string;
+  previewOrientation: 'landscape' | 'portrait' | 'square';
+}
 
 const LENGTH_OPTION_DEFS: readonly {
   id: VideoLengthId;
@@ -131,14 +140,18 @@ function buildLengthOptions(maxId: VideoLengthId): readonly PriceableOptionLike<
   }));
 }
 
+function buildFreeLengthOptions(maxId: VideoLengthId): readonly PriceableOptionLike<VideoLengthId>[] {
+  return buildLengthOptions(maxId).map((option) => ({ ...option, price: 0 }));
+}
+
 /** Existing-song video: 2–4.5 minutes in half-minute steps. */
 export const VIDEO_LENGTH_OPTIONS = buildLengthOptions('min_4_5');
 
-/** Full experience combined length: 2–3.5 minutes in half-minute steps. */
-export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions('min_3_5');
+/** Full experience combined length: 2–3 minutes in half-minute steps. */
+export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions('min_3_0');
 
-/** Personal song only — length is fixed in UI at 2 minutes. */
-export const SONG_LENGTH_OPTIONS = buildLengthOptions('min_2_0');
+/** Personal song only — 2–3 minutes, no surcharge. */
+export const SONG_LENGTH_OPTIONS = buildFreeLengthOptions('min_3_0');
 
 export function getSongLengthOptions(
   mainProduct: MainProductId | null,
@@ -178,14 +191,27 @@ export function normalizeLengthId(value: string | null | undefined): VideoLength
   return LENGTH_OPTION_DEFS.some((option) => option.id === value) ? (value as VideoLengthId) : '';
 }
 
-export const VIDEO_FORMAT_OPTIONS: readonly PriceableOptionLike<VideoFormatId>[] = [
-  { id: 'landscape', labelHe: 'אופקי 16:9', price: 0 },
-  { id: 'portrait', labelHe: 'אנכי 9:16', price: 0 },
+export const VIDEO_FORMAT_OPTIONS: readonly VideoFormatOption[] = [
+  { id: 'landscape', labelHe: '16:9', price: 0, previewAspectRatio: '16 / 9', previewOrientation: 'landscape' },
+  { id: 'classic', labelHe: '4:3', price: 0, previewAspectRatio: '4 / 3', previewOrientation: 'landscape' },
+  { id: 'square', labelHe: '1:1', price: 0, previewAspectRatio: '1 / 1', previewOrientation: 'square' },
+  { id: 'portrait', labelHe: '9:16', price: 0, previewAspectRatio: '9 / 16', previewOrientation: 'portrait' },
+  { id: 'portrait_3_4', labelHe: '3:4', price: 0, previewAspectRatio: '3 / 4', previewOrientation: 'portrait' },
 ];
+
+const VIDEO_FORMAT_IDS = new Set<VideoFormatId>(VIDEO_FORMAT_OPTIONS.map((option) => option.id));
+
+export function normalizeVideoFormatId(value: string | null | undefined): VideoFormatId {
+  if (value === 'portrait_feed') {
+    return 'portrait_3_4';
+  }
+
+  return value && VIDEO_FORMAT_IDS.has(value as VideoFormatId) ? (value as VideoFormatId) : DEFAULT_VIDEO_FORMAT;
+}
 
 export const SUBTITLES_OPTIONS: readonly PriceableOptionLike<SubtitlesId>[] = [
   { id: 'none', labelHe: 'ללא כתוביות', price: 0 },
-  { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 80 },
+  { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 120 },
 ];
 
 export const ADDON_OPTIONS: readonly AddonOption[] = [
