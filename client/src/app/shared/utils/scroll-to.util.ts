@@ -8,7 +8,8 @@ const NAV_SCROLL_OFFSET_DEFAULT = 24;
 const NAV_SCROLL_OFFSETS: Readonly<Record<string, number>> = {
   'how-it-works': 112,
   transparency: 15,
-  'hero-stage': 105,
+  'hero-stage': 115,
+  portfolio: 52,
   pricing: 0,
   configurator: 65,
   contact: -20,

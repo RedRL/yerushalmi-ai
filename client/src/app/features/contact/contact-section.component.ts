@@ -3,7 +3,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { firstValueFrom } from 'rxjs';
 import { FIELD_LIMITS } from '../../core/config/field-limits.config';
 import { ContactApiService } from '../../core/services/contact-api.service';
-import { WHATSAPP_CONFIG } from '../../core/config/site.config';
+import { CONTACT_EMAIL_CONFIG, WHATSAPP_CONFIG } from '../../core/config/site.config';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 
 @Component({
@@ -18,6 +18,8 @@ export class ContactSectionComponent {
   private readonly contactApi = inject(ContactApiService);
 
   readonly whatsappUrl = WHATSAPP_CONFIG.url;
+  readonly contactEmail = CONTACT_EMAIL_CONFIG.address;
+  readonly contactEmailUrl = CONTACT_EMAIL_CONFIG.mailtoUrl;
 
   readonly isSubmitting = signal(false);
   readonly submitError = signal<string | null>(null);

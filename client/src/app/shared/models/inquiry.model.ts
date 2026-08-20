@@ -77,6 +77,7 @@ export interface InquiryResponse {
     submittedAt: string;
     priceBreakdown: PriceBreakdown;
     emailDelivered: boolean;
+    customerEmailDelivered: boolean;
   };
 }
 

@@ -54,6 +54,15 @@
   gap: var(--space-3);
 }
 
+.contact-step__inbox-tip {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+}
+
+.contact-step__follow-up {
+  margin-top: var(--space-2);
+}
+
 .contact-step__success-actions {
   display: flex;
   flex-wrap: wrap;

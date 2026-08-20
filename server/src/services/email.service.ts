@@ -4,8 +4,10 @@ import { logger } from '../utils/logger';
 import type { InquiryInput } from '../schemas/inquiry.schema';
 import type { PriceBreakdown } from '../pricing/pricing.types';
 import { buildInquiryEmailHtml } from './email-template';
+import { buildInquiryConfirmationEmail } from './inquiry-confirmation-email-template';
 import { buildContactEmailHtml } from './contact-email-template';
 import type { ContactMessageInput } from '../schemas/contact.schema';
+import { parseEmailFromHeader } from '../utils/email-from.util';
 
 export interface SendInquiryEmailResult {
   delivered: boolean;
@@ -51,9 +53,11 @@ export async function sendInquiryEmail(
 
   try {
     const resend = new Resend(env.resendApiKey);
+    const customerReplyTo = payload.contact.email?.trim();
     await resend.emails.send({
       from: env.emailFrom,
       to: env.contactEmail,
+      ...(customerReplyTo ? { replyTo: customerReplyTo } : {}),
       subject,
       html,
     });
@@ -64,6 +68,56 @@ export async function sendInquiryEmail(
       error: error instanceof Error ? error.message : String(error),
     });
     logger.info('Generated inquiry email HTML', { html });
+    return { delivered: false, provider: 'dev-log' };
+  }
+}
+
+/**
+ * Sends an automatic confirmation email to the customer who submitted an inquiry.
+ */
+export async function sendInquiryConfirmationEmail(
+  customerEmail: string,
+  customerName: string,
+  inquiryId: string,
+): Promise<SendInquiryEmailResult> {
+  const replyTo = parseEmailFromHeader(env.emailFrom);
+  const { subject, html, text } = buildInquiryConfirmationEmail({
+    customerName,
+    inquiryId,
+  });
+
+  if (!env.isEmailConfigured) {
+    logger.warn('Email is not configured — skipping customer confirmation.', {
+      subject,
+      customerEmail,
+      inquiryId,
+    });
+    logger.info('Generated inquiry confirmation email', { text });
+    return { delivered: false, provider: 'dev-log' };
+  }
+
+  try {
+    const resend = new Resend(env.resendApiKey);
+    await resend.emails.send({
+      from: env.emailFrom,
+      to: customerEmail,
+      replyTo,
+      subject,
+      html,
+      text,
+      headers: {
+        'Auto-Submitted': 'auto-generated',
+      },
+    });
+    logger.info('Inquiry confirmation email sent via Resend', { to: customerEmail, inquiryId });
+    return { delivered: true, provider: 'resend' };
+  } catch (error) {
+    logger.error('Failed to send inquiry confirmation email via Resend', {
+      error: error instanceof Error ? error.message : String(error),
+      customerEmail,
+      inquiryId,
+    });
+    logger.info('Generated inquiry confirmation email', { text });
     return { delivered: false, provider: 'dev-log' };
   }
 }

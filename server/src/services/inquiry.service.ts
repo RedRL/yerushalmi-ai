@@ -3,13 +3,14 @@ import { calculatePriceBreakdown } from '../pricing/pricing.service';
 import type { PriceBreakdown, PricingSelection, SongLengthId } from '../pricing/pricing.types';
 import type { InquiryInput } from '../schemas/inquiry.schema';
 import { logger } from '../utils/logger';
-import { sendInquiryEmail } from './email.service';
+import { sendInquiryConfirmationEmail, sendInquiryEmail } from './email.service';
 
 export interface InquiryResult {
   inquiryId: string;
   submittedAt: string;
   priceBreakdown: PriceBreakdown;
   emailDelivered: boolean;
+  customerEmailDelivered: boolean;
 }
 
 function isSongLengthId(value?: string): value is SongLengthId {
@@ -57,10 +58,16 @@ export async function processInquiry(payload: InquiryInput): Promise<InquiryResu
 
   const emailResult = await sendInquiryEmail(payload, priceBreakdown, submittedAt);
 
+  const customerEmail = payload.contact.email?.trim();
+  const customerEmailResult = customerEmail
+    ? await sendInquiryConfirmationEmail(customerEmail, payload.contact.name, inquiryId)
+    : { delivered: false, provider: 'dev-log' as const };
+
   return {
     inquiryId,
     submittedAt: submittedAt.toISOString(),
     priceBreakdown,
     emailDelivered: emailResult.delivered,
+    customerEmailDelivered: customerEmailResult.delivered,
   };
 }

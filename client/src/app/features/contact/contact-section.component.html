@@ -3,13 +3,15 @@
     <span class="contact__eyebrow">יצירת קשר</span>
     <h2 class="contact__headline">יש שאלות?</h2>
     <p class="contact__subtitle">
-      אפשר לשלוח הודעה קצרה — או
+      אפשר לשלוח הודעה קצרה, לפנות
       <a
-        class="contact__whatsapp-link"
+        class="contact__channel-link"
         [href]="whatsappUrl"
         target="_blank"
         rel="noopener noreferrer"
-      >לשלוח הודעה בוואטסאפ</a>.
+      >בוואטסאפ</a>,
+      או לכתוב אלינו
+      <a class="contact__channel-link" [href]="contactEmailUrl">{{ contactEmail }}</a>.
     </p>
 
     @if (submitSuccess()) {

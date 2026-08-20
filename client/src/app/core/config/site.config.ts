@@ -31,3 +31,10 @@ export const WHATSAPP_CONFIG = {
     return `https://wa.me/${this.internationalPhone}?text=${encodeURIComponent(this.defaultMessageHe)}`;
   },
 } as const;
+
+export const CONTACT_EMAIL_CONFIG = {
+  address: 'info@yerushalmi.ai',
+  get mailtoUrl(): string {
+    return `mailto:${this.address}`;
+  },
+} as const;
