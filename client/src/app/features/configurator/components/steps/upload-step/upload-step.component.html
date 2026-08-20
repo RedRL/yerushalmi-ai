@@ -1,7 +1,7 @@
 <div class="step">
   <h3 class="step__title">חומרים לקליפ</h3>
   <p class="step__description">
-    מומלץ לספק 18–22 תמונות לכל דקה של סרטון (לדוגמה – כ-36–44 תמונות לסרטון של כ-2 דקות, כ-45–55 לכ-2.5 דקות, וכ-54–66 לכ-3 דקות).
+    מומלץ לספק 18–22 תמונות לכל דקה של סרטון, ועד 25 לדקה לכל היותר (לדוגמה – כ-36–44 תמונות לסרטון של כ-2 דקות, עד 50; כ-45–55 לכ-2.5 דקות, עד 63; וכ-54–66 לכ-3 דקות, עד 75).
   </p>
   <p class="step__description">
     אם חשוב לכם שהתמונות יופיעו בסדר מסוים, כדאי לתת לתמונות שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר את התמונות כפי שנראה לנו לנכון בהתאם לתמונות עצמן ולשיר ברקע.
@@ -12,7 +12,7 @@
       kind="image"
       accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
       acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
-      [maxFiles]="80"
+      [maxFiles]="maxImageFiles"
       [maxSizeMb]="25"
       [files]="imageFiles()"
       (filesSelected)="onFilesSelected($event)"

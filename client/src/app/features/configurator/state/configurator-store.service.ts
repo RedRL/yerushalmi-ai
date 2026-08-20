@@ -4,13 +4,17 @@ import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { firstValueFrom, merge } from 'rxjs';
 
 import { InquiryApiService } from '../../../core/services/inquiry-api.service';
+import { UploadApiService } from '../../../core/services/upload-api.service';
 import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
 import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions } from '../../../core/config/pricing.config';
+import { getMinimumImageCountForVideoLength, getMaximumImageCountForVideoLength } from '../../../core/config/upload-requirements.config';
 import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoFormatId, VideoLengthId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
+import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-file-store.util';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
+import { environment } from '../../../../environments/environment';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import {
   clearConfiguratorState,
@@ -63,6 +67,7 @@ export class ConfiguratorStoreService {
   private readonly destroyRef = inject(DestroyRef);
   private readonly pricingCalculator = inject(PricingCalculatorService);
   private readonly inquiryApi = inject(InquiryApiService);
+  private readonly uploadApi = inject(UploadApiService);
 
   /** Bumped on every reactive-form change so validation computeds stay in sync. */
   private readonly formRevision = signal(0);
@@ -138,7 +143,11 @@ export class ConfiguratorStoreService {
   });
 
   constructor() {
-    this.restorePersistedState();
+    const saved = loadConfiguratorState();
+    if (saved) {
+      this.applyPersistedFormState(saved);
+      void this.restoreUploadedFilesFromStore(saved.uploadedFiles ?? []);
+    }
     this.ensureSongLengthDefault();
 
     merge(
@@ -269,9 +278,57 @@ export class ConfiguratorStoreService {
   });
 
   readonly isUploadStepValid = computed(() => {
+    this.formRevision();
+    this.uploadedFiles();
     if (!this.requiresUploadStep()) return true;
-    const files = this.uploadedFiles();
-    return files.some((file) => file.type === 'image' && file.status === 'complete');
+    const images = this.uploadedFiles().filter((file) => file.type === 'image');
+    if (images.some((file) => file.status === 'error')) return false;
+    const count = this.uploadImageCount();
+    return count >= this.minimumRequiredImages() && count <= this.maximumAllowedImages();
+  });
+
+  readonly selectedVideoLengthId = computed((): VideoLengthId => {
+    this.formRevision();
+    if (this.mainProduct() === 'video_new_song') {
+      const length = this.songForm.controls.length.value;
+      return isSongLengthId(length) ? length : DEFAULT_LENGTH_ID;
+    }
+    return this.videoForm.controls.length.value || DEFAULT_LENGTH_ID;
+  });
+
+  readonly minimumRequiredImages = computed(() =>
+    getMinimumImageCountForVideoLength(this.selectedVideoLengthId()),
+  );
+
+  readonly maximumAllowedImages = computed(() =>
+    getMaximumImageCountForVideoLength(this.selectedVideoLengthId()),
+  );
+
+  readonly uploadImageCount = computed(
+    () =>
+      this.uploadedFiles().filter((file) => file.type === 'image' && file.status !== 'error').length,
+  );
+
+  readonly pendingImageCount = computed(
+    () => this.uploadedFiles().filter((file) => file.type === 'image' && file.status === 'pending').length,
+  );
+
+  readonly remainingRequiredImages = computed(() =>
+    Math.max(0, this.minimumRequiredImages() - this.uploadImageCount()),
+  );
+
+  readonly uploadProgressLabelHe = computed(() => {
+    const count = this.uploadImageCount();
+    const minimum = this.minimumRequiredImages();
+    const remaining = this.remainingRequiredImages();
+    return `יש להעלות עוד ${remaining} תמונות לפחות\n(מינימום ${minimum} לאורך הסרטון שבחרתם, הועלו ${count})`;
+  });
+
+  readonly uploadLimitExceededLabelHe = computed(() => {
+    const count = this.uploadImageCount();
+    const maximum = this.maximumAllowedImages();
+    const excess = count - maximum;
+    return `יש להסיר ${excess} תמונות\n(מקסימום ${maximum} לאורך הסרטון שבחרתם, הועלו ${count})`;
   });
 
   readonly isExtrasStepValid = computed(() => {
@@ -325,6 +382,11 @@ export class ConfiguratorStoreService {
   readonly isCurrentStepValid = computed(() => {
     const step = this.currentStep();
     if (!step) return false;
+    if (step.id === 'upload') {
+      this.uploadedFiles();
+      this.selectedVideoLengthId();
+      return this.isUploadStepValid();
+    }
     return this.isStepValid(step.id);
   });
 
@@ -410,12 +472,18 @@ export class ConfiguratorStoreService {
   private getUploadStepValidationMessage(): string {
     const images = this.uploadedFiles().filter((file) => file.type === 'image');
 
-    if (images.some((file) => file.status === 'uploading')) {
-      return 'יש להמתין לסיום העלאת התמונות';
+    if (images.some((file) => file.status === 'error')) {
+      return 'יש תמונות שלא נשמרו במכשיר — הסירו אותן או העלו מחדש';
     }
 
-    if (images.some((file) => file.status === 'error')) {
-      return 'יש תמונות שהעלאה שלהן נכשלה — הסירו אותן או העלו מחדש';
+    const count = this.uploadImageCount();
+
+    if (count > this.maximumAllowedImages()) {
+      return this.uploadLimitExceededLabelHe();
+    }
+
+    if (count < this.minimumRequiredImages()) {
+      return this.uploadProgressLabelHe();
     }
 
     return 'נא להעלות תמונות כדי להמשיך';
@@ -539,6 +607,7 @@ export class ConfiguratorStoreService {
       }
       return files.filter((file) => file.id !== id);
     });
+    void deleteUploadFile(id);
     this.persistState();
   }
 
@@ -670,12 +739,14 @@ export class ConfiguratorStoreService {
     this.submitError.set(null);
 
     try {
+      await this.uploadPendingFiles();
       const payload = this.buildInquiryPayload();
       const response = await firstValueFrom(this.inquiryApi.submitInquiry(payload));
       this.submitResult.set({
         inquiryId: response.data.inquiryId,
         priceBreakdown: response.data.priceBreakdown,
       });
+      this.revokeUploadedFilePreviewUrls();
       clearConfiguratorState();
     } catch (error) {
       this.submitError.set(error instanceof Error ? error.message : 'שליחת הבקשה נכשלה. נסו שוב.');
@@ -684,15 +755,67 @@ export class ConfiguratorStoreService {
     }
   }
 
+  private async uploadPendingFiles(): Promise<void> {
+    const pendingImages = this.uploadedFiles().filter((file) => file.type === 'image' && file.status === 'pending');
+    const imageCount = this.uploadImageCount();
+
+    if (this.requiresUploadStep() && imageCount > this.maximumAllowedImages()) {
+      throw new Error(this.uploadLimitExceededLabelHe().replace('\n', ' '));
+    }
+
+    if (this.requiresUploadStep() && imageCount < this.minimumRequiredImages()) {
+      throw new Error(this.uploadProgressLabelHe().replace('\n', ' '));
+    }
+
+    for (const reference of pendingImages) {
+      const file = reference.file ?? (await getUploadFile(reference.id));
+      if (!file) {
+        this.updateUploadedFile(reference.id, {
+          status: 'error',
+          errorMessageHe: 'התמונה לא נמצאה במכשיר. נא להעלות אותה שוב.',
+        });
+        throw new Error('חלק מהתמונות לא נמצאו במכשיר. נא לחזור לשלב החומרים ולהעלות שוב.');
+      }
+
+      this.updateUploadedFile(reference.id, { status: 'uploading', file });
+
+      try {
+        const result = await this.uploadApi.registerFile(file, 'image');
+        this.updateUploadedFile(reference.id, {
+          status: 'complete',
+          storageKey: result.storageKey,
+          url: result.url,
+          file: undefined,
+        });
+      } catch (error) {
+        if (!environment.production) {
+          this.updateUploadedFile(reference.id, {
+            status: 'complete',
+            storageKey: `local/dev/${reference.id}/${file.name}`,
+            url: reference.previewUrl,
+            file: undefined,
+          });
+          continue;
+        }
+
+        const message =
+          error instanceof Error && error.message.includes('תקשורת')
+            ? 'לא ניתן להתחבר לשרת. ודאו שהשרת פועל ונסו שוב.'
+            : 'העלאת התמונות נכשלה. נסו שוב.';
+        this.updateUploadedFile(reference.id, {
+          status: 'error',
+          errorMessageHe: message,
+        });
+        throw new Error(message);
+      }
+    }
+  }
+
   reset(): void {
     this.currentStepIndex.set(0);
     this.mainProduct.set(null);
     this.addons.set([]);
-    this.uploadedFiles().forEach((file) => {
-      if (file.previewUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(file.previewUrl);
-      }
-    });
+    this.revokeUploadedFilePreviewUrls();
     this.uploadedFiles.set([]);
     this.songForm.reset({
       style: '',
@@ -759,10 +882,7 @@ export class ConfiguratorStoreService {
     }
   }
 
-  private restorePersistedState(): void {
-    const saved = loadConfiguratorState();
-    if (!saved) return;
-
+  private applyPersistedFormState(saved: PersistedConfiguratorState): void {
     if (saved.mainProduct) this.mainProduct.set(saved.mainProduct);
     this.addons.set(saved.addons ?? []);
     this.currentStepIndex.set(saved.currentStepIndex ?? 0);
@@ -783,8 +903,43 @@ export class ConfiguratorStoreService {
     this.videoForm.patchValue(savedVideoForm as typeof this.videoForm.value, { emitEvent: false });
     this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
     this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });
-    this.uploadedFiles.set((saved.uploadedFiles ?? []) as UploadedFileReference[]);
     this.formRevision.update((value) => value + 1);
+  }
+
+  private async restoreUploadedFilesFromStore(
+    savedFiles: PersistedConfiguratorState['uploadedFiles'],
+  ): Promise<void> {
+    const restored: UploadedFileReference[] = [];
+
+    for (const meta of savedFiles) {
+      if (meta.type !== 'image') continue;
+
+      const file = await getUploadFile(meta.id);
+      if (!file) continue;
+
+      restored.push({
+        id: meta.id,
+        type: meta.type,
+        name: meta.name,
+        sizeBytes: meta.sizeBytes,
+        storageKey: '',
+        status: 'pending',
+        file,
+        previewUrl: URL.createObjectURL(file),
+        thumbnailDataUrl: meta.thumbnailDataUrl,
+      });
+    }
+
+    this.uploadedFiles.set(restored);
+    this.persistState();
+  }
+
+  private revokeUploadedFilePreviewUrls(): void {
+    this.uploadedFiles().forEach((file) => {
+      if (file.previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(file.previewUrl);
+      }
+    });
   }
 
   generateFileId(): string {

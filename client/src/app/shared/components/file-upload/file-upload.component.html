@@ -41,13 +41,34 @@
 
   @if (files().length > 0) {
     <div class="file-upload__files">
-      <div class="file-upload__gallery">
+      <div class="file-upload__gallery" (dragstart)="onGalleryDragStart($event)">
         <ul class="file-upload__grid">
           @for (file of files(); track file.id) {
             <li class="file-upload__tile" [class.file-upload__tile--error]="file.status === 'error'">
-              <div class="file-upload__preview">
+              <div class="file-upload__preview" [attr.data-preview-id]="file.id">
                 @if (previewUrl(file); as thumbUrl) {
-                  <img [src]="thumbUrl" [alt]="file.name" class="file-upload__thumb" />
+                  @if (canPreview(file)) {
+                    <button
+                      type="button"
+                      class="file-upload__thumb-button"
+                      (click)="openPreview(file, $event)"
+                      [attr.aria-label]="'הצגת תמונה ' + file.name"
+                    >
+                      <img
+                        [src]="thumbUrl"
+                        [alt]="file.name"
+                        class="file-upload__thumb"
+                        draggable="false"
+                      />
+                    </button>
+                  } @else {
+                    <img
+                      [src]="thumbUrl"
+                      [alt]="file.name"
+                      class="file-upload__thumb"
+                      draggable="false"
+                    />
+                  }
                 } @else {
                   <span class="file-upload__icon" aria-hidden="true">
                     @switch (kind()) {
@@ -85,5 +106,62 @@
 
       <p class="file-upload__summary">{{ files().length }} תמונות</p>
     </div>
+  }
+
+  @if (previewedFile(); as file) {
+    @if (previewUrl(file); as fullUrl) {
+      <div
+        #lightboxRoot
+        class="file-upload-lightbox"
+        [class.file-upload-lightbox--opening]="isOpeningPreview()"
+        [class.file-upload-lightbox--closing]="isClosingPreview()"
+        (click)="onLightboxBackdropClick($event)"
+      >
+        @if (flightActive()) {
+          <div
+            #flightShell
+            class="file-upload-lightbox__flight-shell"
+            [class.file-upload-lightbox__flight-shell--animating]="flightAnimating()"
+            [style.top.px]="flightRect().top"
+            [style.left.px]="flightRect().left"
+            [style.width.px]="flightRect().width"
+            [style.height.px]="flightRect().height"
+          >
+            <img [src]="flightImageUrl()" alt="" class="file-upload-lightbox__flight-image" draggable="false" />
+          </div>
+        }
+
+        <div
+          #lightboxDialog
+          class="file-upload-lightbox__dialog"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="file.name"
+          tabindex="-1"
+          (click)="$event.stopPropagation()"
+        >
+          <button
+            type="button"
+            class="file-upload-lightbox__close"
+            (click)="closePreview()"
+            aria-label="סגירת התצוגה המוגדלת"
+          >
+            ✕
+          </button>
+
+          <div class="file-upload-lightbox__image-wrap">
+            <img
+              #lightboxImage
+              [src]="fullUrl"
+              [alt]="file.name"
+              class="file-upload-lightbox__image"
+              draggable="false"
+            />
+          </div>
+
+          <p class="file-upload-lightbox__name">{{ file.name }}</p>
+        </div>
+      </div>
+    }
   }
 </div>

@@ -14,5 +14,7 @@ export interface UploadedFileReference {
   previewUrl?: string;
   /** Small persisted thumbnail (data URL) for gallery tiles after refresh. */
   thumbnailDataUrl?: string;
+  /** In-memory file handle for the current session (not persisted). */
+  file?: File;
   errorMessageHe?: string;
 }

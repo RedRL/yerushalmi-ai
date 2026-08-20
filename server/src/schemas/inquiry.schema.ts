@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import {
+  getMinimumImageCountForVideoLength,
+  getMaximumImageCountForVideoLength,
+  MAX_UPLOADED_IMAGES_PER_INQUIRY,
+  resolveVideoLengthForUploadValidation,
+} from '../upload/upload-requirements';
 
 export const mainProductSchema = z.enum(['song_only', 'video_existing_song', 'video_new_song']);
 
@@ -97,7 +103,7 @@ export const inquirySchema = z
     video: videoConfigSchema.optional(),
     addons: z.array(addonSchema).max(20).optional().default([]),
     projectDetails: projectDetailsSchema,
-    uploadedFiles: z.array(uploadedFileReferenceSchema).max(80).optional().default([]),
+    uploadedFiles: z.array(uploadedFileReferenceSchema).max(MAX_UPLOADED_IMAGES_PER_INQUIRY).optional().default([]),
     consents: consentsSchema,
     // Accepted for forward-compatibility with the client payload shape, but
     // NEVER used for the trusted price calculation. See pricing.service.ts.
@@ -141,13 +147,29 @@ export const inquirySchema = z
     }
 
     if (includesVideo) {
-      const hasUploadedImages = data.uploadedFiles?.some((file) => file.type === 'image');
+      const imageCount = data.uploadedFiles?.filter((file) => file.type === 'image').length ?? 0;
+      const videoLength = resolveVideoLengthForUploadValidation({
+        mainProduct: data.mainProduct,
+        songLength: data.song?.length,
+        videoLength: data.video?.length,
+      });
+      const minimumRequired = getMinimumImageCountForVideoLength(videoLength);
+      const maximumAllowed = getMaximumImageCountForVideoLength(videoLength);
 
-      if (!hasUploadedImages) {
+      if (imageCount > maximumAllowed) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['uploadedFiles'],
-          message: 'נא להעלות תמונות לקליפ',
+          message: `ניתן להעלות עד ${maximumAllowed} תמונות לאורך הסרטון שבחרתם (הועלו ${imageCount})`,
+        });
+      } else if (imageCount < minimumRequired) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['uploadedFiles'],
+          message:
+            imageCount === 0
+              ? `הועלו 0 מתוך מינימום של ${minimumRequired}`
+              : `הועלו ${imageCount} מתוך מינימום של ${minimumRequired}`,
         });
       }
     }

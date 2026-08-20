@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { environment } from '../../../../../../environments/environment';
-import { UploadApiService } from '../../../../../core/services/upload-api.service';
+import { MAX_UPLOADED_IMAGES_PER_INQUIRY } from '../../../../../core/config/upload-requirements.config';
 import { FileUploadComponent } from '../../../../../shared/components/file-upload/file-upload.component';
 import type { UploadedFileReference } from '../../../../../shared/models/upload.model';
 import { createImageThumbnailDataUrl } from '../../../../../shared/utils/image-thumbnail.util';
+import { saveUploadFile } from '../../../../../shared/utils/upload-file-store.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 
 @Component({
@@ -15,7 +15,8 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 })
 export class UploadStepComponent {
   readonly store = inject(ConfiguratorStoreService);
-  private readonly uploadApi = inject(UploadApiService);
+  /** Technical server cap only — per-video max is enforced via the Next button, not upload blocking. */
+  readonly maxImageFiles = MAX_UPLOADED_IMAGES_PER_INQUIRY;
 
   readonly imageFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'image'));
 
@@ -28,50 +29,42 @@ export class UploadStepComponent {
         // Fall back to in-session blob preview only.
       }
 
+      const id = this.store.generateFileId();
+
+      try {
+        await saveUploadFile(id, file, 'image');
+      } catch {
+        this.store.addUploadedFile({
+          id,
+          type: 'image',
+          name: file.name,
+          sizeBytes: file.size,
+          storageKey: '',
+          status: 'error',
+          previewUrl: URL.createObjectURL(file),
+          thumbnailDataUrl,
+          errorMessageHe: 'לא ניתן לשמור את התמונה במכשיר. נסו שוב.',
+        });
+        continue;
+      }
+
       const reference: UploadedFileReference = {
-        id: this.store.generateFileId(),
+        id,
         type: 'image',
         name: file.name,
         sizeBytes: file.size,
         storageKey: '',
-        status: 'uploading',
+        status: 'pending',
+        file,
         previewUrl: URL.createObjectURL(file),
         thumbnailDataUrl,
       };
 
       this.store.addUploadedFile(reference);
-
-      try {
-        const result = await this.uploadApi.registerFile(file, 'image');
-        this.store.updateUploadedFile(reference.id, {
-          status: 'complete',
-          storageKey: result.storageKey,
-          url: result.url,
-        });
-      } catch (error) {
-        if (!environment.production) {
-          // Mock storage does not persist bytes — keep local preview usable in development.
-          this.store.updateUploadedFile(reference.id, {
-            status: 'complete',
-            storageKey: `local/dev/${reference.id}/${file.name}`,
-            url: reference.previewUrl,
-          });
-          continue;
-        }
-
-        const message =
-          error instanceof Error && error.message.includes('תקשורת')
-            ? 'לא ניתן להתחבר לשרת. ודאו שהשרת פועל ונסו שוב.'
-            : 'ההעלאה נכשלה. נסו שוב.';
-        this.store.updateUploadedFile(reference.id, {
-          status: 'error',
-          errorMessageHe: message,
-        });
-      }
     }
   }
 
   onRemoveFile(id: string): void {
-    this.store.removeUploadedFile(id);
+    void this.store.removeUploadedFile(id);
   }
 }

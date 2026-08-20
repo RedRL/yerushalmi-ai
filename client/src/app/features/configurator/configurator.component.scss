@@ -759,6 +759,7 @@ $configurator-sidebar-width: 380px;
   color: var(--color-text-primary);
   font-size: var(--font-size-tiny);
   line-height: 1.4;
+  white-space: pre-line;
   text-align: center;
   text-wrap: pretty;
   box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.28));

@@ -1,5 +1,6 @@
 import type { AddonId, MainProductId, SongLengthId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
+import { clearUploadFileStore } from '../../../shared/utils/upload-file-store.util';
 
 const STORAGE_KEY = 'yerushalmi.configurator.v1';
 
@@ -42,4 +43,5 @@ export function saveConfiguratorState(state: PersistedConfiguratorState): void {
 export function clearConfiguratorState(): void {
   if (typeof localStorage === 'undefined') return;
   localStorage.removeItem(STORAGE_KEY);
+  void clearUploadFileStore();
 }

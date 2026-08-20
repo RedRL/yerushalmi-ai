@@ -18,10 +18,10 @@ export const contactRateLimiter = rateLimit({
   message: { success: false, error: { message: 'יותר מדי הודעות. נסו שוב בעוד כמה דקות.' } },
 });
 
-/** Applied to upload endpoints - initiating many uploads quickly is expected, but bounded. */
+/** Applied to upload endpoints - a full inquiry submit may initiate one request per photo. */
 export const uploadsRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 60,
+  limit: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: { message: 'יותר מדי בקשות העלאה. נסו שוב בעוד כמה דקות.' } },

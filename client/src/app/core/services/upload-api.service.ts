@@ -44,7 +44,19 @@ export class UploadApiService {
       }),
     );
 
-    const { storageKey } = initiateResponse.data;
+    const { storageKey, uploadUrl, method } = initiateResponse.data;
+
+    if (!uploadUrl.startsWith('mock://')) {
+      const uploadResponse = await fetch(uploadUrl, {
+        method,
+        body: file,
+        headers: { 'Content-Type': resolveFileMimeType(file) },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('העלאת הקובץ נכשלה. נסו שוב.');
+      }
+    }
 
     const completeResponse = await firstValueFrom(
       this.http.post<CompleteUploadResponse>(`${this.baseUrl}/uploads/complete`, { storageKey }),
