@@ -1,3 +1,4 @@
+import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
 import { escapeHtml } from '../utils/html-escape';
 
 export interface InquiryConfirmationEmailContent {
@@ -10,7 +11,7 @@ export function buildInquiryConfirmationEmail(params: {
   customerName: string;
   inquiryId: string;
 }): InquiryConfirmationEmailContent {
-  const shortId = params.inquiryId.slice(0, 8);
+  const shortId = formatShortInquiryReference(params.inquiryId);
   const safeName = escapeHtml(params.customerName);
   const safeShortId = escapeHtml(shortId);
   const subject = `אישור קבלת בקשה · מס' ${shortId}`;

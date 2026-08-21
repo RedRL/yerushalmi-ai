@@ -795,3 +795,59 @@ $configurator-sidebar-width: 380px;
 
 }
 
+
+
+.configurator__submit-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: inherit;
+  background: rgba(8, 7, 20, 0.82);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  pointer-events: all;
+}
+
+.configurator__submit-spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--color-accent-purple-light);
+  border-radius: var(--radius-full);
+  animation: configurator-submit-spin 0.85s linear infinite;
+}
+
+.configurator__submit-message {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.configurator__submit-hint {
+  margin: 0;
+  max-width: 24rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+}
+
+@keyframes configurator-submit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include reduced-motion {
+  .configurator__submit-spinner {
+    animation: none;
+    border-top-color: var(--color-accent-purple-light);
+  }
+}
+

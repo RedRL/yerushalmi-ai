@@ -5,6 +5,7 @@ export interface InquiryContactPayload {
   name: string;
   phone: string;
   email?: string;
+  message?: string;
 }
 
 export interface InquirySongPayload {
@@ -65,6 +66,8 @@ export interface InquiryPayload {
   addons: AddonId[];
   projectDetails: InquiryProjectDetailsPayload;
   uploadedFiles: InquiryUploadedFilePayload[];
+  inquiryFolderId?: string;
+  inquiryReferenceId?: string;
   consents: InquiryConsentsPayload;
   /** Sent for UX/debug purposes only - the backend never trusts this value. */
   clientPricePreview: { total: number };

@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { logger } from '../utils/logger';
+import { buildInquiryPhotoBundleKey, buildInquiryStorageKey, resolveUploadFolderId } from './storage-key.util';
 import type {
   CompleteUploadResult,
+  CreateInquiryPhotoBundleInput,
   InitiateUploadInput,
   InitiateUploadResult,
   StorageService,
@@ -21,7 +23,17 @@ export class MockStorageService implements StorageService {
   public readonly providerName = 'mock';
 
   async initiateUpload(input: InitiateUploadInput): Promise<InitiateUploadResult> {
-    const storageKey = `mock/${input.fileType}/${randomUUID()}-${input.fileName}`;
+    const folderId = resolveUploadFolderId(
+      input.contactName ?? '',
+      input.inquiryFolderId,
+      new Date(),
+      input.inquiryReferenceId,
+    );
+    const storageKey = buildInquiryStorageKey(
+      folderId,
+      input.fileName,
+      randomUUID().slice(0, 8),
+    );
 
     logger.info('Mock storage: upload initiated (no bytes are actually stored)', {
       storageKey,
@@ -31,12 +43,19 @@ export class MockStorageService implements StorageService {
 
     return {
       storageKey,
-      // In development there is no real signed URL - the client-side mock
-      // upload flow treats this as "already complete".
       uploadUrl: `mock://uploads/${storageKey}`,
       method: 'PUT',
       expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     };
+  }
+
+  async createInquiryPhotoBundle(input: CreateInquiryPhotoBundleInput): Promise<CompleteUploadResult> {
+    const storageKey = buildInquiryPhotoBundleKey(input.folderId);
+    logger.info('Mock storage: photo bundle created', {
+      storageKey,
+      fileCount: input.storageKeys.length,
+    });
+    return { storageKey, url: this.getPublicUrl(storageKey) };
   }
 
   async completeUpload(storageKey: string): Promise<CompleteUploadResult> {

@@ -2,12 +2,13 @@ import type { AddonId, MainProductId, SongLengthId } from '../../../shared/model
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import { clearUploadFileStore } from '../../../shared/utils/upload-file-store.util';
 
-const STORAGE_KEY = 'yerushalmi.configurator.v1';
+const STORAGE_KEY = 'yerushalmi.configurator.v2';
 
 export interface PersistedConfiguratorState {
   currentStepIndex: number;
   mainProduct: MainProductId | null;
   addons: AddonId[];
+  inquiryFolderId?: string;
   songForm: Record<string, string>;
   videoForm: {
     source: string;

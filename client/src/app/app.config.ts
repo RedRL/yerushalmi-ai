@@ -9,7 +9,7 @@ import { apiErrorInterceptor } from './core/interceptors/api-error.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })),
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'disabled' })),
     provideHttpClient(withInterceptors([apiErrorInterceptor])),
     provideAnimations(),
   ],

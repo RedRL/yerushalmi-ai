@@ -12,9 +12,15 @@ import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLeng
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
+import {
+  extractInquiryFolderId,
+  inquiryFolderContainsReference,
+  inquiryFolderMatchesName,
+  isLegacyInquiryFolderId,
+} from '../../../shared/utils/inquiry-folder.util';
+import { generateInquiryReferenceId } from '../../../shared/utils/inquiry-reference.util';
 import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-file-store.util';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
-import { environment } from '../../../../environments/environment';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import {
   clearConfiguratorState,
@@ -61,6 +67,8 @@ export interface SubmitResult {
   priceBreakdown: PriceBreakdown;
 }
 
+export type SubmitPhase = 'uploading' | 'sending';
+
 @Injectable()
 export class ConfiguratorStoreService {
   private readonly fb = inject(NonNullableFormBuilder);
@@ -78,8 +86,12 @@ export class ConfiguratorStoreService {
   readonly mainProduct = signal<MainProductId | null>(null);
   readonly addons = signal<AddonId[]>([]);
   readonly uploadedFiles = signal<UploadedFileReference[]>([]);
+  readonly inquiryFolderId = signal('');
+  readonly inquiryReferenceId = signal('');
 
   readonly isSubmitting = signal(false);
+  readonly submitPhase = signal<SubmitPhase | null>(null);
+  readonly submitUploadProgress = signal<{ completed: number; total: number } | null>(null);
   readonly submitError = signal<string | null>(null);
   readonly submitResult = signal<SubmitResult | null>(null);
 
@@ -145,6 +157,11 @@ export class ConfiguratorStoreService {
   constructor() {
     const saved = loadConfiguratorState();
     if (saved) {
+      if (saved.inquiryFolderId && !isLegacyInquiryFolderId(saved.inquiryFolderId)) {
+        this.inquiryFolderId.set(saved.inquiryFolderId);
+      } else if (saved.inquiryFolderId && isLegacyInquiryFolderId(saved.inquiryFolderId)) {
+        this.inquiryFolderId.set('');
+      }
       this.applyPersistedFormState(saved);
       void this.restoreUploadedFilesFromStore(saved.uploadedFiles ?? []);
     }
@@ -329,6 +346,21 @@ export class ConfiguratorStoreService {
     const maximum = this.maximumAllowedImages();
     const excess = count - maximum;
     return `יש להסיר ${excess} תמונות\n(מקסימום ${maximum} לאורך הסרטון שבחרתם, הועלו ${count})`;
+  });
+
+  readonly submitStatusLabelHe = computed(() => {
+    const phase = this.submitPhase();
+    if (phase === 'uploading') {
+      const progress = this.submitUploadProgress();
+      if (progress && progress.total > 0) {
+        return `מעלים את התמונות (${progress.completed} מתוך ${progress.total})...`;
+      }
+      return 'מעלים את התמונות...';
+    }
+    if (phase === 'sending') {
+      return 'שולחים את הבקשה...';
+    }
+    return 'שולחים...';
   });
 
   readonly isExtrasStepValid = computed(() => {
@@ -583,6 +615,61 @@ export class ConfiguratorStoreService {
     this.formRevision.update((value) => value + 1);
   }
 
+  private getContactNameForUpload(): string {
+    const name = this.contactForm.getRawValue().name.trim();
+    if (!name) {
+      throw new Error('נא למלא את שם איש הקשר לפני שליחת הבקשה.');
+    }
+    return name;
+  }
+
+  private resolveInquiryFolderIdForSubmit(): string | undefined {
+    const folderIds = [
+      ...new Set(
+        this.uploadedFiles()
+          .filter((file) => file.status === 'complete' && file.storageKey)
+          .map((file) => extractInquiryFolderId(file.storageKey))
+          .filter((folderId): folderId is string => Boolean(folderId)),
+      ),
+    ];
+
+    if (folderIds.length > 1) {
+      throw new Error('תמונות ההעלאה נמצאות במספר תיקיות שונות. נא לנסות שוב.');
+    }
+
+    if (folderIds.length === 1) {
+      this.inquiryFolderId.set(folderIds[0]!);
+      return folderIds[0];
+    }
+
+    return undefined;
+  }
+
+  private toUploadedFilePayload(
+    file: UploadedFileReference,
+  ): { id: string; type: UploadedFileReference['type']; name: string; storageKey: string; url?: string } {
+    const payload = {
+      id: file.id,
+      type: file.type,
+      name: file.name,
+      storageKey: file.storageKey,
+    };
+
+    if (file.url?.startsWith('http://') || file.url?.startsWith('https://')) {
+      return { ...payload, url: file.url };
+    }
+
+    return payload;
+  }
+
+  private uploadFolderIdForRequest(): string | undefined {
+    const current = this.inquiryFolderId();
+    if (!current || isLegacyInquiryFolderId(current)) {
+      return undefined;
+    }
+    return current;
+  }
+
   toggleAddon(id: AddonId): void {
     this.addons.update((current) =>
       current.includes(id) ? current.filter((addonId) => addonId !== id) : [...current, id],
@@ -671,12 +758,14 @@ export class ConfiguratorStoreService {
     const video = this.videoValue();
     const details = this.projectDetailsValue();
     const contact = this.contactValue();
+    const inquiryFolderId = this.resolveInquiryFolderIdForSubmit();
 
     const payload: InquiryPayload = {
       contact: {
         name: contact.name.trim(),
         phone: contact.phone.trim(),
         email: contact.email.trim(),
+        message: undefinedIfEmpty(contact.message),
       },
       mainProduct,
       addons: this.addons(),
@@ -695,7 +784,9 @@ export class ConfiguratorStoreService {
       },
       uploadedFiles: this.uploadedFiles()
         .filter((file) => file.status === 'complete')
-        .map((file) => ({ id: file.id, type: file.type, name: file.name, storageKey: file.storageKey, url: file.url })),
+        .map((file) => this.toUploadedFilePayload(file)),
+      ...(inquiryFolderId ? { inquiryFolderId } : {}),
+      inquiryReferenceId: this.inquiryReferenceId(),
       consents: {
         mediaRights: true,
         contactPermission: true,
@@ -738,8 +829,29 @@ export class ConfiguratorStoreService {
     this.isSubmitting.set(true);
     this.submitError.set(null);
 
+    const pendingUploadCountBeforePrepare = this.uploadedFiles().filter(
+      (file) => file.type === 'image' && file.status === 'pending',
+    ).length;
+    this.submitPhase.set(pendingUploadCountBeforePrepare > 0 ? 'uploading' : 'sending');
+    this.submitUploadProgress.set(null);
+
     try {
-      await this.uploadPendingFiles();
+      const contactName = this.getContactNameForUpload();
+      const inquiryReferenceId = generateInquiryReferenceId();
+      this.inquiryReferenceId.set(inquiryReferenceId);
+      this.prepareUploadSessionForSubmit(contactName, inquiryReferenceId);
+
+      const pendingUploadCount = this.uploadedFiles().filter(
+        (file) => file.type === 'image' && file.status === 'pending',
+      ).length;
+      if (pendingUploadCount > 0) {
+        this.submitPhase.set('uploading');
+        await this.uploadPendingFiles(contactName, inquiryReferenceId);
+      }
+
+      this.submitPhase.set('sending');
+      this.submitUploadProgress.set(null);
+
       const payload = this.buildInquiryPayload();
       const response = await firstValueFrom(this.inquiryApi.submitInquiry(payload));
       this.submitResult.set({
@@ -752,11 +864,71 @@ export class ConfiguratorStoreService {
       this.submitError.set(error instanceof Error ? error.message : 'שליחת הבקשה נכשלה. נסו שוב.');
     } finally {
       this.isSubmitting.set(false);
+      this.submitPhase.set(null);
+      this.submitUploadProgress.set(null);
     }
   }
 
-  private async uploadPendingFiles(): Promise<void> {
+  private prepareUploadSessionForSubmit(contactName: string, inquiryReferenceId: string): void {
+    if (isLegacyInquiryFolderId(this.inquiryFolderId())) {
+      this.inquiryFolderId.set('');
+    }
+
+    const completeImages = this.uploadedFiles().filter(
+      (file) => file.type === 'image' && file.status === 'complete' && file.storageKey,
+    );
+    const folderIds = [
+      ...new Set(
+        completeImages
+          .map((file) => extractInquiryFolderId(file.storageKey))
+          .filter((folderId): folderId is string => Boolean(folderId)),
+      ),
+    ];
+
+    const hasLegacyFolder = folderIds.some((folderId) => isLegacyInquiryFolderId(folderId));
+    const hasMultipleFolders = folderIds.length > 1;
+    const hasNameMismatch = folderIds.some(
+      (folderId) => !inquiryFolderMatchesName(folderId, contactName),
+    );
+
+    const hasReferenceMismatch = folderIds.some(
+      (folderId) => !inquiryFolderContainsReference(folderId, inquiryReferenceId),
+    );
+
+    if (!hasLegacyFolder && !hasMultipleFolders && !hasNameMismatch && !hasReferenceMismatch && folderIds.length === 1) {
+      this.inquiryFolderId.set(folderIds[0]!);
+      return;
+    }
+
+    if (completeImages.length === 0) {
+      this.inquiryFolderId.set('');
+      return;
+    }
+
+    this.inquiryFolderId.set('');
+    this.uploadedFiles.update((files) =>
+      files.map((file) => {
+        if (file.type !== 'image' || file.status !== 'complete') {
+          return file;
+        }
+
+        return {
+          ...file,
+          status: 'pending',
+          storageKey: '',
+          url: undefined,
+        };
+      }),
+    );
+  }
+
+  private async uploadPendingFiles(contactName: string, inquiryReferenceId: string): Promise<void> {
     const pendingImages = this.uploadedFiles().filter((file) => file.type === 'image' && file.status === 'pending');
+    const total = pendingImages.length;
+    let completed = 0;
+
+    this.submitPhase.set('uploading');
+    this.submitUploadProgress.set(total > 0 ? { completed, total } : null);
     const imageCount = this.uploadImageCount();
 
     if (this.requiresUploadStep() && imageCount > this.maximumAllowedImages()) {
@@ -780,7 +952,17 @@ export class ConfiguratorStoreService {
       this.updateUploadedFile(reference.id, { status: 'uploading', file });
 
       try {
-        const result = await this.uploadApi.registerFile(file, 'image');
+        const result = await this.uploadApi.registerFile(
+          file,
+          'image',
+          contactName,
+          inquiryReferenceId,
+          this.uploadFolderIdForRequest(),
+        );
+        const folderId = extractInquiryFolderId(result.storageKey);
+        if (folderId) {
+          this.inquiryFolderId.set(folderId);
+        }
         this.updateUploadedFile(reference.id, {
           status: 'complete',
           storageKey: result.storageKey,
@@ -788,26 +970,21 @@ export class ConfiguratorStoreService {
           file: undefined,
         });
       } catch (error) {
-        if (!environment.production) {
-          this.updateUploadedFile(reference.id, {
-            status: 'complete',
-            storageKey: `local/dev/${reference.id}/${file.name}`,
-            url: reference.previewUrl,
-            file: undefined,
-          });
-          continue;
-        }
-
         const message =
           error instanceof Error && error.message.includes('תקשורת')
             ? 'לא ניתן להתחבר לשרת. ודאו שהשרת פועל ונסו שוב.'
-            : 'העלאת התמונות נכשלה. נסו שוב.';
+            : error instanceof Error
+              ? error.message
+              : 'העלאת התמונות נכשלה. נסו שוב.';
         this.updateUploadedFile(reference.id, {
           status: 'error',
           errorMessageHe: message,
         });
         throw new Error(message);
       }
+
+      completed++;
+      this.submitUploadProgress.set({ completed, total });
     }
   }
 
@@ -817,6 +994,8 @@ export class ConfiguratorStoreService {
     this.addons.set([]);
     this.revokeUploadedFilePreviewUrls();
     this.uploadedFiles.set([]);
+    this.inquiryFolderId.set('');
+    this.inquiryReferenceId.set('');
     this.songForm.reset({
       style: '',
       customStyle: '',
@@ -843,6 +1022,8 @@ export class ConfiguratorStoreService {
     });
     this.submitError.set(null);
     this.submitResult.set(null);
+    this.submitPhase.set(null);
+    this.submitUploadProgress.set(null);
     clearConfiguratorState();
   }
 
@@ -853,6 +1034,7 @@ export class ConfiguratorStoreService {
       currentStepIndex: this.currentStepIndex(),
       mainProduct: this.mainProduct(),
       addons: this.addons(),
+      inquiryFolderId: this.inquiryFolderId(),
       songForm: this.songForm.getRawValue() as Record<string, string>,
       videoForm: this.videoForm.getRawValue(),
       projectDetailsForm: this.projectDetailsForm.getRawValue(),

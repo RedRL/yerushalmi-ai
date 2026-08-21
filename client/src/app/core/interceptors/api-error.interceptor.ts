@@ -2,7 +2,31 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 
 interface ApiErrorBody {
-  error?: { message?: string };
+  error?: {
+    message?: string;
+    details?: {
+      fieldErrors?: Record<string, string[]>;
+      formErrors?: string[];
+    };
+  };
+}
+
+function resolveApiErrorMessage(error: HttpErrorResponse): string {
+  const body = error.error as ApiErrorBody | undefined;
+  const fieldErrors = body?.error?.details?.fieldErrors;
+  if (fieldErrors) {
+    for (const messages of Object.values(fieldErrors)) {
+      const first = messages.find((message) => message.trim().length > 0);
+      if (first) return first;
+    }
+  }
+
+  const formErrors = body?.error?.details?.formErrors;
+  if (formErrors?.length) {
+    return formErrors[0]!;
+  }
+
+  return body?.error?.message ?? 'אירעה תקלה בתקשורת עם השרת. נסו שוב בעוד רגע.';
 }
 
 /** Normalizes backend error responses into a friendly Hebrew message on `error.message`. */
@@ -10,9 +34,7 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse) {
-        const body = error.error as ApiErrorBody | undefined;
-        const message = body?.error?.message ?? 'אירעה תקלה בתקשורת עם השרת. נסו שוב בעוד רגע.';
-        return throwError(() => new Error(message));
+        return throwError(() => new Error(resolveApiErrorMessage(error)));
       }
       return throwError(() => error);
     }),

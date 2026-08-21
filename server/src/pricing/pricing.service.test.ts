@@ -22,7 +22,7 @@ describe('calculatePriceBreakdown', () => {
   it('charges the video package intro price for video_existing_song with no extras', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_existing_song',
-      videoSource: 'customer_videos',
+      videoSource: 'customer_photos',
       videoLength: 'min_2_0',
       videoFormat: 'landscape',
       subtitles: 'none',
@@ -36,7 +36,7 @@ describe('calculatePriceBreakdown', () => {
   it('charges the full experience intro price for video_new_song with no extras', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_new_song',
-      videoSource: 'customer_videos',
+      videoSource: 'customer_photos',
       videoLength: 'min_2_0',
       videoFormat: 'landscape',
       subtitles: 'none',

@@ -48,6 +48,35 @@
   }
 }
 
+.contact-step__submit-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.contact-step__submit-spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: currentColor;
+  border-radius: var(--radius-full);
+  animation: configurator-submit-spin 0.8s linear infinite;
+}
+
+@keyframes configurator-submit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include reduced-motion {
+  .contact-step__submit-spinner {
+    animation: none;
+    border-top-color: currentColor;
+  }
+}
+
 .contact-step__success {
   display: flex;
   flex-direction: column;

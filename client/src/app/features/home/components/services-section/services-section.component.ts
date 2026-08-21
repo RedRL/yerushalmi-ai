@@ -16,7 +16,7 @@ const SERVICES: readonly ServiceItem[] = [
     id: 'video-existing-song',
     icon: 'video-existing-song',
     titleHe: 'קליפ עם שיר קיים',
-    descriptionHe: 'אתם מספקים שיר קיים, ואנחנו יוצרים עבורו קליפ המבוסס על תמונות, סרטונים או סצנות שנוצרות באמצעות AI.',
+    descriptionHe: 'אתם מספקים שיר קיים, ואנחנו יוצרים עבורו קליפ המבוסס על תמונות או סצנות שנוצרות באמצעות AI.',
   },
   {
     id: 'video-new-song',

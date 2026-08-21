@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import { WHATSAPP_CONFIG } from '../../../../../core/config/site.config';
+import { formatShortInquiryReference } from '../../../../../shared/utils/inquiry-reference.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class ContactStepComponent {
   readonly store = inject(ConfiguratorStoreService);
   readonly whatsappUrl = WHATSAPP_CONFIG.url;
   readonly limits = FIELD_LIMITS;
+  readonly formatShortInquiryReference = formatShortInquiryReference;
 
   submit(): void {
     if (this.store.isSubmitting() || this.store.submitResult()) return;

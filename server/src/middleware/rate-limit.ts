@@ -1,4 +1,7 @@
 import rateLimit from 'express-rate-limit';
+import { env } from '../config/env';
+
+const skipInDevelopment = (): boolean => env.nodeEnv === 'development';
 
 /** Applied to POST /api/inquiries - a real customer will not submit dozens per minute. */
 export const inquiriesRateLimiter = rateLimit({
@@ -6,6 +9,7 @@ export const inquiriesRateLimiter = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInDevelopment,
   message: { success: false, error: { message: 'יותר מדי בקשות. נסו שוב בעוד כמה דקות.' } },
 });
 
@@ -15,6 +19,7 @@ export const contactRateLimiter = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInDevelopment,
   message: { success: false, error: { message: 'יותר מדי הודעות. נסו שוב בעוד כמה דקות.' } },
 });
 
@@ -24,5 +29,6 @@ export const uploadsRateLimiter = rateLimit({
   limit: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInDevelopment,
   message: { success: false, error: { message: 'יותר מדי בקשות העלאה. נסו שוב בעוד כמה דקות.' } },
 });

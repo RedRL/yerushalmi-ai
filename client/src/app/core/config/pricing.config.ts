@@ -93,14 +93,14 @@ export const SONG_STYLE_OPTIONS: readonly string[] = [
 
 export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[] = [
   {
-    id: 'customer_videos',
-    labelHe: 'עריכה מתמונות ו/או סרטונים אמיתיים שהלקוח מספק',
-    descriptionHe: 'עריכה מוזיקלית מתמונות וקטעי וידאו שסיפקתם.',
+    id: 'customer_photos',
+    labelHe: 'עריכה מתמונות שהלקוח מספק',
+    descriptionHe: 'עריכה מוזיקלית מתמונות שסיפקתם.',
     price: 0,
   },
 ];
 
-export const DEFAULT_VIDEO_SOURCE: VideoSourceId = 'customer_videos';
+export const DEFAULT_VIDEO_SOURCE: VideoSourceId = 'customer_photos';
 
 /** Default output format for new video projects. */
 export const DEFAULT_VIDEO_FORMAT: VideoFormatId = 'landscape';

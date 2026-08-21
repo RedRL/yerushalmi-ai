@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type { UploadedFileKind } from '../../shared/models/upload.model';
+import { isLegacyInquiryFolderId } from '../../shared/utils/inquiry-folder.util';
 import { resolveFileMimeType } from '../../shared/utils/file-type.util';
 
 export interface InitiateUploadResponse {
@@ -24,23 +25,42 @@ export interface CompleteUploadResponse {
 }
 
 /**
- * Talks to the mock storage endpoints for Milestone 1. Once a real provider
- * (Cloudflare R2 / S3 / Cloudinary) is selected, `completeUpload` will PUT the
- * file bytes directly to `uploadUrl` before calling `/uploads/complete` - no
- * backend/API changes should be required on the frontend call sites.
+ * Direct-to-provider upload flow: initiate → PUT to signed URL → complete.
+ * Works with Cloudflare R2 (production) and mock storage (local dev).
  */
 @Injectable({ providedIn: 'root' })
 export class UploadApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
 
-  async registerFile(file: File, type: UploadedFileKind): Promise<{ storageKey: string; url: string }> {
+  async registerFile(
+    file: File,
+    type: UploadedFileKind,
+    contactName: string,
+    inquiryReferenceId: string,
+    inquiryFolderId?: string,
+  ): Promise<{ storageKey: string; url: string }> {
+    const trimmedName = contactName.trim();
+    if (trimmedName.length < 2) {
+      throw new Error('נא למלא את שם איש הקשר לפני שליחת הבקשה.');
+    }
+
+    if (!inquiryReferenceId.trim()) {
+      throw new Error('חסר מזהה פנייה. נא לרענן את הדף ולשלוח שוב.');
+    }
+
+    const reusableFolderId =
+      inquiryFolderId && !isLegacyInquiryFolderId(inquiryFolderId) ? inquiryFolderId : undefined;
+
     const initiateResponse = await firstValueFrom(
       this.http.post<InitiateUploadResponse>(`${this.baseUrl}/uploads/initiate`, {
         fileName: file.name,
         fileType: type,
         mimeType: resolveFileMimeType(file),
         sizeBytes: file.size,
+        contactName: trimmedName,
+        inquiryReferenceId: inquiryReferenceId.trim(),
+        ...(reusableFolderId ? { inquiryFolderId: reusableFolderId } : {}),
       }),
     );
 

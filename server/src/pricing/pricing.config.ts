@@ -54,8 +54,8 @@ export const PRODUCT_INCLUDES_VIDEO: Record<MainProductId, boolean> = {
 };
 
 export const VIDEO_SOURCE_PRICES: Record<VideoSourceId, { labelHe: string; price: number }> = {
-  customer_photos: { labelHe: 'מתמונות שהלקוח מספק', price: 0 },
-  customer_videos: { labelHe: 'עריכה מתמונות ו/או סרטונים אמיתיים שהלקוח מספק', price: 0 },
+  customer_photos: { labelHe: 'עריכה מתמונות שהלקוח מספק', price: 0 },
+  customer_videos: { labelHe: 'עריכה מתמונות שהלקוח מספק', price: 0 },
   mixed: { labelHe: 'שילוב חלקי של סרטוני AI שלא ממה שסיפק הלקוח', price: 100 },
   ai_only: { labelHe: 'רוב או כל הסרטון מסרטוני AI שלא מהחומרים שסיפק הלקוח', price: 200 },
 };

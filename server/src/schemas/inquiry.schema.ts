@@ -5,6 +5,10 @@ import {
   MAX_UPLOADED_IMAGES_PER_INQUIRY,
   resolveVideoLengthForUploadValidation,
 } from '../upload/upload-requirements';
+import { extractInquiryFolderId, inquiryFolderContainsReference } from '../storage/storage-key.util';
+import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
+import { inquiryFolderIdSchema } from './inquiry-folder.schema';
+import { inquiryReferenceIdSchema } from './inquiry-reference.schema';
 
 export const mainProductSchema = z.enum(['song_only', 'video_existing_song', 'video_new_song']);
 
@@ -104,6 +108,8 @@ export const inquirySchema = z
     addons: z.array(addonSchema).max(20).optional().default([]),
     projectDetails: projectDetailsSchema,
     uploadedFiles: z.array(uploadedFileReferenceSchema).max(MAX_UPLOADED_IMAGES_PER_INQUIRY).optional().default([]),
+    inquiryFolderId: inquiryFolderIdSchema.optional(),
+    inquiryReferenceId: inquiryReferenceIdSchema.optional(),
     consents: consentsSchema,
     // Accepted for forward-compatibility with the client payload shape, but
     // NEVER used for the trusted price calculation. See pricing.service.ts.
@@ -170,6 +176,42 @@ export const inquirySchema = z
             imageCount === 0
               ? `הועלו 0 מתוך מינימום של ${minimumRequired}`
               : `הועלו ${imageCount} מתוך מינימום של ${minimumRequired}`,
+        });
+      }
+    }
+
+    const uploadedFiles = data.uploadedFiles ?? [];
+    if (uploadedFiles.length > 0) {
+      const expectedFolderId = data.inquiryFolderId;
+      const folderIds = new Set(
+        uploadedFiles
+          .map((file) => extractInquiryFolderId(file.storageKey))
+          .filter((folderId): folderId is string => Boolean(folderId)),
+      );
+
+      if (folderIds.size !== 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['uploadedFiles'],
+          message: 'כל הקבצים חייבים להיות באותה תיקיית העלאה',
+        });
+      } else if (expectedFolderId && !folderIds.has(expectedFolderId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['inquiryFolderId'],
+          message: 'מזהה תיקיית ההעלאה אינו תואם לקבצים שהועלו',
+        });
+      }
+
+      if (
+        data.inquiryReferenceId &&
+        data.inquiryFolderId &&
+        !inquiryFolderContainsReference(data.inquiryFolderId, data.inquiryReferenceId)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['inquiryFolderId'],
+          message: `מזהה תיקיית ההעלאה אינו תואם למספר הפנייה ${formatShortInquiryReference(data.inquiryReferenceId)}`,
         });
       }
     }

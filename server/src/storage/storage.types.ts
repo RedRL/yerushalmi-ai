@@ -5,6 +5,14 @@ export interface InitiateUploadInput {
   fileType: UploadedFileKind;
   mimeType: string;
   sizeBytes: number;
+  contactName?: string;
+  inquiryFolderId?: string;
+  inquiryReferenceId?: string;
+}
+
+export interface CreateInquiryPhotoBundleInput {
+  folderId: string;
+  storageKeys: string[];
 }
 
 /**
@@ -36,4 +44,5 @@ export interface StorageService {
   initiateUpload(input: InitiateUploadInput): Promise<InitiateUploadResult>;
   completeUpload(storageKey: string): Promise<CompleteUploadResult>;
   getPublicUrl(storageKey: string): string;
+  createInquiryPhotoBundle?(input: CreateInquiryPhotoBundleInput): Promise<CompleteUploadResult>;
 }

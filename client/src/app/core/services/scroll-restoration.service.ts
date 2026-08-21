@@ -1,0 +1,41 @@
+import { afterNextRender, DestroyRef, inject, Injectable, Injector } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { debounceTime, filter, fromEvent } from 'rxjs';
+import {
+  enableManualScrollRestoration,
+  restorePageScrollPosition,
+  savePageScrollPosition,
+} from '../../shared/utils/scroll-restoration.util';
+
+@Injectable({ providedIn: 'root' })
+export class ScrollRestorationService {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
+
+  init(): void {
+    enableManualScrollRestoration();
+
+    afterNextRender(() => {
+      restorePageScrollPosition(window.location.pathname);
+    }, { injector: this.injector });
+
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event) => {
+        restorePageScrollPosition(event.urlAfterRedirects.split('?')[0] || '/');
+      });
+
+    fromEvent(window, 'scroll', { passive: true })
+      .pipe(debounceTime(200), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => savePageScrollPosition(window.location.pathname));
+
+    fromEvent(window, 'pagehide')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => savePageScrollPosition(window.location.pathname));
+  }
+}

@@ -3,6 +3,7 @@ import { env } from '../config/env';
 import { logger } from '../utils/logger';
 import type { InquiryInput } from '../schemas/inquiry.schema';
 import type { PriceBreakdown } from '../pricing/pricing.types';
+import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
 import { buildInquiryEmailHtml } from './email-template';
 import { buildInquiryConfirmationEmail } from './inquiry-confirmation-email-template';
 import { buildContactEmailHtml } from './contact-email-template';
@@ -36,9 +37,11 @@ export async function sendInquiryEmail(
   payload: InquiryInput,
   breakdown: PriceBreakdown,
   submittedAt: Date,
+  inquiryId: string,
+  photosBundleUrl?: string,
 ): Promise<SendInquiryEmailResult> {
-  const html = buildInquiryEmailHtml(payload, breakdown, submittedAt);
-  const subject = `בקשה חדשה מ-${payload.contact.name} | YERUSHALMI.AI`;
+  const html = buildInquiryEmailHtml(payload, breakdown, submittedAt, inquiryId, photosBundleUrl);
+  const subject = `בקשה חדשה #${formatShortInquiryReference(inquiryId)} מ-${payload.contact.name} | YERUSHALMI.AI`;
 
   if (!env.isEmailConfigured) {
     logger.warn('Email is not configured (RESEND_API_KEY / CONTACT_EMAIL / EMAIL_FROM missing). Logging instead.', {
