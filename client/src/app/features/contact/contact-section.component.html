@@ -9,8 +9,8 @@
         [href]="whatsappUrl"
         target="_blank"
         rel="noopener noreferrer"
-      >בוואטסאפ</a>,
-      או לכתוב אלינו
+      >בוואטסאפ</a>,<br />
+      או לכתוב אלינו ל-
       <a class="contact__channel-link" [href]="contactEmailUrl">{{ contactEmail }}</a>.
     </p>
 
@@ -56,7 +56,7 @@
 
           <div class="field contact__message-field">
             <label class="field__label" for="simpleContactMessage">הודעה *</label>
-            <textarea id="simpleContactMessage" class="field__control" formControlName="message" rows="4" placeholder="ספרו בקצרה על מה שאתם מחפשים..." [maxlength]="limits.simpleContactMessage"></textarea>
+            <textarea id="simpleContactMessage" class="field__control" formControlName="message" rows="6" placeholder="ספרו בקצרה על מה שאתם מחפשים..." [maxlength]="limits.simpleContactMessage"></textarea>
             <span class="field__error" aria-live="polite">
               @if (form.controls.message.invalid && form.controls.message.touched) {
                 נא לכתוב הודעה קצרה

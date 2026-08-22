@@ -83,6 +83,32 @@ describe('inquirySchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects uploads for song-only inquiries', () => {
+    const folderId = resolveUploadFolderId('Test User', undefined, submittedAt, inquiryReferenceId);
+    const storageKey = buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234');
+
+    const result = inquirySchema.safeParse({
+      contact: { name: 'Test User', phone: '0501234567', email: 'test@example.com' },
+      mainProduct: 'song_only',
+      song: { style: 'פופ' },
+      projectDetails: {
+        personName: 'David',
+        occasion: 'Birthday',
+        story: 'Long enough story for validation',
+      },
+      uploadedFiles: [{ id: '1', type: 'image', name: 'photo.jpg', storageKey }],
+      inquiryFolderId: folderId,
+      inquiryReferenceId,
+      consents: {
+        mediaRights: true,
+        contactPermission: true,
+        termsAccepted: true,
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('rejects blob preview urls on uploaded files', () => {
     const folderId = resolveUploadFolderId(
       'Test User',

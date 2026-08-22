@@ -1,15 +1,23 @@
 <section id="top" class="hero">
   <div #banner class="hero__banner" [style.transform]="bannerStyle().transform" [style.opacity]="bannerStyle().opacity">
-    <img
-      class="hero__banner-image"
-      [src]="bannerImageUrl"
-      alt="YERUSHALMI.AI — קליפים מוזיקליים ושירים בהתאמה אישית"
-      [width]="bannerWidth"
-      [height]="bannerHeight"
-      fetchpriority="high"
-    />
+    <picture class="hero__banner-picture">
+      <source media="(max-width: 767px)" [srcset]="mobileBannerImageUrl" />
+      <img
+        class="hero__banner-image"
+        [src]="desktopBannerImageUrl"
+        alt="YERUSHALMI.AI — קליפים מוזיקליים ושירים בהתאמה אישית"
+        [width]="desktopBannerWidth"
+        [height]="desktopBannerHeight"
+        fetchpriority="high"
+      />
+    </picture>
 
-    <button type="button" class="hero__scroll-indicator" (click)="goToStage()" aria-label="גלילה לתוכן הבא">
+    <button
+      type="button"
+      class="hero__scroll-indicator"
+      (click)="goToStage()"
+      aria-label="גלילה לתוכן הבא"
+    >
       <span class="hero__scroll-line"><span class="hero__scroll-dot"></span></span>
       <span class="hero__scroll-label">גללו מטה</span>
     </button>

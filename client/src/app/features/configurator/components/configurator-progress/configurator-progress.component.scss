@@ -1,11 +1,26 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
 
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .progress {
   overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
   padding-bottom: var(--space-2);
+  flex-shrink: 0;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  overscroll-behavior-x: contain;
+
+  @include bp.respond-down('lg') {
+    overflow: visible;
+    padding-bottom: var(--space-1);
+  }
 
   &::-webkit-scrollbar {
     display: none;
@@ -16,18 +31,38 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
-  min-width: max-content;
+  width: 100%;
+  min-width: 0;
 
-  @include bp.respond-up('md') {
+  @include bp.respond-down('lg') {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px var(--space-1);
+    width: 100%;
     min-width: 0;
+    padding-inline: 0;
+
+    &.progress__list--three-cols .progress__item {
+      flex: 0 0 calc(33.333% - var(--space-1));
+      min-width: 0;
+    }
+  }
+
+  @include bp.respond-up('lg') {
     justify-content: space-between;
   }
 }
 
 .progress__item {
-  flex: 1;
-  min-width: 92px;
+  flex: 1 1 0;
+  min-width: 0;
   position: relative;
+
+  @include bp.respond-down('lg') {
+    flex: 0 0 calc(25% - var(--space-1));
+    min-width: 4.25rem;
+    max-width: none;
+  }
 
   &:not(:last-child)::after {
     content: '';
@@ -38,7 +73,7 @@
     height: 2px;
     background: var(--color-border-subtle);
 
-    @include bp.respond-down('md') {
+    @include bp.respond-down('lg') {
       display: none;
     }
   }
@@ -53,9 +88,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: 2px;
   width: 100%;
   text-align: center;
+
+  @include bp.respond-down('lg') {
+    gap: var(--space-1);
+  }
 }
 
 .progress__dot {
@@ -70,6 +109,13 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-semibold);
   transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+
+  @include bp.respond-down('lg') {
+    width: 24px;
+    height: 24px;
+    font-size: var(--font-size-tiny);
+    border-width: 1.5px;
+  }
 }
 
 .progress__item--completed .progress__dot {
@@ -81,13 +127,51 @@
 .progress__item--current .progress__dot {
   border-color: var(--color-accent-purple-light);
   color: var(--color-text-primary);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+
+  @include bp.respond-down('lg') {
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  }
 }
 
 .progress__label {
   font-size: var(--font-size-tiny);
   color: var(--color-text-muted);
+  line-height: 1.2;
+  max-width: 100%;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @include bp.respond-down('lg') {
+    font-size: var(--font-size-small);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+.progress__label--mobile {
+  display: none;
+
+  @include bp.respond-down('lg') {
+    display: -webkit-box;
+  }
+}
+
+.progress__label--desktop {
+  @include bp.respond-down('lg') {
+    display: none;
+  }
+}
+
+.progress__item--completed .progress__label {
+  @include bp.respond-down('lg') {
+    color: var(--color-text-secondary);
+  }
 }
 
 .progress__item--current .progress__label {

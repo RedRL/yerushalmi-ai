@@ -31,6 +31,7 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly dialogRef = viewChild<ElementRef<HTMLElement>>('dialog');
   private previouslyFocusedElement: HTMLElement | null = null;
+  private lockedScrollY = 0;
 
   readonly embedUrl = computed<SafeResourceUrl>(() =>
     this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -43,14 +44,38 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   );
 
   ngOnInit(): void {
+    this.lockedScrollY = window.scrollY;
     this.previouslyFocusedElement = document.activeElement as HTMLElement | null;
-    document.body.classList.add('scroll-locked');
+    this.lockBodyScroll();
     queueMicrotask(() => this.dialogRef()?.nativeElement.focus());
   }
 
   ngOnDestroy(): void {
+    this.unlockBodyScroll();
+    this.restoreFocusWithoutScroll();
+  }
+
+  private lockBodyScroll(): void {
+    document.body.classList.add('scroll-locked');
+    document.body.style.top = `-${this.lockedScrollY}px`;
+  }
+
+  private unlockBodyScroll(): void {
+    const scrollY = this.lockedScrollY;
     document.body.classList.remove('scroll-locked');
-    this.previouslyFocusedElement?.focus?.();
+    document.body.style.removeProperty('top');
+    window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' });
+  }
+
+  private restoreFocusWithoutScroll(): void {
+    const element = this.previouslyFocusedElement;
+    if (!element?.focus) return;
+
+    try {
+      element.focus({ preventScroll: true });
+    } catch {
+      element.focus();
+    }
   }
 
   close(): void {

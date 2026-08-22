@@ -40,6 +40,20 @@
 
   .video-card__play {
     display: none;
+
+    @include bp.respond-down('md') {
+      display: flex;
+
+      .video-card__play-icon {
+        width: 4.25rem;
+        height: 4.25rem;
+
+        svg {
+          width: 1.85rem;
+          height: 1.85rem;
+        }
+      }
+    }
   }
 
   .video-card__body {
@@ -142,21 +156,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  background: linear-gradient(0deg, rgba(5, 5, 10, 0.55), rgba(5, 5, 10, 0.05));
+  background: linear-gradient(0deg, rgba(5, 5, 10, 0.5), rgba(5, 5, 10, 0.12));
+}
+
+.video-card__play-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+  color: #6d28d9;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow:
+    0 6px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 3px rgba(255, 255, 255, 0.4);
+  transition: transform var(--transition-fast) var(--ease-out);
 
   svg {
-    padding: var(--space-4);
-    border-radius: var(--radius-full);
-    background: rgba(139, 92, 246, 0.85);
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5);
-    transition: transform var(--transition-fast) var(--ease-out);
+    display: block;
+    width: 1.45rem;
+    height: 1.45rem;
+    margin-inline-start: 0.12rem;
   }
 }
 
-.video-card__media:hover .video-card__play svg,
-.video-card__media:focus-visible .video-card__play svg {
-  transform: scale(1.1);
+.video-card__media:hover .video-card__play-icon,
+.video-card__media:focus-visible .video-card__play-icon {
+  transform: scale(1.08);
 }
 
 .video-card__badge {

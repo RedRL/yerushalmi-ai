@@ -1,4 +1,5 @@
 @use 'mixins' as *;
+@use 'breakpoints' as bp;
 
 .whatsapp-fab {
   position: fixed;
@@ -30,6 +31,10 @@
 
   &:active {
     transform: scale(0.97);
+  }
+
+  @include bp.respond-down('lg') {
+    display: none;
   }
 }
 

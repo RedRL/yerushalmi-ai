@@ -4,9 +4,13 @@ import { NavigationEnd, Router } from '@angular/router';
 import { debounceTime, filter, fromEvent } from 'rxjs';
 import {
   enableManualScrollRestoration,
+  resetPageScrollPosition,
   restorePageScrollPosition,
   savePageScrollPosition,
 } from '../../shared/utils/scroll-restoration.util';
+
+const TERMS_PATH = '/terms';
+const MOBILE_MAX_WIDTH = '(max-width: 1023px)';
 
 @Injectable({ providedIn: 'root' })
 export class ScrollRestorationService {
@@ -18,7 +22,7 @@ export class ScrollRestorationService {
     enableManualScrollRestoration();
 
     afterNextRender(() => {
-      restorePageScrollPosition(window.location.pathname);
+      this.restoreForPath(window.location.pathname);
     }, { injector: this.injector });
 
     this.router.events
@@ -27,7 +31,7 @@ export class ScrollRestorationService {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((event) => {
-        restorePageScrollPosition(event.urlAfterRedirects.split('?')[0] || '/');
+        this.restoreForPath(event.urlAfterRedirects.split('?')[0] || '/');
       });
 
     fromEvent(window, 'scroll', { passive: true })
@@ -37,5 +41,14 @@ export class ScrollRestorationService {
     fromEvent(window, 'pagehide')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => savePageScrollPosition(window.location.pathname));
+  }
+
+  private restoreForPath(pathname: string): void {
+    if (pathname === TERMS_PATH && window.matchMedia(MOBILE_MAX_WIDTH).matches) {
+      resetPageScrollPosition(pathname);
+      return;
+    }
+
+    restorePageScrollPosition(pathname);
   }
 }

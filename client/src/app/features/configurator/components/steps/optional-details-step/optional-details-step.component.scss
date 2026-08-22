@@ -6,6 +6,12 @@
   flex: 1;
   min-height: 0;
   height: 100%;
+
+  @include bp.respond-down('lg') {
+    display: block;
+    height: auto;
+    flex: 0 0 auto;
+  }
 }
 
 .optional-details-step {
@@ -14,6 +20,11 @@
   flex: 1;
   min-height: 0;
   height: 100%;
+
+  @include bp.respond-down('lg') {
+    height: auto;
+    flex: 0 0 auto;
+  }
 }
 
 .optional-details-step .step__section {
@@ -29,6 +40,11 @@
   @include bp.respond-up('md') {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: auto auto minmax(5rem, 1fr);
+  }
+
+  @include bp.respond-down('lg') {
+    row-gap: var(--space-2);
+    margin-top: var(--space-1);
   }
 }
 

@@ -20,7 +20,17 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
   @include scrollbars.app-scrollbar;
+
+  &.scroll-restoring {
+    scroll-behavior: auto !important;
+
+    body {
+      visibility: hidden;
+    }
+  }
 }
 
 body {
@@ -62,7 +72,13 @@ body {
   line-height: var(--line-height-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+main {
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 h1,
@@ -114,7 +130,10 @@ video {
 /* Body scroll lock while a modal (e.g. the portfolio video modal) is open. */
 body.scroll-locked {
   overflow: hidden;
-  height: 100vh;
+  position: fixed;
+  width: 100%;
+  left: 0;
+  right: 0;
 }
 
 .visually-hidden {
@@ -214,6 +233,51 @@ body.scroll-locked {
   }
 }
 
+@include bp.respond-down('lg') {
+  .field {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-2);
+    row-gap: var(--space-1);
+
+    > .field__label {
+      order: 1;
+      flex: 0 1 auto;
+      max-width: 100%;
+    }
+
+    > .field__error {
+      order: 2;
+      flex: 0 1 auto;
+      min-height: 0;
+      max-width: 100%;
+      white-space: normal;
+    }
+
+    > .field__error:empty {
+      display: none;
+    }
+
+    > .field__control {
+      order: 3;
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    > :not(.field__label):not(.field__error):not(.field__control) {
+      order: 4;
+      flex: 1 1 100%;
+      width: 100%;
+    }
+  }
+
+  .project-details-step__story-error {
+    min-height: 0;
+  }
+}
+
 .field__control {
   width: 100%;
   padding: var(--space-3) var(--space-4);
@@ -269,11 +333,11 @@ select.field__control {
 
 .field-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
 
   @include bp.respond-up('sm') {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -305,11 +369,11 @@ select.field__control {
 
 .option-card-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 
   @include bp.respond-up('sm') {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -396,7 +460,7 @@ select.field__control {
   }
 
   .field__error {
-    white-space: nowrap;
+    white-space: normal;
 
     &--hidden {
       visibility: hidden;
@@ -411,13 +475,23 @@ select.field__control {
   min-width: 0;
 }
 
-/* Styled scrollbars for overflow containers across the app. */
+/* Styled scrollbars for overflow containers (configurator body uses appPersistentScrollbar). */
 :where(
-  .configurator__body,
   .summary-step__dialog-body,
-  .price-summary,
+  .file-upload__gallery,
   .file-upload__list,
-  .terms__content
+  .header__mobile-nav,
+  textarea.field__control
 ) {
   @include scrollbars.app-scrollbar;
+}
+
+:where(
+  .summary-step__dialog-body,
+  .file-upload__gallery,
+  .header__mobile-nav
+) {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  @include scrollbars.scroll-area-rtl-props;
 }

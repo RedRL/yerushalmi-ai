@@ -1,3 +1,6 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
 .song-step__styles-header {
   display: flex;
   flex-wrap: wrap;
@@ -9,34 +12,30 @@
   font-size: var(--font-size-tiny);
 }
 
+.song-step__styles-error--short {
+  display: none;
+}
+
 .song-step__chips {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-2);
   width: 100%;
-}
-
-.song-step__chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--space-2);
-  flex: 0 1 auto;
 }
 
 .song-step__other-group {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   flex: 0 0 auto;
   min-height: var(--song-step-chip-height, 2.125rem);
 }
 
 .song-step__other-group--expanded {
-  flex: 1 1 auto;
+  flex: 1 1 11rem;
   min-width: 0;
-  display: flex;
+  max-width: 100%;
 }
 
 .song-step__chips .chip {
@@ -79,9 +78,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.song-step__mood-length .field:nth-child(2) .field__label {
   font-size: var(--font-size-tiny);
 }
 
@@ -90,4 +86,78 @@
   padding-inline-start: var(--space-3);
   padding-inline-end: calc(var(--space-3) + 1.35rem);
   background-position: 0.65rem 50%;
+}
+
+:host {
+  display: block;
+  min-height: 0;
+}
+
+@include bp.respond-down('lg') {
+  .song-step__title-hint {
+    display: none;
+  }
+
+  .song-step__styles-error--full {
+    display: none;
+  }
+
+  .song-step__styles-error--short {
+    display: inline;
+  }
+
+  .song-step__styles-header {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+
+  .song-step__styles-error {
+    min-height: 0;
+    flex: 1 1 auto;
+    white-space: normal;
+  }
+
+  .song-step__chips {
+    align-items: center;
+    row-gap: var(--space-2);
+  }
+
+  .song-step__other-group {
+    flex-wrap: nowrap;
+  }
+
+  .song-step__other-group--expanded {
+    flex: 1 1 11rem;
+    min-width: 8rem;
+    max-width: 100%;
+  }
+
+  .song-step__custom-style {
+    flex: 1 1 auto;
+    min-width: 5rem;
+    width: auto;
+  }
+
+  .song-step__notes-row {
+    grid-template-columns: 1fr;
+  }
+
+  .song-step__notes-field {
+    grid-column: 1 / -1;
+  }
+
+  .song-step__mood-length {
+    align-items: start;
+  }
+
+  .song-step__mood-input {
+    padding-block: 0;
+  }
+
+  .song-step__mood-length select.field__control {
+    padding-block: 0;
+    height: 2.125rem;
+    min-height: 2.125rem;
+  }
 }

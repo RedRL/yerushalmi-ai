@@ -1,6 +1,7 @@
 <nav id="configurator-progress" class="progress" aria-label="שלבי בניית הפרויקט">
   <ol
     class="progress__list"
+    [class.progress__list--three-cols]="store.visibleSteps().length === 6"
     role="list"
     [attr.aria-current]="store.currentStep().labelHe"
   >
@@ -22,7 +23,8 @@
               {{ index + 1 }}
             }
           </span>
-          <span class="progress__label">{{ step.labelHe }}</span>
+          <span class="progress__label progress__label--desktop">{{ step.labelHe }}</span>
+          <span class="progress__label progress__label--mobile">{{ step.labelHeMobile ?? step.labelHe }}</span>
         </button>
       </li>
     }

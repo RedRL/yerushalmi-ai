@@ -1,4 +1,4 @@
-<header class="header" [class.header--scrolled]="isScrolled()">
+<header class="header" [class.header--scrolled]="isHeaderSolid()" [class.header--menu-open]="isMobileMenuOpen() || isMobileMenuClosing()">
   <div class="header__inner">
     <a class="header__brand" href="#" (click)="$event.preventDefault(); navigateTo('top')">
       {{ brandName }}
@@ -24,10 +24,11 @@
       <button
         type="button"
         class="header__menu-toggle"
-        (click)="toggleMobileMenu()"
+        [class.header__menu-toggle--open]="isMobileMenuOpen()"
+        (click)="toggleMobileMenu($event)"
         [attr.aria-expanded]="isMobileMenuOpen()"
         aria-controls="mobile-nav"
-        aria-label="פתיחת תפריט ניווט"
+        [attr.aria-label]="isMobileMenuOpen() ? 'סגירת תפריט ניווט' : 'פתיחת תפריט ניווט'"
       >
         <span></span>
         <span></span>
@@ -36,18 +37,30 @@
     </div>
   </div>
 
-  @if (isMobileMenuOpen()) {
-    <nav id="mobile-nav" class="header__mobile-nav" aria-label="ניווט ראשי - נייד">
-      <ul>
-        @for (link of navLinks; track link.sectionId) {
-          <li>
-            <button type="button" (click)="navigateTo(link.sectionId)">{{ link.labelHe }}</button>
-          </li>
-        }
-      </ul>
-      <button type="button" class="header__mobile-cta header__mobile-cta--primary" (click)="navigateTo('configurator')">
-        התחילו ליצור
-      </button>
-    </nav>
-  }
+  <button
+    type="button"
+    class="header__backdrop"
+    [class.header__backdrop--visible]="isMobileMenuOpen()"
+    (click)="closeMobileMenu()"
+    [attr.aria-hidden]="!isMobileMenuOpen() && !isMobileMenuClosing()"
+    tabindex="-1"
+    aria-label="סגירת תפריט"
+  ></button>
+  <nav
+    id="mobile-nav"
+    class="header__mobile-nav"
+    [class.header__mobile-nav--open]="isMobileMenuOpen()"
+    [attr.aria-hidden]="!isMobileMenuOpen()"
+    [attr.inert]="isMobileMenuOpen() ? null : ''"
+    aria-label="ניווט ראשי - נייד"
+    (click)="$event.stopPropagation()"
+  >
+    <ul>
+      @for (link of navLinks; track link.sectionId) {
+        <li>
+          <button type="button" (click)="navigateTo(link.sectionId)">{{ link.labelHe }}</button>
+        </li>
+      }
+    </ul>
+  </nav>
 </header>

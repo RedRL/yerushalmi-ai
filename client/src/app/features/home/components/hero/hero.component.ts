@@ -18,8 +18,8 @@ import { scrollToConfigurator, scrollToSectionFromNav } from '../../../../shared
 const HERO_VIDEO_ID = '8LqiYpObWZc';
 
 /** Native pixel dimensions of `og-image-16-9-high res-shortest-large-centered.png`. */
-const BANNER_WIDTH = 3344;
-const BANNER_HEIGHT = 1453;
+const DESKTOP_BANNER_WIDTH = 3344;
+const DESKTOP_BANNER_HEIGHT = 1453;
 
 @Component({
   selector: 'app-hero',
@@ -34,9 +34,10 @@ export class HeroComponent implements AfterViewInit {
   private readonly bannerRef = viewChild<ElementRef<HTMLElement>>('banner');
   private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
 
-  readonly bannerImageUrl = '/og-image-16-9-high%20res-shortest-large-centered.png';
-  readonly bannerWidth = BANNER_WIDTH;
-  readonly bannerHeight = BANNER_HEIGHT;
+  readonly desktopBannerImageUrl = '/og-image-16-9-high%20res-shortest-large-centered.png';
+  readonly mobileBannerImageUrl = '/og-image-mobile.png';
+  readonly desktopBannerWidth = DESKTOP_BANNER_WIDTH;
+  readonly desktopBannerHeight = DESKTOP_BANNER_HEIGHT;
   readonly heroPosterUrl = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;
   readonly videoReady = signal(false);
   readonly heroVideoEmbedUrl = this.buildVideoEmbedUrl();

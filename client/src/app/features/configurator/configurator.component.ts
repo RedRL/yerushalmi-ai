@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 
 
 
@@ -11,6 +11,8 @@ import { PriceSummaryComponent } from '../../shared/components/price-summary/pri
 
 
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
+
+import { PersistentScrollbarDirective } from '../../shared/directives/persistent-scrollbar.directive';
 
 
 
@@ -80,6 +82,8 @@ import { ConfiguratorStoreService } from './state/configurator-store.service';
 
     RevealOnScrollDirective,
 
+    PersistentScrollbarDirective,
+
 
 
     ConfiguratorProgressComponent,
@@ -140,9 +144,44 @@ import { ConfiguratorStoreService } from './state/configurator-store.service';
 
 export class ConfiguratorComponent {
 
+  private static readonly MOBILE_HINT_FADE_MS = 200;
 
+  readonly nextHintVisible = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly configuratorBody = viewChild<ElementRef<HTMLElement>>('configuratorBody');
+  private readonly navNextWrap = viewChild<ElementRef<HTMLElement>>('navNextWrap');
+  private readonly navTooltip = viewChild<ElementRef<HTMLElement>>('navTooltip');
+  private nextHintTimer: ReturnType<typeof setTimeout> | null = null;
+  private nextHintFadeTimer: ReturnType<typeof setTimeout> | null = null;
+  private tooltipReturnHost: HTMLElement | null = null;
 
-  constructor(readonly store: ConfiguratorStoreService) {}
+  constructor(readonly store: ConfiguratorStoreService) {
+    effect(() => {
+      this.store.currentStepIndex();
+      this.dismissMobileNextHint(true);
+      this.resetBodyScroll();
+    });
+
+    effect(() => {
+      this.store.isCurrentStepValid();
+      this.dismissMobileNextHint(true);
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.dismissMobileNextHint(true);
+    });
+  }
+
+  private resetBodyScroll(): void {
+    queueMicrotask(() => {
+      requestAnimationFrame(() => {
+        const body = this.configuratorBody()?.nativeElement;
+        if (body) {
+          body.scrollTop = 0;
+        }
+      });
+    });
+  }
 
 
 
@@ -183,13 +222,17 @@ export class ConfiguratorComponent {
 
 
   get showSidebarPrice(): boolean {
-
-
-
     return !this.store.submitResult() && !!this.store.mainProduct();
+  }
 
+  get showInlinePrice(): boolean {
+    return this.showSidebarPrice && !!this.store.priceBreakdown();
+  }
 
-
+  get showIntroPricing(): boolean {
+    const intro = this.store.priceBreakdown()?.total;
+    const original = this.store.originalPriceTotal();
+    return intro != null && original != null && original > intro;
   }
 
 
@@ -199,13 +242,137 @@ export class ConfiguratorComponent {
 
 
   goNext(): void {
-
-
-
+    this.dismissMobileNextHint(true);
     this.store.goNext();
+  }
 
+  onNextWrapClick(): void {
+    if (!this.store.isCurrentStepValid() && window.matchMedia('(max-width: 1023px)').matches) {
+      this.showMobileNextHint();
+    }
+  }
 
+  private showMobileNextHint(): void {
+    this.clearNextHintTimer();
 
+    requestAnimationFrame(() => {
+      if (!this.applyMobileTooltipPosition()) {
+        return;
+      }
+
+      if (!this.nextHintVisible()) {
+        requestAnimationFrame(() => this.nextHintVisible.set(true));
+      }
+
+      this.nextHintTimer = setTimeout(() => this.hideMobileNextHint(), 3000);
+    });
+  }
+
+  private hideMobileNextHint(): void {
+    if (!this.nextHintVisible()) {
+      this.clearMobileTooltipPosition();
+      this.nextHintTimer = null;
+      return;
+    }
+
+    this.nextHintVisible.set(false);
+    this.nextHintTimer = null;
+    this.nextHintFadeTimer = setTimeout(() => {
+      this.clearMobileTooltipPosition();
+      this.nextHintFadeTimer = null;
+    }, ConfiguratorComponent.MOBILE_HINT_FADE_MS);
+  }
+
+  private dismissMobileNextHint(immediate = false): void {
+    this.clearNextHintTimer();
+    this.nextHintVisible.set(false);
+
+    if (immediate) {
+      this.clearMobileTooltipPosition();
+      return;
+    }
+
+    this.nextHintFadeTimer = setTimeout(() => {
+      this.clearMobileTooltipPosition();
+      this.nextHintFadeTimer = null;
+    }, ConfiguratorComponent.MOBILE_HINT_FADE_MS);
+  }
+
+  private clearNextHintTimer(): void {
+    if (this.nextHintTimer !== null) {
+      clearTimeout(this.nextHintTimer);
+      this.nextHintTimer = null;
+    }
+
+    if (this.nextHintFadeTimer !== null) {
+      clearTimeout(this.nextHintFadeTimer);
+      this.nextHintFadeTimer = null;
+    }
+  }
+
+  private applyMobileTooltipPosition(): boolean {
+    if (!window.matchMedia('(max-width: 1023px)').matches) {
+      return false;
+    }
+
+    const wrap = this.navNextWrap()?.nativeElement;
+    const tooltip = this.navTooltip()?.nativeElement;
+    if (!wrap || !tooltip) {
+      return false;
+    }
+
+    if (tooltip.parentElement !== document.body) {
+      this.tooltipReturnHost = wrap;
+      document.body.appendChild(tooltip);
+    }
+
+    const rect = wrap.getBoundingClientRect();
+    const gap = 8;
+    tooltip.style.setProperty('position', 'fixed');
+    tooltip.style.setProperty('left', '50%');
+    tooltip.style.setProperty('right', 'auto');
+    tooltip.style.setProperty('top', `${Math.max(8, rect.top - gap)}px`);
+    tooltip.style.setProperty('bottom', 'auto');
+    tooltip.style.setProperty('transform', 'translate(-50%, -100%)');
+    tooltip.style.setProperty('z-index', '1000');
+    return true;
+  }
+
+  private clearMobileTooltipPosition(): void {
+    this.restoreMobileTooltip();
+
+    const tooltip = this.navTooltip()?.nativeElement;
+    if (!tooltip) {
+      return;
+    }
+
+    tooltip.style.removeProperty('position');
+    tooltip.style.removeProperty('left');
+    tooltip.style.removeProperty('right');
+    tooltip.style.removeProperty('top');
+    tooltip.style.removeProperty('bottom');
+    tooltip.style.removeProperty('transform');
+    tooltip.style.removeProperty('z-index');
+  }
+
+  private restoreMobileTooltip(): void {
+    const tooltip = this.navTooltip()?.nativeElement;
+    if (!tooltip || !this.tooltipReturnHost) {
+      return;
+    }
+
+    if (tooltip.parentElement === document.body) {
+      this.tooltipReturnHost.appendChild(tooltip);
+    }
+
+    this.tooltipReturnHost = null;
+  }
+
+  onNextButtonClick(event: Event): void {
+    if (this.store.isCurrentStepValid()) {
+      event.stopPropagation();
+      this.goNext();
+    }
   }
 
 
@@ -215,17 +382,17 @@ export class ConfiguratorComponent {
 
 
   goBack(): void {
-
-
-
     this.store.goBack();
-
-
-
   }
 
-
-
+  submitContact(): void {
+    if (this.store.isSubmitting() || this.store.submitResult()) return;
+    if (!this.store.isContactStepValid()) {
+      this.store.contactForm.markAllAsTouched();
+      return;
+    }
+    void this.store.submit();
+  }
 }
 
 

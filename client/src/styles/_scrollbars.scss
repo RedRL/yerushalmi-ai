@@ -1,31 +1,34 @@
 :root {
-  --scrollbar-size: 8px;
-  --scrollbar-track: rgba(255, 255, 255, 0.05);
-  --scrollbar-thumb: rgba(155, 109, 255, 0.55);
-  --scrollbar-thumb-hover: rgba(123, 164, 255, 0.8);
+  --scrollbar-size: 7px;
+  --scrollbar-gap: var(--space-2);
+  --scrollbar-gutter: calc(var(--scrollbar-size) + var(--scrollbar-gap));
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(155, 109, 246, 0.85);
+  --scrollbar-thumb-hover: rgba(123, 164, 255, 0.95);
 }
 
 @mixin app-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: auto;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 
   &::-webkit-scrollbar {
     width: var(--scrollbar-size);
     height: var(--scrollbar-size);
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-    border-radius: var(--radius-full);
-    margin-block: 4px;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
     background: linear-gradient(
       180deg,
-      rgba(123, 164, 255, 0.72) 0%,
-      rgba(155, 109, 255, 0.78) 50%,
-      rgba(244, 114, 182, 0.68) 100%
+      rgba(123, 164, 255, 0.85) 0%,
+      rgba(155, 109, 255, 0.9) 50%,
+      rgba(244, 114, 182, 0.82) 100%
     );
     border-radius: var(--radius-full);
     border: 2px solid transparent;
@@ -40,7 +43,6 @@
       rgba(183, 148, 255, 0.95) 50%,
       rgba(244, 114, 182, 0.88) 100%
     );
-    background-clip: padding-box;
   }
 
   &::-webkit-scrollbar-corner {
@@ -48,9 +50,106 @@
   }
 }
 
+.persistent-scroll-shell {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.persistent-scroll-shell--gutter {
+  padding-left: var(--scrollbar-gutter);
+}
+
+/** Hide native scrollbar — pair with appPersistentScrollbar directive. */
+.persistent-scroll-host {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+.persistent-scroll__rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--scrollbar-size);
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.persistent-scroll__thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  min-height: 2rem;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    180deg,
+    rgba(123, 164, 255, 0.85) 0%,
+    rgba(155, 109, 255, 0.9) 50%,
+    rgba(244, 114, 182, 0.82) 100%
+  );
+  box-shadow: 0 0 8px rgba(155, 109, 246, 0.45);
+}
+
+/** Scroll behaviour only — pair with global :where() scrollbar styling. */
+@mixin vertical-scroll-props {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+/** Reserve physical-left gutter for the native scrollbar (no box-shadow fake rail). */
+@mixin scrollbar-gutter-left {
+  scrollbar-gutter: auto;
+  padding-left: var(--scrollbar-gutter);
+  padding-right: 0;
+}
+
+/** RTL scroll containers — native scrollbar on the physical left, content stays RTL. */
+@mixin scroll-area-rtl-props {
+  @include vertical-scroll-props;
+  @include scrollbar-gutter-left;
+  direction: rtl;
+
+  > * {
+    direction: rtl;
+  }
+}
+
+/** Custom scrollbar hosts — LTR scroll math; content stays RTL via children. */
+@mixin scroll-area-custom-props {
+  overflow-x: hidden;
+  overflow-y: auto;
+  direction: ltr;
+
+  > * {
+    direction: rtl;
+  }
+}
+
+/** @deprecated alias — use scrollbar-gutter-left */
+@mixin scrollbar-inset-rtl {
+  @include scrollbar-gutter-left;
+}
+
+/** Persistent vertical scrollbar with reserved gutter — avoids overlaying content. */
+@mixin vertical-scroll-area {
+  @include vertical-scroll-props;
+  @include app-scrollbar;
+}
+
 /** RTL scroll containers — scrollbar sits on the physical left; keep content padded from the right only. */
 @mixin scroll-area-rtl {
-  direction: rtl;
-  padding-inline-start: var(--space-2);
-  padding-inline-end: 0;
+  @include scroll-area-rtl-props;
+  @include app-scrollbar;
 }

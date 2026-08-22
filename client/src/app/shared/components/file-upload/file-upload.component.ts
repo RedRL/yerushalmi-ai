@@ -486,6 +486,7 @@ export class FileUploadComponent implements OnDestroy {
   }
 
   onDragOver(event: DragEvent): void {
+    if (window.matchMedia('(max-width: 1023px)').matches) return;
     if (!this.isExternalFileDrag(event)) return;
 
     event.preventDefault();
@@ -500,6 +501,7 @@ export class FileUploadComponent implements OnDestroy {
     event.preventDefault();
     this.isDragging.set(false);
 
+    if (window.matchMedia('(max-width: 1023px)').matches) return;
     if (!this.isExternalFileDrag(event)) return;
 
     const files = event.dataTransfer?.files;

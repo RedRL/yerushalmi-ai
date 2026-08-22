@@ -78,3 +78,37 @@
     font-weight: var(--font-weight-semibold);
   }
 }
+
+@include bp.respond-down('lg') {
+  .terms {
+    padding-top: var(--header-height);
+    padding-bottom: var(--space-6);
+  }
+
+  .terms__inner {
+    gap: var(--space-3);
+  }
+
+  .terms__header {
+    gap: var(--space-2);
+
+    h1 {
+      font-size: var(--font-size-h2);
+    }
+  }
+
+  .terms__content {
+    gap: var(--space-5);
+
+    section {
+      padding-inline: 0;
+      margin-inline: 0;
+    }
+
+    ul {
+      padding-inline-start: 0;
+      margin-inline-start: 0;
+      list-style-position: inside;
+    }
+  }
+}

@@ -128,8 +128,11 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
     const endIndex = count + count - 1;
     if (items.length <= endIndex) return;
 
+    const target = items[endIndex];
     scroller.style.scrollSnapType = 'none';
-    items[endIndex].scrollIntoView({ inline: 'end', block: 'nearest', behavior: 'auto' });
+    // Set scrollLeft directly — scrollIntoView also scrolls the page vertically.
+    const targetEnd = target.offsetLeft + target.offsetWidth;
+    scroller.scrollLeft = Math.max(0, targetEnd - scroller.clientWidth);
     scroller.style.scrollSnapType = '';
   }
 

@@ -68,29 +68,28 @@
 
     <div class="step__section">
       <div class="song-step__styles-header field__label-row">
-        <span class="step__section-title">סגנונות מועדפים (אפשר לבחור כמה)</span>
+        <span class="step__section-title">סגנונות מועדפים <span class="song-step__title-hint">(אפשר לבחור כמה)</span></span>
         @if (showStyleSelectionError()) {
-          <span class="field__error song-step__styles-error" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד כדי להמשיך.</span>
+          <span class="field__error song-step__styles-error song-step__styles-error--full" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד כדי להמשיך.</span>
+          <span class="field__error song-step__styles-error song-step__styles-error--short" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד.</span>
         } @else if (showCustomStyleError()) {
           <span class="field__error song-step__styles-error" role="alert">נא לציין את הסגנון המוזיקלי.</span>
         }
       </div>
       <div class="chip-group song-step__chips" role="group" aria-label="סגנונות מוזיקליים">
-        <div class="song-step__chip-list">
-          @for (style of styleOptions; track style) {
-            @if (style !== 'אחר') {
-              <button
-                type="button"
-                class="chip"
-                [class.chip--selected]="store.isSongStyleSelected(style)"
-                [attr.aria-pressed]="store.isSongStyleSelected(style)"
-                (click)="store.toggleSongStyle(style)"
-              >
-                {{ style }}
-              </button>
-            }
+        @for (style of styleOptions; track style) {
+          @if (style !== 'אחר') {
+            <button
+              type="button"
+              class="chip"
+              [class.chip--selected]="store.isSongStyleSelected(style)"
+              [attr.aria-pressed]="store.isSongStyleSelected(style)"
+              (click)="store.toggleSongStyle(style)"
+            >
+              {{ style }}
+            </button>
           }
-        </div>
+        }
 
         <div
           class="song-step__other-group"
@@ -186,7 +185,7 @@
 
 
 
-    <div class="field-grid field-grid--pair step__section">
+    <div class="field-grid field-grid--pair step__section song-step__notes-row">
 
       <div class="field">
 
@@ -198,7 +197,7 @@
 
 
 
-      <div class="field">
+      <div class="field song-step__notes-field">
 
         <label class="field__label" for="songNotes">הערות נוספות על השיר</label>
 

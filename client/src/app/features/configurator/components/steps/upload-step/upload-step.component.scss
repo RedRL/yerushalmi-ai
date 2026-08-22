@@ -1,9 +1,17 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   height: 100%;
+
+  @include bp.respond-down('lg') {
+    display: block;
+    height: auto;
+    flex: 0 0 auto;
+  }
 }
 
 .step {
@@ -12,6 +20,11 @@
   flex: 1;
   min-height: 0;
   gap: var(--space-2);
+
+  @include bp.respond-down('lg') {
+    height: auto;
+    flex: 0 0 auto;
+  }
 }
 
 .step__title,
@@ -25,4 +38,9 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  @include bp.respond-down('lg') {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
 }

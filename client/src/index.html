@@ -24,6 +24,29 @@
   <meta name="twitter:image" content="https://yerushalmi.ai/og-image.png">
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <style>
+    html.scroll-restoring { scroll-behavior: auto !important; }
+    html.scroll-restoring body { visibility: hidden; }
+  </style>
+
+  <!-- Hide page until scroll is restored on refresh (key must match scroll-restoration.util.ts). -->
+  <script>
+    (function () {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      try {
+        var key = 'yerushalmi.scroll.v1:' + (location.pathname || '/');
+        var raw = sessionStorage.getItem(key);
+        var y = raw ? Number(raw) : 0;
+        if (Number.isFinite(y) && y > 0) {
+          document.documentElement.classList.add('scroll-restoring');
+          document.documentElement.style.scrollBehavior = 'auto';
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

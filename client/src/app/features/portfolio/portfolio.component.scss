@@ -32,8 +32,9 @@
 
   @include bp.respond-down('md') {
     width: 100%;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
   }
 }
 
@@ -47,7 +48,9 @@
   --portfolio-gap: var(--space-7);
 
   @include bp.respond-down('md') {
-    grid-column: 1;
+    grid-column: 2;
+    padding-inline: var(--space-2);
+    --portfolio-gap: var(--space-4);
   }
 }
 
@@ -130,6 +133,12 @@
 
   @include bp.respond-up('md') {
     display: flex;
+  }
+
+  @include bp.respond-down('md') {
+    display: flex;
+    width: 36px;
+    height: 36px;
   }
 }
 

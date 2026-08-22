@@ -30,10 +30,12 @@
 
       <app-configurator-progress />
 
-
+      <div class="configurator__body-shell persistent-scroll-shell">
 
       <div
+        #configuratorBody
         class="configurator__body"
+        appPersistentScrollbar
         [class.configurator__body--summary]="store.currentStep().id === 'summary'"
       >
 
@@ -91,11 +93,34 @@
 
       </div>
 
+      </div>
+
 
 
       @if (!store.submitResult()) {
 
-        <div class="configurator__nav">
+        <div class="configurator__footer">
+
+          @if (showInlinePrice) {
+            <div class="configurator__inline-price" aria-live="polite">
+              <div class="configurator__inline-price-row">
+                <span class="configurator__inline-price-label">סה"כ משוער</span>
+                <div class="configurator__inline-price-values">
+                  <div class="configurator__inline-price-figures">
+                    @if (showIntroPricing) {
+                      <span class="configurator__inline-price-original">₪{{ store.originalPriceTotal() }}</span>
+                    }
+                    <strong class="configurator__inline-price-amount">₪{{ store.priceBreakdown()!.total }}</strong>
+                  </div>
+                  @if (showIntroPricing) {
+                    <span class="configurator__inline-price-promo">מחיר היכרות · לזמן מוגבל</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="configurator__nav">
 
           @if (!isFirstStep) {
             <button type="button" class="configurator__nav-back" (click)="goBack()">
@@ -103,26 +128,53 @@
             </button>
           }
 
+          @if (isFinalStep && !store.submitResult()) {
+            <button
+              type="button"
+              class="configurator__nav-next configurator__nav-submit"
+              [disabled]="store.isSubmitting()"
+              [attr.aria-busy]="store.isSubmitting()"
+              (click)="submitContact()"
+            >
+              @if (store.isSubmitting()) {
+                {{ store.submitStatusLabelHe() }}
+              } @else {
+                הגשת הבקשה
+              }
+            </button>
+          }
+
           @if (!isFinalStep) {
             <span
+              #navNextWrap
               class="configurator__nav-next-wrap"
               [class.configurator__nav-next-wrap--blocked]="!store.isCurrentStepValid()"
+              [class.configurator__nav-next-wrap--hint-visible]="nextHintVisible()"
+              (click)="onNextWrapClick()"
             >
               <button
                 type="button"
                 class="configurator__nav-next"
                 [disabled]="!store.isCurrentStepValid()"
-                [attr.aria-describedby]="!store.isCurrentStepValid() ? 'configurator-next-hint' : null"
-                (click)="goNext()"
+                [attr.aria-describedby]="!store.isCurrentStepValid() && nextHintVisible() ? 'configurator-next-hint' : null"
+                (click)="onNextButtonClick($event)"
               >
                 הבא
               </button>
 
               @if (!store.isCurrentStepValid() && store.currentStepValidationMessage(); as hint) {
-                <span id="configurator-next-hint" class="configurator__nav-tooltip" role="tooltip">{{ hint }}</span>
+                <span
+                  #navTooltip
+                  id="configurator-next-hint"
+                  class="configurator__nav-tooltip"
+                  [class.configurator__nav-tooltip--visible]="nextHintVisible()"
+                  role="tooltip"
+                >{{ hint }}</span>
               }
             </span>
           }
+
+        </div>
 
         </div>
 

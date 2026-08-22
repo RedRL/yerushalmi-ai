@@ -152,6 +152,23 @@ export const inquirySchema = z
       }
     }
 
+    if (data.mainProduct === 'song_only') {
+      if ((data.uploadedFiles?.length ?? 0) > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['uploadedFiles'],
+          message: 'שיר אישי אינו כולל העלאת תמונות',
+        });
+      }
+      if (data.inquiryFolderId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['inquiryFolderId'],
+          message: 'שיר אישי אינו כולל תיקיית העלאה',
+        });
+      }
+    }
+
     if (includesVideo) {
       const imageCount = data.uploadedFiles?.filter((file) => file.type === 'image').length ?? 0;
       const videoLength = resolveVideoLengthForUploadValidation({

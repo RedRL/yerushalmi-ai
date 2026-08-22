@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -26,4 +28,9 @@ main > app-pricing-section {
 main > app-configurator {
   background: linear-gradient(180deg, rgba(99, 102, 241, 0.04) 0%, rgba(99, 102, 241, 0.03) 55%, transparent 100%);
   padding-bottom: var(--space-9);
+
+  @include bp.respond-down('lg') {
+    max-width: 100%;
+    overflow-x: clip;
+  }
 }

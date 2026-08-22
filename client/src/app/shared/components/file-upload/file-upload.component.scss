@@ -1,4 +1,6 @@
 @use 'mixins' as *;
+@use 'breakpoints' as bp;
+@use 'scrollbars' as scrollbars;
 
 :host {
   display: flex;
@@ -6,6 +8,13 @@
   flex: 1;
   min-height: 0;
   width: 100%;
+
+  @include bp.respond-down('lg') {
+    display: block;
+    height: auto;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
 }
 
 .file-upload {
@@ -14,6 +23,11 @@
   flex: 1;
   min-height: 0;
   gap: var(--space-4);
+
+  @include bp.respond-down('lg') {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
 }
 
 .file-upload__dropzone {
@@ -52,6 +66,16 @@
   font-weight: var(--font-weight-medium);
 }
 
+@include bp.respond-down('lg') {
+  .file-upload__prompt-drag {
+    display: none;
+  }
+
+  .file-upload__dropzone {
+    touch-action: manipulation;
+  }
+}
+
 .file-upload__error {
   color: var(--color-error);
   font-size: var(--font-size-small);
@@ -67,13 +91,20 @@
 }
 
 .file-upload__gallery {
+  @include scrollbars.vertical-scroll-props;
+  @include scrollbars.scrollbar-inset-rtl;
+  direction: rtl;
   flex: 1 1 auto;
   min-height: 0;
   height: 0;
-  overflow-y: auto;
   overscroll-behavior: contain;
-  direction: rtl;
   padding-inline-end: var(--space-1);
+
+  @include bp.respond-down('lg') {
+    height: auto;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
 }
 
 .file-upload__grid {

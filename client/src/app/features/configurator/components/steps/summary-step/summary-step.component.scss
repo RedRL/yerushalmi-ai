@@ -1,5 +1,6 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
+@use 'scrollbars' as scrollbars;
 
 :host {
   display: block;
@@ -12,6 +13,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+
+  @include bp.respond-down('lg') {
+    height: auto;
+  }
 }
 
 .step__title {
@@ -27,6 +32,10 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+
+  @include bp.respond-down('lg') {
+    overflow: visible;
+  }
 }
 
 .summary-step__row {
@@ -47,6 +56,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @include bp.respond-down('sm') {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
 }
 
 .summary-step__row-header {
@@ -117,11 +133,12 @@
 }
 
 .summary-step__dialog-body {
+  @include scrollbars.vertical-scroll-props;
+  @include scrollbars.scrollbar-inset-rtl;
+  direction: rtl;
   flex: 1;
   min-height: 0;
-  overflow: auto;
   overscroll-behavior: contain;
-  direction: rtl;
   padding-inline-start: var(--space-3);
   padding-inline-end: 0;
 }
