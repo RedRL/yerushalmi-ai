@@ -36,4 +36,10 @@ export class VideoStepComponent {
   selectSubtitles(id: SubtitlesId): void {
     this.store.videoForm.controls.subtitles.setValue(id);
   }
+
+  selectImageFill(enabled: boolean): void {
+    if (this.store.isAddonSelected('ai_image_fill') !== enabled) {
+      this.store.toggleAddon('ai_image_fill');
+    }
+  }
 }

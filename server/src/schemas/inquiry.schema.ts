@@ -2,7 +2,8 @@ import { z } from 'zod';
 import {
   getMinimumImageCountForVideoLength,
   getMaximumImageCountForVideoLength,
-  MAX_UPLOADED_IMAGES_PER_INQUIRY,
+  getMaximumVideoCountForVideoLength,
+  MAX_UPLOADED_FILES_PER_INQUIRY,
   resolveVideoLengthForUploadValidation,
 } from '../upload/upload-requirements';
 import { extractInquiryFolderId, inquiryFolderContainsReference } from '../storage/storage-key.util';
@@ -28,6 +29,7 @@ export const addonSchema = z.enum([
   'extra_version',
   'separate_audio_file',
   'extra_revision_round',
+  'ai_image_fill',
 ]);
 
 export const uploadedFileTypeSchema = z.enum(['image', 'video', 'audio']);
@@ -42,9 +44,12 @@ export const contactSchema = z.object({
   message: z.string().trim().max(2000).optional(),
 });
 
+export const vocalistSchema = z.enum(['male', 'female', 'both']);
+
 export const songConfigSchema = z.object({
   style: z.string().trim().max(100).optional(),
   customStyle: z.string().trim().max(150).optional(),
+  vocalist: vocalistSchema.optional(),
   mood: z.string().trim().max(100).optional(),
   length: z.string().trim().max(100).optional(),
   namesToInclude: z.array(z.string().trim().max(100)).max(20).optional().default([]),
@@ -65,8 +70,15 @@ export const videoConfigSchema = z.object({
 });
 
 export const projectDetailsSchema = z.object({
-  personName: z.string().trim().min(1, 'נא להזין את שם האדם').max(120),
+  personName: z.string().trim().min(1, 'נא להזין את שם האדם או האנשים').max(120),
   occasion: z.string().trim().min(1, 'נא לבחור סוג אירוע').max(150),
+  eventDate: z
+    .string()
+    .trim()
+    .refine((value) => value.length === 0 || /^\d{4}-\d{2}-\d{2}$/.test(value), {
+      message: 'נא לבחור תאריך אירוע תקין',
+    })
+    .optional(),
   age: z.string().trim().max(20).optional(),
   relationship: z.string().trim().max(150).optional(),
   characterTraits: z.string().trim().max(500).optional(),
@@ -84,6 +96,7 @@ export const uploadedFileReferenceSchema = z.object({
   name: z.string().min(1).max(255),
   storageKey: z.string().min(1),
   url: z.string().url().optional(),
+  durationSeconds: z.number().positive().max(31).optional(),
 });
 
 export const consentsSchema = z.object({
@@ -107,7 +120,7 @@ export const inquirySchema = z
     video: videoConfigSchema.optional(),
     addons: z.array(addonSchema).max(20).optional().default([]),
     projectDetails: projectDetailsSchema,
-    uploadedFiles: z.array(uploadedFileReferenceSchema).max(MAX_UPLOADED_IMAGES_PER_INQUIRY).optional().default([]),
+    uploadedFiles: z.array(uploadedFileReferenceSchema).max(MAX_UPLOADED_FILES_PER_INQUIRY).optional().default([]),
     inquiryFolderId: inquiryFolderIdSchema.optional(),
     inquiryReferenceId: inquiryReferenceIdSchema.optional(),
     consents: consentsSchema,
@@ -132,6 +145,14 @@ export const inquirySchema = z
         code: z.ZodIssueCode.custom,
         path: ['video'],
         message: 'נא למלא את פרטי הסרטון',
+      });
+    }
+
+    if (includesNewSong && !data.song?.vocalist) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['song', 'vocalist'],
+        message: 'נא לבחור זמר, זמרת או שילוב של שניהם',
       });
     }
 
@@ -171,6 +192,7 @@ export const inquirySchema = z
 
     if (includesVideo) {
       const imageCount = data.uploadedFiles?.filter((file) => file.type === 'image').length ?? 0;
+      const videoCount = data.uploadedFiles?.filter((file) => file.type === 'video').length ?? 0;
       const videoLength = resolveVideoLengthForUploadValidation({
         mainProduct: data.mainProduct,
         songLength: data.song?.length,
@@ -178,6 +200,7 @@ export const inquirySchema = z
       });
       const minimumRequired = getMinimumImageCountForVideoLength(videoLength);
       const maximumAllowed = getMaximumImageCountForVideoLength(videoLength);
+      const maximumVideos = getMaximumVideoCountForVideoLength(videoLength);
 
       if (imageCount > maximumAllowed) {
         ctx.addIssue({
@@ -193,6 +216,14 @@ export const inquirySchema = z
             imageCount === 0
               ? `הועלו 0 מתוך מינימום של ${minimumRequired}`
               : `הועלו ${imageCount} מתוך מינימום של ${minimumRequired}`,
+        });
+      }
+
+      if (videoCount > maximumVideos) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['uploadedFiles'],
+          message: `ניתן להעלות עד ${maximumVideos} סרטונים קצרים לאורך הסרטון שבחרתם (הועלו ${videoCount})`,
         });
       }
     }

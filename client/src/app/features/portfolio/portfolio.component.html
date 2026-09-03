@@ -31,6 +31,21 @@
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </div>
+
+  <div class="portfolio__songs" appReveal>
+    <h3 class="portfolio__songs-title">דוגמאות לשירים</h3>
+    <p class="portfolio__songs-subtitle">האזנה לשירים מקוריים — בלי קליפ.</p>
+    <div class="portfolio__songs-grid">
+      @for (song of songs; track song.id) {
+        <app-video-card
+          size="gallery"
+          [video]="song"
+          [descriptionHe]="song.descriptionHe ?? categoryOf(song).descriptionHe"
+          (play)="openVideo($event)"
+        />
+      }
+    </div>
+  </div>
 </section>
 
 @if (selectedVideo(); as video) {

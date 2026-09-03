@@ -10,7 +10,6 @@ import {
 } from '../../shared/utils/scroll-restoration.util';
 
 const TERMS_PATH = '/terms';
-const MOBILE_MAX_WIDTH = '(max-width: 1023px)';
 
 @Injectable({ providedIn: 'root' })
 export class ScrollRestorationService {
@@ -44,7 +43,7 @@ export class ScrollRestorationService {
   }
 
   private restoreForPath(pathname: string): void {
-    if (pathname === TERMS_PATH && window.matchMedia(MOBILE_MAX_WIDTH).matches) {
+    if (pathname === TERMS_PATH) {
       resetPageScrollPosition(pathname);
       return;
     }

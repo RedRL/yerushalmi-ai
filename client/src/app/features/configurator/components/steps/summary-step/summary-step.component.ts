@@ -1,11 +1,6 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { findPackage } from '../../../../../core/config/packages.config';
-import { SUMMARY_TEXT_MAX_LENGTH } from '../../../../../core/config/field-limits.config';import {
-  getSongLengthOptions,
-  VIDEO_FORMAT_OPTIONS,
-  VIDEO_LENGTH_OPTIONS,
-  SUBTITLES_OPTIONS,
-} from '../../../../../core/config/pricing.config';
+import { SUMMARY_TEXT_MAX_LENGTH } from '../../../../../core/config/field-limits.config';import { getSongLengthOptions, VIDEO_FORMAT_OPTIONS, VIDEO_LENGTH_OPTIONS, SUBTITLES_OPTIONS, VOCALIST_OPTIONS } from '../../../../../core/config/pricing.config';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 import { containScrollWheel } from '../../../../../shared/utils/contain-scroll-wheel.util';
 
@@ -72,6 +67,14 @@ export class SummaryStepComponent {
     truncateSummaryText(this.store.projectDetailsForm.controls.occasion.value, SUMMARY_TEXT_MAX_LENGTH),
   );
 
+  readonly eventDateDisplay = computed(() => {
+    const value = this.store.projectDetailsForm.controls.eventDate.value;
+    if (!value) return null;
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return value;
+    return `${match[3]}/${match[2]}/${match[1]}`;
+  });
+
   readonly existingSongDisplay = computed(() =>
     truncateSummaryText(this.store.songForm.controls.existingSongName.value, SUMMARY_TEXT_MAX_LENGTH),
   );
@@ -121,6 +124,24 @@ export class SummaryStepComponent {
     const labels = [...styles.filter((style) => style !== 'אחר')];
     if (styles.includes('אחר') && custom) labels.push(custom);
     return truncateSummaryText(labels.length > 0 ? labels.join(', ') : '', SUMMARY_TEXT_MAX_LENGTH);
+  });
+
+  readonly vocalistLabel = computed(() => {
+    const id = this.store.songForm.controls.vocalist.value;
+    return VOCALIST_OPTIONS.find((option) => option.id === id)?.labelHe ?? null;
+  });
+
+  readonly aiFillLabel = computed(() =>
+    this.store.isAddonSelected('ai_image_fill') ? 'מילוי אוטומטי לפורמט היציאה' : null,
+  );
+
+  readonly uploadSummary = computed(() => {
+    const images = this.store.uploadImageCount();
+    const videos = this.store.uploadVideoCount();
+    if (videos > 0) {
+      return `${images} תמונות · ${videos} סרטונים`;
+    }
+    return `${images} תמונות`;
   });
 
   constructor() {

@@ -81,6 +81,20 @@ describe('calculatePriceBreakdown', () => {
     expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only + expectedAddonsTotal);
   });
 
+  it('adds the AI image fill addon for video products', () => {
+    const selection: PricingSelection = {
+      mainProduct: 'video_existing_song',
+      videoSource: 'customer_photos',
+      videoLength: 'min_2_0',
+      videoFormat: 'landscape',
+      subtitles: 'none',
+      addons: ['ai_image_fill'],
+    };
+    const breakdown = calculatePriceBreakdown(selection);
+
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.video_existing_song + ADDON_CONFIG.ai_image_fill.price);
+  });
+
   it('never applies VAT or discounts in Milestone 1', () => {
     const selection: PricingSelection = { mainProduct: 'song_only', addons: [] };
     const breakdown = calculatePriceBreakdown(selection);

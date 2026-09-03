@@ -6,6 +6,19 @@ import { inquiryReferenceIdSchema } from './inquiry-reference.schema';
 
 const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']);
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
+const VIDEO_MIME_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm', 'video/3gpp']);
+const VIDEO_EXTENSIONS = ['.mp4', '.m4v', '.mov', '.webm', '.3gp'];
+
+function isVideoUpload(fileName: string, mimeType: string): boolean {
+  const extension = fileName.includes('.') ? fileName.slice(fileName.lastIndexOf('.')).toLowerCase() : '';
+  const mime = mimeType.toLowerCase();
+
+  if (VIDEO_MIME_TYPES.has(mime) || mime.startsWith('video/')) {
+    return true;
+  }
+
+  return VIDEO_EXTENSIONS.includes(extension);
+}
 
 function isImageUpload(fileName: string, mimeType: string): boolean {
   const extension = fileName.includes('.') ? fileName.slice(fileName.lastIndexOf('.')).toLowerCase() : '';
@@ -95,6 +108,14 @@ export const initiateUploadSchema = z.preprocess(
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'ניתן להעלות קבצי תמונה בלבד (JPEG, PNG, WEBP או HEIC)',
+          path: ['mimeType'],
+        });
+      }
+
+      if (data.fileType === 'video' && !isVideoUpload(data.fileName, data.mimeType)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'ניתן להעלות סרטונים בפורמט MP4, MOV או WEBM',
           path: ['mimeType'],
         });
       }

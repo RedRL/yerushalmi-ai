@@ -152,6 +152,32 @@
   grid-row: 1;
 }
 
+.portfolio__songs {
+  @include container('lg');
+  margin-top: var(--space-8);
+}
+
+.portfolio__songs-title {
+  margin: 0;
+  font-size: var(--font-size-h3);
+  color: var(--color-text-primary);
+}
+
+.portfolio__songs-subtitle {
+  margin: var(--space-2) 0 var(--space-5);
+  color: var(--color-text-secondary);
+}
+
+.portfolio__songs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+
+  @include bp.respond-up('md') {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @include reduced-motion {
   .portfolio__item {
     opacity: 1;

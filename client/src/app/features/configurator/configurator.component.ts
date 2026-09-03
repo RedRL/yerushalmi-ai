@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 
 
 
@@ -13,6 +13,7 @@ import { PriceSummaryComponent } from '../../shared/components/price-summary/pri
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 
 import { PersistentScrollbarDirective } from '../../shared/directives/persistent-scrollbar.directive';
+import { scrollToConfiguratorProgress } from '../../shared/utils/scroll-to.util';
 
 
 
@@ -147,6 +148,8 @@ export class ConfiguratorComponent {
   private static readonly MOBILE_HINT_FADE_MS = 200;
 
   readonly nextHintVisible = signal(false);
+  readonly mobileFormExpanded = signal(false);
+  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private readonly configuratorBody = viewChild<ElementRef<HTMLElement>>('configuratorBody');
   private readonly navNextWrap = viewChild<ElementRef<HTMLElement>>('navNextWrap');
@@ -163,6 +166,12 @@ export class ConfiguratorComponent {
     });
 
     effect(() => {
+      if (!this.store.submitResult()) return;
+      this.resetBodyScroll();
+      queueMicrotask(() => scrollToConfiguratorProgress());
+    });
+
+    effect(() => {
       this.store.isCurrentStepValid();
       this.dismissMobileNextHint(true);
     });
@@ -170,6 +179,43 @@ export class ConfiguratorComponent {
     this.destroyRef.onDestroy(() => {
       this.dismissMobileNextHint(true);
     });
+
+    afterNextRender(() => this.bindMobileFormExpansion());
+  }
+
+  private bindMobileFormExpansion(): void {
+    const sync = (): void => this.syncMobileFormExpanded();
+    sync();
+
+    window.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync, { passive: true });
+    window.visualViewport?.addEventListener('resize', sync);
+    window.visualViewport?.addEventListener('scroll', sync);
+
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('scroll', sync);
+      window.removeEventListener('resize', sync);
+      window.visualViewport?.removeEventListener('resize', sync);
+      window.visualViewport?.removeEventListener('scroll', sync);
+    });
+  }
+
+  private syncMobileFormExpanded(): void {
+    if (!window.matchMedia('(max-width: 1023px)').matches) {
+      if (this.mobileFormExpanded()) this.mobileFormExpanded.set(false);
+      return;
+    }
+
+    const eyebrow = this.host.nativeElement.querySelector('.section-heading__eyebrow');
+    if (!(eyebrow instanceof HTMLElement)) return;
+
+    const headerHeight = Number.parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
+    ) || 76;
+    const scrolledPastEyebrow = eyebrow.getBoundingClientRect().bottom <= headerHeight + 8;
+    if (this.mobileFormExpanded() !== scrolledPastEyebrow) {
+      this.mobileFormExpanded.set(scrolledPastEyebrow);
+    }
   }
 
   private resetBodyScroll(): void {
@@ -387,7 +433,7 @@ export class ConfiguratorComponent {
 
   submitContact(): void {
     if (this.store.isSubmitting() || this.store.submitResult()) return;
-    if (!this.store.isContactStepValid()) {
+    if (!this.store.isSubmissionValid()) {
       this.store.contactForm.markAllAsTouched();
       return;
     }

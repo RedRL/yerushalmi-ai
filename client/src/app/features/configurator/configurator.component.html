@@ -1,4 +1,8 @@
-<section id="configurator" class="configurator">
+<section
+  id="configurator"
+  class="configurator"
+  [class.configurator--form-expanded]="mobileFormExpanded()"
+>
 
   <app-section-heading
     appReveal
@@ -129,19 +133,27 @@
           }
 
           @if (isFinalStep && !store.submitResult()) {
-            <button
-              type="button"
-              class="configurator__nav-next configurator__nav-submit"
-              [disabled]="store.isSubmitting()"
-              [attr.aria-busy]="store.isSubmitting()"
-              (click)="submitContact()"
+            <span
+              class="configurator__submit-wrap"
+              [class.configurator__submit-wrap--invalid]="!store.isSubmissionValid()"
+              [attr.title]="!store.isSubmissionValid() ? store.submissionValidationMessage() : null"
+              [attr.data-tooltip]="!store.isSubmissionValid() ? store.submissionValidationMessage() : null"
+              [attr.tabindex]="!store.isSubmissionValid() ? 0 : null"
             >
-              @if (store.isSubmitting()) {
-                {{ store.submitStatusLabelHe() }}
-              } @else {
-                הגשת הבקשה
-              }
-            </button>
+              <button
+                type="button"
+                class="configurator__nav-next configurator__nav-submit"
+                [disabled]="store.isSubmitting() || !store.isSubmissionValid()"
+                [attr.aria-busy]="store.isSubmitting()"
+                (click)="submitContact()"
+              >
+                @if (store.isSubmitting()) {
+                  {{ store.submitStatusLabelHe() }}
+                } @else {
+                  הגשת הבקשה
+                }
+              </button>
+            </span>
           }
 
           @if (!isFinalStep) {

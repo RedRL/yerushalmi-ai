@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 
 /**
- * Replaces the native scrollbar with a custom purple thumb that stays visible.
+ * Replaces the native scrollbar with a custom brand-gradient thumb that stays visible.
  * The rail is rendered on the shell parent so it is not clipped by overflow.
  * Gutter padding on the shell is toggled only when content overflows.
  */
@@ -114,5 +114,7 @@ export class PersistentScrollbarDirective implements AfterViewInit, OnDestroy {
 
     this.thumb.style.height = `${thumbHeight}px`;
     this.thumb.style.top = `${thumbOffset}px`;
+    this.thumb.style.backgroundSize = `100% ${clientHeight}px`;
+    this.thumb.style.backgroundPosition = `0 ${-thumbOffset}px`;
   }
 }

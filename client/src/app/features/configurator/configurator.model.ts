@@ -21,7 +21,7 @@ export const CONFIGURATOR_STEPS: readonly ConfiguratorStepDef[] = [
   { id: 'song', labelHe: 'השיר' },
   { id: 'video', labelHe: 'הסרטון' },
   { id: 'extras', labelHe: 'פרטים נוספים', labelHeMobile: 'פרטים' },
-  { id: 'upload', labelHe: 'תמונות' },
+  { id: 'upload', labelHe: 'תמונות וסרטונים', labelHeMobile: 'חומרים' },
   { id: 'summary', labelHe: 'סיכום' },
   { id: 'contact', labelHe: 'פרטי קשר' },
 ];

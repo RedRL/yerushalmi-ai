@@ -1,4 +1,4 @@
-<div class="step" [formGroup]="store.songForm">
+<div class="step song-step" [formGroup]="store.songForm">
 
   @if (store.requiresExistingSongRights()) {
 
@@ -16,7 +16,7 @@
 
       <div class="field">
 
-        <label class="field__label" for="existingSongName">שם השיר</label>
+        <label class="field__label" for="existingSongName">שם השיר *</label>
 
         <input id="existingSongName" class="field__control" formControlName="existingSongName" placeholder="שם השיר" [maxlength]="limits.existingSongName" />
 
@@ -26,7 +26,7 @@
 
       <div class="field">
 
-        <label class="field__label" for="existingSongArtist">אמן (אם רלוונטי)</label>
+        <label class="field__label" for="existingSongArtist">אמן</label>
 
         <input id="existingSongArtist" class="field__control" formControlName="existingSongArtist" placeholder="שם האמן" [maxlength]="limits.existingSongArtist" />
 
@@ -36,7 +36,7 @@
 
       <div class="field field--full">
 
-        <label class="field__label" for="existingSongLink">קישור לשיר (אם קיים)</label>
+        <label class="field__label" for="existingSongLink">קישור לשיר</label>
 
         <input
 
@@ -68,7 +68,7 @@
 
     <div class="step__section">
       <div class="song-step__styles-header field__label-row">
-        <span class="step__section-title">סגנונות מועדפים <span class="song-step__title-hint">(אפשר לבחור כמה)</span></span>
+        <span class="step__section-title">סגנונות מועדפים * <span class="song-step__title-hint">(אפשר לבחור כמה)</span></span>
         @if (showStyleSelectionError()) {
           <span class="field__error song-step__styles-error song-step__styles-error--full" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד כדי להמשיך.</span>
           <span class="field__error song-step__styles-error song-step__styles-error--short" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד.</span>
@@ -91,10 +91,7 @@
           }
         }
 
-        <div
-          class="song-step__other-group"
-          [class.song-step__other-group--expanded]="store.isSongStyleSelected('אחר')"
-        >
+        <div class="song-step__other-group">
           <button
             type="button"
             class="chip"
@@ -105,17 +102,43 @@
             אחר
           </button>
 
-          @if (store.isSongStyleSelected('אחר')) {
-            <input
-              class="field__control song-step__custom-style"
-              formControlName="customStyle"
-              placeholder="הפרידו בפסיקים"
-              aria-label="סגנון מותאם אישית"
-              [maxlength]="limits.customStyle"
-              (blur)="store.markSongCustomStyleTouched()"
-            />
-          }
+          <input
+            class="field__control song-step__custom-style"
+            [class.song-step__custom-style--visible]="store.isSongStyleSelected('אחר')"
+            formControlName="customStyle"
+            placeholder="הפרידו בפסיקים"
+            aria-label="סגנון מותאם אישית"
+            [attr.aria-hidden]="!store.isSongStyleSelected('אחר')"
+            [tabindex]="store.isSongStyleSelected('אחר') ? 0 : -1"
+            [maxlength]="limits.customStyle"
+            (blur)="store.markSongCustomStyleTouched()"
+          />
         </div>
+      </div>
+    </div>
+
+
+
+    <div class="step__section">
+      <div class="song-step__styles-header field__label-row">
+        <span class="step__section-title">קול *</span>
+        @if (showVocalistError()) {
+          <span class="field__error song-step__styles-error" role="alert">נא לבחור זמר, זמרת או שילוב.</span>
+        }
+      </div>
+      <div class="chip-group song-step__chips" role="radiogroup" aria-label="בחירת קול">
+        @for (option of vocalistOptions; track option.id) {
+          <button
+            type="button"
+            class="chip"
+            role="radio"
+            [attr.aria-checked]="store.songForm.controls.vocalist.value === option.id"
+            [class.chip--selected]="store.songForm.controls.vocalist.value === option.id"
+            (click)="selectVocalist(option.id)"
+          >
+            {{ option.labelHe }}
+          </button>
+        }
       </div>
     </div>
 
@@ -124,35 +147,56 @@
     <div class="field-grid field-grid--pair step__section">
 
       <div class="song-step__mood-length">
-
         <div class="field">
-
-          <label class="field__label" for="mood">מצב רוח רצוי</label>
-
-          <input id="mood" class="field__control song-step__mood-input" formControlName="mood" placeholder="שמח, נוסטלגי..." [maxlength]="limits.mood" />
-
+          <label class="field__label" for="length">{{ lengthFieldLabel() }} *</label>
+          <div class="length-select" [class.length-select--open]="lengthMenuOpen()">
+            <button
+              type="button"
+              id="length"
+              class="field__control length-select__trigger"
+              aria-haspopup="listbox"
+              [attr.aria-expanded]="lengthMenuOpen()"
+              aria-controls="length-options"
+              (click)="toggleLengthMenu($event)"
+            >
+              {{ selectedLengthLabel() }}
+            </button>
+            @if (lengthMenuOpen()) {
+              <ul
+                id="length-options"
+                class="length-select__menu"
+                role="listbox"
+                [attr.aria-labelledby]="'length'"
+                [style.top.px]="lengthMenuBox().top"
+                [style.left.px]="lengthMenuBox().left"
+                [style.width.px]="lengthMenuBox().width"
+              >
+                @for (option of lengthOptions(); track option.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="length-select__option"
+                      role="option"
+                      [attr.aria-selected]="option.id === selectedLengthId()"
+                      (click)="selectLength(option.id, $event)"
+                    >
+                      {{ lengthOptionLabel(option) }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+          <span class="field__error" aria-live="polite">
+            @if (store.songForm.controls.length.invalid && store.songForm.controls.length.touched) {
+              נא לבחור אורך משוער
+            }
+          </span>
         </div>
 
-
-
         <div class="field">
-
-          <label class="field__label" for="length">{{ lengthFieldLabel() }}</label>
-
-          <select id="length" class="field__control" formControlName="length">
-
-            @for (option of lengthOptions(); track option.id) {
-
-              <option [value]="option.id">
-
-                {{ lengthOptionLabel(option) }}
-
-              </option>
-
-            }
-
-          </select>
-
+          <label class="field__label" for="mood">מצב רוח רצוי</label>
+          <input id="mood" class="field__control song-step__mood-input" formControlName="mood" placeholder="שמח, מרגש, קצבי..." [maxlength]="limits.mood" />
         </div>
 
       </div>

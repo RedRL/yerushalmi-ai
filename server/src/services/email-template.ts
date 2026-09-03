@@ -3,6 +3,7 @@ import type { PriceBreakdown } from '../pricing/pricing.types';
 import { escapeHtml, escapeHtmlMultiline } from '../utils/html-escape';
 import { MAIN_PRODUCT_LABELS } from '../pricing/pricing.config';
 import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
+import { formatDateTimeHeIl, formatEventDateHeIl } from '../utils/datetime.util';
 import {
   formatSongStyleDisplay,
   resolveAddonLabels,
@@ -10,6 +11,7 @@ import {
   resolveSubtitlesLabel,
   resolveVideoFormatLabel,
   resolveVideoLengthLabel,
+  resolveVocalistLabel,
 } from '../utils/inquiry-display.util';
 
 function row(label: string, value: string | undefined | null): string {
@@ -73,6 +75,7 @@ export function buildInquiryEmailHtml(
         'פרטי השיר',
         `<table role="presentation" width="100%">
           ${row('סגנון', songStyleDisplay)}
+          ${row('קול', resolveVocalistLabel(payload.song.vocalist))}
           ${row('מצב רוח', payload.song.mood)}
           ${row('אורך משוער', resolveSongLengthLabel(payload.song.length, payload.mainProduct))}
           ${listRow('שמות שיש לכלול', payload.song.namesToInclude)}
@@ -127,7 +130,7 @@ export function buildInquiryEmailHtml(
       ? photosBundleUrl
         ? `<p style="margin:0;">
           <a href="${escapeHtml(photosBundleUrl)}" style="display:inline-block;padding:10px 16px;background:#6d28d9;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
-            הורדת כל התמונות (ZIP)
+            הורדת כל הקבצים (ZIP)
           </a>
         </p>`
         : '<p style="color:#8a8a99;font-size:13px;">לא ניתן היה ליצור קובץ ZIP. נא לפנות לתמיכה.</p>'
@@ -175,13 +178,14 @@ export function buildInquiryEmailHtml(
           `<table role="presentation" width="100%">
           ${row('עבור', payload.projectDetails.personName)}
           ${row('סוג אירוע', payload.projectDetails.occasion)}
+          ${row('תאריך האירוע', formatEventDateHeIl(payload.projectDetails.eventDate))}
         </table>
         ${multilineBlock('הסיפור', payload.projectDetails.story)}`,
         )}
 
         ${optionalDetailsSection}
 
-        ${section(`תמונות שהועלו (${payload.uploadedFiles.length})`, uploadedFilesHtml)}
+        ${section(`קבצים שהועלו (${payload.uploadedFiles.length})`, uploadedFilesHtml)}
 
         ${section(
           'פירוט מחיר משוער (מחושב בשרת)',
@@ -204,7 +208,7 @@ export function buildInquiryEmailHtml(
         </table>`,
         )}
 
-        <p style="color:#8a8a99;font-size:12px;margin-top:24px;">התקבל בתאריך ${submittedAt.toLocaleString('he-IL')}</p>
+        <p style="color:#8a8a99;font-size:12px;margin-top:24px;">התקבל בתאריך ${formatDateTimeHeIl(submittedAt)}</p>
       </td>
     </tr>
   </table>

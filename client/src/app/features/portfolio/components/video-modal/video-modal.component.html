@@ -9,6 +9,7 @@
   <div
     #dialog
     class="video-modal"
+    [class.video-modal--song]="isSong()"
     role="dialog"
     aria-modal="true"
     [attr.aria-label]="video().titleHe"
@@ -31,6 +32,9 @@
     </div>
 
     <div class="video-modal__meta">
+      @if (isSong()) {
+        <p class="video-modal__kind">שיר בלבד — בלי קליפ</p>
+      }
       <p class="video-modal__title">{{ video().titleHe }}</p>
       @if (video().tagsHe.length) {
         <p class="video-modal__genres">

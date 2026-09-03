@@ -56,6 +56,15 @@
   @include bp.respond-up('lg') {
     width: min(1280px, 94vw);
   }
+
+  &--song {
+    width: min(640px, 94vw);
+  }
+}
+
+.video-modal--song .video-modal__frame {
+  aspect-ratio: 16 / 9;
+  max-height: 360px;
 }
 
 .video-modal__frame {
@@ -114,6 +123,14 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
+}
+
+.video-modal__kind {
+  margin: 0;
+  color: var(--color-accent-purple-light);
+  font-size: var(--font-size-tiny);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
 }
 
 .video-modal__title {

@@ -32,6 +32,28 @@
   flex-shrink: 0;
 }
 
+.upload-step__error {
+  color: var(--color-error);
+}
+
+.upload-step__desktop-help {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.upload-step__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
+}
+
+.upload-step__mobile-toolbar,
+.upload-step__mobile-summary {
+  display: none;
+}
+
 .step__section {
   flex: 1;
   min-height: 0;
@@ -42,5 +64,83 @@
   @include bp.respond-down('lg') {
     flex: 0 0 auto;
     overflow: visible;
+    scroll-margin-top: 4rem;
+  }
+}
+
+@include bp.respond-down('lg') {
+  .upload-step__desktop-help,
+  .upload-step__video-help {
+    display: none;
+  }
+
+  .upload-step__columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  .upload-step__mobile-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    box-shadow: var(--shadow-sm);
+
+    button {
+      min-height: 2.25rem;
+      padding: var(--space-1) var(--space-3);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--color-bg-glass);
+      color: var(--color-text-primary);
+      font: inherit;
+      cursor: pointer;
+    }
+  }
+
+  .upload-step__info-button {
+    width: 2.25rem;
+    padding: 0 !important;
+    border-radius: var(--radius-full) !important;
+    color: var(--color-accent-blue-light) !important;
+    font-weight: var(--font-weight-bold) !important;
+  }
+
+  .upload-step__mobile-tooltip {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + var(--space-2));
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-tiny);
+    line-height: 1.45;
+    box-shadow: var(--shadow-md);
+  }
+
+  .upload-step__mobile-summary {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-small);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
   }
 }

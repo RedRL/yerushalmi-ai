@@ -21,7 +21,6 @@ export class FooterComponent {
   readonly currentYear = new Date().getFullYear();
 
   onTermsClick(event: Event): void {
-    if (!window.matchMedia('(max-width: 1023px)').matches) return;
     if (this.router.url.split('?')[0] !== '/terms') return;
 
     event.preventDefault();

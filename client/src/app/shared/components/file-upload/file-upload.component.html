@@ -4,7 +4,7 @@
     [class.file-upload__dropzone--dragging]="isDragging()"
     role="button"
     tabindex="0"
-    [attr.aria-label]="'העלאת תמונות - ' + acceptDescriptionHe()"
+    [attr.aria-label]="'העלאת ' + promptNoun() + ' - ' + acceptDescriptionHe()"
     (click)="openFileDialog()"
     (keydown)="onKeydown($event)"
     (dragover)="onDragOver($event)"
@@ -33,7 +33,7 @@
     </svg>
 
     <p class="file-upload__prompt">
-      <span class="file-upload__prompt-drag">גררו תמונות לכאן או </span><span class="file-upload__prompt-click">לחצו לבחירת תמונות</span>
+      <span class="file-upload__prompt-drag">גררו {{ promptNoun() }} לכאן או </span><span class="file-upload__prompt-click">לחצו לבחירת {{ promptNoun() }}</span>
     </p>
   </div>
 
@@ -106,7 +106,7 @@
         </ul>
       </div>
 
-      <p class="file-upload__summary">{{ files().length }} תמונות</p>
+      <p class="file-upload__summary">{{ files().length }} {{ promptNoun() }}</p>
     </div>
   }
 

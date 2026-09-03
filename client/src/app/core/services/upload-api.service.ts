@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import type { UploadedFileKind } from '../../shared/models/upload.model';
 import { isLegacyInquiryFolderId } from '../../shared/utils/inquiry-folder.util';
 import { resolveFileMimeType } from '../../shared/utils/file-type.util';
+import { toHebrewUserError } from '../../shared/utils/network-error.util';
 
 export interface InitiateUploadResponse {
   success: true;
@@ -67,11 +68,16 @@ export class UploadApiService {
     const { storageKey, uploadUrl, method } = initiateResponse.data;
 
     if (!uploadUrl.startsWith('mock://')) {
-      const uploadResponse = await fetch(uploadUrl, {
-        method,
-        body: file,
-        headers: { 'Content-Type': resolveFileMimeType(file) },
-      });
+      let uploadResponse: Response;
+      try {
+        uploadResponse = await fetch(uploadUrl, {
+          method,
+          body: file,
+          headers: { 'Content-Type': resolveFileMimeType(file) },
+        });
+      } catch (error) {
+        throw new Error(toHebrewUserError(error, 'לא ניתן להתחבר לשרת. בדקו את החיבור לאינטרנט ונסו שוב.'));
+      }
 
       if (!uploadResponse.ok) {
         throw new Error('העלאת הקובץ נכשלה. נסו שוב.');

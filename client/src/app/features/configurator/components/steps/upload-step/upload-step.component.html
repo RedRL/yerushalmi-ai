@@ -1,22 +1,70 @@
 <div class="step">
-  <h3 class="step__title">תמונות לקליפ</h3>
-  <p class="step__description">
-    מומלץ לספק 18–22 תמונות לכל דקה של סרטון, ועד 25 לדקה לכל היותר (לדוגמה – כ-36–44 תמונות לסרטון של כ-2 דקות, עד 50; כ-45–55 לכ-2.5 דקות, עד 63; וכ-54–66 לכ-3 דקות, עד 75).
-  </p>
-  <p class="step__description">
-    אם חשוב לכם שהתמונות יופיעו בסדר מסוים, כדאי לתת לתמונות שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר את התמונות כפי שנראה לנו לנכון בהתאם לתמונות עצמן ולשיר ברקע.
-  </p>
+  <h3 class="step__title">תמונות וסרטונים לקליפ</h3>
+  <div class="upload-step__desktop-help">
+    <p class="step__description">
+      מומלץ לספק 18–22 תמונות לכל דקה של סרטון, ועד 25 לדקה לכל היותר (לדוגמה – כ-36–44 תמונות לסרטון של כ-2 דקות, עד 50; כ-45–55 לכ-2.5 דקות, עד 63; וכ-54–66 לכ-3 דקות, עד 75).
+    </p>
+    <p class="step__description">
+      אם חשוב לכם שהתמונות יופיעו בסדר מסוים, כדאי לתת לתמונות שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר את התמונות כפי שנראה לנו לנכון בהתאם לתמונות עצמן ולשיר ברקע.
+    </p>
+  </div>
 
-  <div class="step__section">
-    <app-file-upload
-      kind="image"
-      accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
-      acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
-      [maxFiles]="maxImageFiles"
-      [maxSizeMb]="25"
-      [files]="imageFiles()"
-      (filesSelected)="onFilesSelected($event)"
-      (removeFile)="onRemoveFile($event)"
-    />
+  <div class="upload-step__mobile-toolbar">
+    <button type="button" (click)="scrollToUpload('image')">תמונות</button>
+    <button type="button" (click)="scrollToUpload('video')">סרטונים</button>
+    <button
+      type="button"
+      class="upload-step__info-button"
+      aria-label="מידע על העלאת קבצים"
+      [attr.aria-expanded]="mobileHelpOpen()"
+      (click)="toggleMobileHelp()"
+    >i</button>
+    @if (mobileHelpOpen()) {
+      <div class="upload-step__mobile-tooltip" role="tooltip">
+        <p>מומלץ לספק 18–22 תמונות לכל דקת סרטון, ועד 25 לדקה לכל היותר.</p>
+        <p>לסדר מסוים, תנו לתמונות שמות כרונולוגיים ברורים, למשל 1, 2, 3.</p>
+        <p>אפשר להוסיף סרטונים קצרים עד חצי דקה, ועד שלושה לכל דקת קליפ.</p>
+      </div>
+    }
+  </div>
+
+  <div class="upload-step__columns">
+    <div id="upload-image" class="step__section">
+      <h4 class="step__section-title">תמונות</h4>
+      <app-file-upload
+        kind="image"
+        accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
+        acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
+        [maxFiles]="maxImageFiles"
+        [maxSizeMb]="25"
+        [files]="imageFiles()"
+        (filesSelected)="onImagesSelected($event)"
+        (removeFile)="onRemoveFile($event)"
+      />
+    </div>
+
+    <div id="upload-video" class="step__section">
+      <h4 class="step__section-title">סרטונים קצרים</h4>
+      <p class="step__description upload-step__video-help">
+        אפשר להוסיף סרטונים קצרים באורך עד חצי דקה, ועד שלושה סרטונים לכל דקה של קליפ.
+      </p>
+      @if (videoError()) {
+        <p class="step__description upload-step__error" role="alert">{{ videoError() }}</p>
+      }
+      <app-file-upload
+        kind="video"
+        accept="video/mp4,video/quicktime,video/webm,.mp4,.m4v,.mov,.webm,.3gp"
+        acceptDescriptionHe="MP4, MOV או WEBM"
+        [maxFiles]="maxVideoFiles"
+        [maxSizeMb]="50"
+        [files]="videoFiles()"
+        (filesSelected)="onVideosSelected($event)"
+        (removeFile)="onRemoveFile($event)"
+      />
+    </div>
+  </div>
+
+  <div class="upload-step__mobile-summary" aria-live="polite">
+    {{ imageFiles().length }} תמונות · {{ videoFiles().length }} סרטונים
   </div>
 </div>

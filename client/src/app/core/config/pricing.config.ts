@@ -9,6 +9,7 @@ import type {
   VideoLengthId,
   VideoSourceId,
   SongLengthId,
+  VocalistId,
 } from '../../shared/models/pricing.model';
 
 /**
@@ -53,17 +54,19 @@ export const MAIN_PRODUCT_OPTIONS: readonly MainProductOption[] = [
     id: 'song_only',
     titleHe: 'שיר אישי',
     descriptionHe:
-      'שיר מקורי שנכתב והופק במיוחד עבורכם, בהשראת הסיפור, האנשים והרגעים החשובים שלכם.',
+      'שיר מקורי שנכתב והופק במיוחד עבורכם, בהשראת הסיפור, האנשים והרגעים החשובים שלכם — לאירועים, למשפחה, לחברות ולארגונים.',
   },
   {
     id: 'video_existing_song',
     titleHe: 'סרטון עם שיר לבחירתכם',
-    descriptionHe: 'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
+    descriptionHe:
+      'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם — לאירועים, למשפחה, לחברות ולארגונים.',
   },
   {
     id: 'video_new_song',
     titleHe: 'החוויה המלאה',
-    descriptionHe: 'מהרעיון הראשון ועד הסרטון המוגמר – כל החוויה במקום אחד.',
+    descriptionHe:
+      'מהרעיון הראשון ועד הסרטון המוגמר – כל החוויה במקום אחד. מתאים לאירועים, למשפחה, לחברות ולארגונים.',
   },
 ];
 
@@ -86,9 +89,16 @@ export const SONG_STYLE_OPTIONS: readonly string[] = [
   'בלדה',
   'היפ הופ',
   'גוספל',
-  'קצבי',
-  'מרגש',
+  'קאנטרי',
+  'בלוז',
+  'אינדי',
   'אחר',
+];
+
+export const VOCALIST_OPTIONS: readonly { id: VocalistId; labelHe: string }[] = [
+  { id: 'male', labelHe: 'זמר' },
+  { id: 'female', labelHe: 'זמרת' },
+  { id: 'both', labelHe: 'שילוב של שניהם' },
 ];
 
 export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[] = [
@@ -222,6 +232,12 @@ export const ADDON_OPTIONS: readonly AddonOption[] = [
   { id: 'extra_version', labelHe: 'גרסה נוספת', price: 200, videoOnly: false },
   { id: 'separate_audio_file', labelHe: 'מסירת קובץ אודיו נפרד', price: 50, videoOnly: false },
   { id: 'extra_revision_round', labelHe: 'סבב תיקונים נוסף', price: 150, videoOnly: false },
+  {
+    id: 'ai_image_fill',
+    labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה',
+    price: 50,
+    videoOnly: true,
+  },
 ];
 
 export function findAddon(id: AddonId): AddonOption | undefined {

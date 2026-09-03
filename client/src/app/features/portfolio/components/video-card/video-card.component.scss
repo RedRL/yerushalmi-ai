@@ -29,6 +29,10 @@
   }
 }
 
+.video-card--song .video-card__play-icon {
+  border-radius: var(--radius-full);
+}
+
 .video-card--gallery {
   height: 100%;
   transform: translateY(0);
@@ -127,6 +131,12 @@
       font-size: var(--font-size-body);
     }
   }
+}
+
+.video-card--expanded-description.video-card--gallery .video-card__description {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
 }
 
 .video-card__media {

@@ -2,12 +2,14 @@
   class="video-card"
   [class.video-card--featured]="size() === 'featured'"
   [class.video-card--gallery]="size() === 'gallery'"
+  [class.video-card--song]="video().kind === 'song'"
+  [class.video-card--expanded-description]="video().id === 'yair'"
 >
   <button
     type="button"
     class="video-card__media"
     (click)="onActivate()"
-    [attr.aria-label]="'צפייה בקליפ: ' + video().titleHe"
+    [attr.aria-label]="(video().kind === 'song' ? 'האזנה לשיר: ' : 'צפייה בקליפ: ') + video().titleHe"
   >
     <img
       [src]="thumbnailUrl()"

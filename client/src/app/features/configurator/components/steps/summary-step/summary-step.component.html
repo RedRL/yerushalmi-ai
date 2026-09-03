@@ -17,6 +17,9 @@
       </div>
       <p class="summary-step__text">עבור: {{ personNameDisplay() }}</p>
       <p class="summary-step__text">אירוע: {{ occasionDisplay() }}</p>
+      @if (eventDateDisplay()) {
+        <p class="summary-step__text">תאריך האירוע: {{ eventDateDisplay() }}</p>
+      }
       <p #storyTextEl class="summary-step__text summary-step__story">הסיפור: {{ storyText() }}</p>
       @if (storyOverflows()) {
         <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">הצג עוד</button>
@@ -33,6 +36,9 @@
           <p class="summary-step__text">שיר קיים: {{ existingSongDisplay() }}</p>
         } @else {
           <p class="summary-step__text">סגנון: {{ songStyleSummary() }}</p>
+          @if (vocalistLabel()) {
+            <p class="summary-step__text">קול: {{ vocalistLabel() }}</p>
+          }
           @if (songLengthLabel()) {
             <p class="summary-step__text">אורך: {{ songLengthLabel() }}</p>
           }
@@ -47,6 +53,9 @@
           <button type="button" (click)="goToStep('video')">עריכה</button>
         </div>
         <p class="summary-step__text">{{ videoDetailsSummary() }}</p>
+        @if (aiFillLabel()) {
+          <p class="summary-step__text">{{ aiFillLabel() }}</p>
+        }
       </div>
     }
 
@@ -74,7 +83,7 @@
           <h4>קבצים</h4>
           <button type="button" (click)="goToStep('upload')">עריכה</button>
         </div>
-        <p class="summary-step__text">{{ store.uploadedFiles().length }} קבצים הועלו</p>
+        <p class="summary-step__text">{{ uploadSummary() }}</p>
       </div>
     }
   </div>

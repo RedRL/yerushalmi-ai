@@ -307,6 +307,12 @@ body.scroll-locked {
   }
 }
 
+input.field__control:not([type='checkbox']):not([type='radio']),
+select.field__control {
+  box-sizing: border-box;
+  height: 2.5rem;
+}
+
 textarea.field__control {
   resize: none;
   min-height: 96px;
@@ -494,4 +500,88 @@ select.field__control {
   overflow-x: hidden;
   overflow-y: scroll;
   @include scrollbars.scroll-area-rtl-props;
+}
+
+.configurator__nav-next-wrap--blocked:hover .configurator__nav-tooltip,
+.configurator__nav-next-wrap--blocked:focus-within .configurator__nav-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.configurator__nav-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  z-index: 100;
+  width: max-content;
+  max-width: min(20rem, calc(100vw - 2 * var(--section-padding-x)));
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated, #1a1a2e);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-tiny);
+  line-height: 1.4;
+  white-space: pre-line;
+  text-align: center;
+  text-wrap: pretty;
+  box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.28));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--transition-fast) var(--ease-out),
+    visibility var(--transition-fast) var(--ease-out),
+    transform var(--transition-fast) var(--ease-out);
+}
+
+.configurator__submit-wrap {
+  position: relative;
+  display: none;
+  margin-inline-start: auto;
+}
+
+.configurator__submit-wrap .configurator__nav-submit {
+  width: 100%;
+}
+
+.configurator__submit-wrap--invalid::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  z-index: var(--z-modal);
+  width: max-content;
+  max-width: min(20rem, calc(100vw - 2rem));
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-tiny);
+  line-height: 1.4;
+  text-align: center;
+  white-space: pre-line;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+}
+
+.configurator__submit-wrap--invalid:hover::after,
+.configurator__submit-wrap--invalid:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 1023px) {
+  .configurator__submit-wrap {
+    display: inline-flex;
+    min-width: 0;
+    margin-inline-start: 0;
+  }
 }

@@ -1,5 +1,34 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
+@use 'scrollbars' as scrollbars;
+
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+
+  @include bp.respond-up('lg') {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+.song-step {
+  @include bp.respond-up('lg') {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    @include scrollbars.vertical-scroll-props;
+    @include scrollbars.scrollbar-inset-rtl;
+    @include scrollbars.app-scrollbar;
+    direction: rtl;
+  }
+
+}
 
 .song-step__styles-header {
   display: flex;
@@ -28,7 +57,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  flex: 0 0 auto;
+  flex: 1 1 11rem;
+  min-width: 8rem;
+  max-width: 100%;
   min-height: var(--song-step-chip-height, 2.125rem);
 }
 
@@ -56,6 +87,15 @@
   padding-block: 0;
   line-height: 1.2;
   font-size: var(--font-size-tiny);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+
+  &--visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .song-step__mood-length {
@@ -64,6 +104,7 @@
   gap: var(--space-3);
   align-items: end;
   width: 100%;
+  overflow: visible;
 
   &--mood-only {
     grid-template-columns: 1fr;
@@ -74,6 +115,78 @@
   padding-block: var(--space-1);
 }
 
+.length-select {
+  position: relative;
+  overflow: visible;
+}
+
+.length-select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  margin: 0;
+  appearance: none;
+  text-align: start;
+  cursor: pointer;
+  padding-inline-end: calc(var(--space-4) + 1.25rem);
+  background-color: var(--color-bg-glass);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6 8 10 12 6' stroke='%237a849e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  background-position: 0.65rem 50%;
+  color: inherit;
+  font: inherit;
+
+  &:focus-visible {
+    background-color: var(--color-bg-surface);
+  }
+}
+
+.length-select--open .length-select__trigger {
+  background-color: var(--color-bg-surface);
+}
+
+.length-select__menu {
+  position: fixed;
+  z-index: var(--z-modal);
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-md);
+}
+
+.length-select__option {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: inherit;
+  line-height: 1.3;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-bg-surface-hover);
+  }
+
+  &[aria-selected='true'] {
+    background: var(--gradient-brand-soft);
+    color: var(--color-text-primary);
+  }
+}
+
 .song-step__mood-length .field__label {
   white-space: nowrap;
   overflow: hidden;
@@ -81,16 +194,11 @@
   font-size: var(--font-size-tiny);
 }
 
-.song-step__mood-length select.field__control {
+.song-step__mood-length .length-select__trigger {
   padding-block: var(--space-2);
   padding-inline-start: var(--space-3);
   padding-inline-end: calc(var(--space-3) + 1.35rem);
   background-position: 0.65rem 50%;
-}
-
-:host {
-  display: block;
-  min-height: 0;
 }
 
 @include bp.respond-down('lg') {
@@ -155,7 +263,7 @@
     padding-block: 0;
   }
 
-  .song-step__mood-length select.field__control {
+  .song-step__mood-length .length-select__trigger {
     padding-block: 0;
     height: 2.125rem;
     min-height: 2.125rem;

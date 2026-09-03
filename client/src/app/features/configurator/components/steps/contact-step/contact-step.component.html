@@ -6,6 +6,9 @@
         תודה! קיבלנו את כל הפרטים והחומרים. נחזור אליכם בהקדם לאישור סופי ולתחילת התהליך.
         מספר הפנייה שלכם: <strong>{{ formatShortInquiryReference(result.inquiryId) }}</strong>
       </p>
+      <p class="step__description">
+        לאחר אישור הפרויקט, העבודה תימסר עד שבעה ימי עסקים.
+      </p>
       <p class="step__description contact-step__inbox-tip">
         שלחנו אליכם מייל אישור. אם הוא לא מופיע בדואר הנכנס, בדקו גם בתיקיית ספאם או קידומי מכירות — זה עלול לקרות וזה תקין.
       </p>
@@ -61,7 +64,7 @@
         </div>
 
         <div class="field">
-          <label class="field__label" for="contactMessage">הודעה נוספת (אופציונלי)</label>
+          <label class="field__label" for="contactMessage">הודעה נוספת</label>
           <input id="contactMessage" class="field__control" formControlName="message" [maxlength]="limits.contactMessage" />
         </div>
       </div>
@@ -117,24 +120,35 @@
         </div>
       </div>
 
-      <button
-        type="submit"
-        class="contact-step__submit"
-        [disabled]="store.isSubmitting()"
-        [attr.aria-busy]="store.isSubmitting()"
+      <span
+        class="contact-step__submit-wrap"
+        [class.contact-step__submit-wrap--invalid]="!store.isSubmissionValid()"
+        [attr.title]="!store.isSubmissionValid() ? store.submissionValidationMessage() : null"
+        [attr.data-tooltip]="!store.isSubmissionValid() ? store.submissionValidationMessage() : null"
+        [attr.tabindex]="!store.isSubmissionValid() ? 0 : null"
       >
-        @if (store.isSubmitting()) {
-          <span class="contact-step__submit-content">
-            <span class="contact-step__submit-spinner" aria-hidden="true"></span>
-            <span>{{ store.submitStatusLabelHe() }}</span>
-          </span>
-        } @else {
-          <span>הגשת הבקשה</span>
-        }
-      </button>
+        <button
+          type="submit"
+          class="contact-step__submit"
+          [disabled]="store.isSubmitting() || !store.isSubmissionValid()"
+          [attr.aria-busy]="store.isSubmitting()"
+        >
+          @if (store.isSubmitting()) {
+            <span class="contact-step__submit-content">
+              <span class="contact-step__submit-spinner" aria-hidden="true"></span>
+              <span>{{ store.submitStatusLabelHe() }}</span>
+            </span>
+          } @else {
+            <span>הגשת הבקשה</span>
+          }
+        </button>
+      </span>
 
       @if (store.submitError()) {
-        <p class="contact-step__error" role="alert" aria-live="assertive">{{ store.submitError() }}</p>
+        <p class="contact-step__error" role="alert" aria-live="assertive">
+          {{ store.submitError() }}
+          <a href="#contact">מעבר לטופס יצירת הקשר</a>
+        </p>
       }
     </form>
   }

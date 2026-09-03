@@ -1,14 +1,23 @@
-import type { AddonId, MainProductId, SongLengthId } from '../../../shared/models/pricing.model';
+import type { AddonId, MainProductId, SongLengthId, SubtitlesId, VideoFormatId, VideoLengthId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import { clearUploadFileStore } from '../../../shared/utils/upload-file-store.util';
 
 const STORAGE_KEY = 'yerushalmi.configurator.v2';
+
+export interface ProductPricingSnapshot {
+  songLength: SongLengthId;
+  videoLength: VideoLengthId;
+  videoFormat: VideoFormatId;
+  subtitles: SubtitlesId;
+  addons: AddonId[];
+}
 
 export interface PersistedConfiguratorState {
   currentStepIndex: number;
   mainProduct: MainProductId | null;
   addons: AddonId[];
   inquiryFolderId?: string;
+  productPricingByProduct?: Partial<Record<MainProductId, ProductPricingSnapshot>>;
   songForm: Record<string, string>;
   videoForm: {
     source: string;

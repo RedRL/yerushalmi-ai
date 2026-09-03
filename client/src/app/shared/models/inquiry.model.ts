@@ -1,4 +1,4 @@
-import type { AddonId, MainProductId, PriceBreakdown, SubtitlesId, VideoFormatId, VideoLengthId, VideoSourceId } from './pricing.model';
+import type { AddonId, MainProductId, PriceBreakdown, SubtitlesId, VideoFormatId, VideoLengthId, VideoSourceId, VocalistId } from './pricing.model';
 import type { UploadedFileKind } from './upload.model';
 
 export interface InquiryContactPayload {
@@ -11,6 +11,7 @@ export interface InquiryContactPayload {
 export interface InquirySongPayload {
   style?: string;
   customStyle?: string;
+  vocalist?: VocalistId;
   mood?: string;
   length?: string;
   namesToInclude?: string[];
@@ -32,6 +33,7 @@ export interface InquiryVideoPayload {
 export interface InquiryProjectDetailsPayload {
   personName: string;
   occasion: string;
+  eventDate?: string;
   age?: string;
   relationship?: string;
   characterTraits?: string;
@@ -49,6 +51,7 @@ export interface InquiryUploadedFilePayload {
   name: string;
   storageKey: string;
   url?: string;
+  durationSeconds?: number;
 }
 
 export interface InquiryConsentsPayload {

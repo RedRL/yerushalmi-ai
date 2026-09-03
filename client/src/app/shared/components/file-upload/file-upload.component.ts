@@ -57,6 +57,12 @@ export class FileUploadComponent implements OnDestroy {
   readonly filesSelected = output<File[]>();
   readonly removeFile = output<string>();
 
+  readonly promptNoun = computed(() => {
+    if (this.kind() === 'video') return 'סרטונים';
+    if (this.kind() === 'audio') return 'קבצי שמע';
+    return 'תמונות';
+  });
+
   readonly isDragging = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly previewedFileId = signal<string | null>(null);
@@ -540,7 +546,7 @@ export class FileUploadComponent implements OnDestroy {
 
     for (const file of candidateFiles.slice(0, remainingSlots)) {
       if (!isAcceptedFileType(file, accept)) {
-        const typeLabel = this.kind() === 'image' ? 'תמונה נתמכת' : 'קובץ נתמך';
+        const typeLabel = this.kind() === 'image' ? 'תמונה נתמכת' : this.kind() === 'video' ? 'סרטון נתמך' : 'קובץ נתמך';
         this.errorMessage.set(`"${file.name}" אינו ${typeLabel}. ניתן להעלות ${acceptLabel}.`);
         continue;
       }

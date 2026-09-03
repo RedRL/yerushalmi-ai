@@ -10,7 +10,7 @@ import {
 import { SectionHeadingComponent } from '../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import type { PortfolioCategory, PortfolioVideo } from '../../shared/models/portfolio-video.model';
-import { PORTFOLIO_CATEGORIES, PORTFOLIO_VIDEOS } from './data/portfolio-data';
+import { PORTFOLIO_CATEGORIES, PORTFOLIO_SONGS, PORTFOLIO_VIDEOS } from './data/portfolio-data';
 import { VideoCardComponent } from './components/video-card/video-card.component';
 import { VideoModalComponent } from './components/video-modal/video-modal.component';
 
@@ -35,6 +35,7 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
   );
 
   readonly videos = PORTFOLIO_VIDEOS;
+  readonly songs = PORTFOLIO_SONGS;
   readonly loopVideos = Array.from({ length: LOOP_SETS }, () => [...DISPLAY_VIDEOS]).flat();
   readonly selectedVideo = signal<PortfolioVideo | null>(null);
 

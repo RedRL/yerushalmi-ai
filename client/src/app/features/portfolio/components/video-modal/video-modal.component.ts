@@ -33,6 +33,8 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   private previouslyFocusedElement: HTMLElement | null = null;
   private lockedScrollY = 0;
 
+  readonly isSong = computed(() => this.video().kind === 'song');
+
   readonly embedUrl = computed<SafeResourceUrl>(() =>
     this.sanitizer.bypassSecurityTrustResourceUrl(
       `https://www.youtube.com/embed/${this.video().youtubeId}?autoplay=1&rel=0`,

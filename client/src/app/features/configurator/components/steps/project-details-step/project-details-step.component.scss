@@ -1,4 +1,52 @@
 @use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+.project-details-step__date-controls {
+  position: relative;
+}
+
+.project-details-step__date-text {
+  padding-inline-end: 2.75rem;
+}
+
+.project-details-step__date-icon {
+  position: absolute;
+  inset-inline-end: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-accent-purple-light);
+    background: var(--color-bg-glass-strong);
+  }
+}
+
+.project-details-step__date-native {
+  position: absolute;
+  inset-inline-end: 1.4rem;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  color-scheme: dark;
+}
 
 .project-details-step__counter-row {
   display: flex;
@@ -21,13 +69,20 @@
 
 .project-details-step__story {
   min-height: 200px;
-  overscroll-behavior: contain;
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
   padding: var(--space-3) var(--space-4);
   border-width: 1px;
   background: var(--color-bg-glass);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  touch-action: pan-y;
+
+  @include bp.respond-down('lg') {
+    overflow: hidden;
+    field-sizing: content;
+    min-height: 8rem;
+    overscroll-behavior: auto;
+  }
 
   &:focus-visible {
     border-color: var(--color-accent-purple-light);

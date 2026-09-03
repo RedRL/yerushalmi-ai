@@ -29,6 +29,7 @@
     overflow: hidden;
     @include scrollbars.vertical-scroll-props;
     @include scrollbars.scrollbar-inset-rtl;
+    @include scrollbars.app-scrollbar;
     direction: rtl;
   }
 }
@@ -190,4 +191,23 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+}
+
+.video-step__addon-card {
+  width: 100%;
+  align-items: flex-start;
+  text-align: start;
+  min-height: auto;
+  padding: var(--space-3);
+
+  .option-card__title {
+    font-size: var(--font-size-small);
+  }
+
+  .option-card__description {
+    margin-top: 2px;
+    font-size: var(--font-size-tiny);
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+  }
 }

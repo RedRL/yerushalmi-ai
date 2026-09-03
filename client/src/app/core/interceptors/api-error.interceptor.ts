@@ -12,6 +12,10 @@ interface ApiErrorBody {
 }
 
 function resolveApiErrorMessage(error: HttpErrorResponse): string {
+  if (error.status === 0) {
+    return 'לא הצלחנו להשלים את השליחה. בדקו את החיבור לאינטרנט ונסו שוב. אם התקלה חוזרת, אפשר לפנות אלינו דרך טופס יצירת הקשר שבהמשך העמוד.';
+  }
+
   const body = error.error as ApiErrorBody | undefined;
   const fieldErrors = body?.error?.details?.fieldErrors;
   if (fieldErrors) {

@@ -28,6 +28,7 @@ describe('inquirySchema', () => {
       projectDetails: {
         personName: 'דוד',
         occasion: 'יום הולדת',
+        eventDate: '2026-09-15',
         story: 'זהו סיפור ארוך מספיק לבדיקה',
       },
       uploadedFiles,
@@ -67,6 +68,7 @@ describe('inquirySchema', () => {
       projectDetails: {
         personName: 'דוד',
         occasion: 'יום הולדת',
+        eventDate: '2026-09-15',
         story: 'זהו סיפור ארוך מספיק לבדיקה',
       },
       uploadedFiles: [{ id: '1', type: 'image', name: 'photo.jpg', storageKey }],
@@ -94,6 +96,7 @@ describe('inquirySchema', () => {
       projectDetails: {
         personName: 'David',
         occasion: 'Birthday',
+        eventDate: '2026-09-15',
         story: 'Long enough story for validation',
       },
       uploadedFiles: [{ id: '1', type: 'image', name: 'photo.jpg', storageKey }],
@@ -131,6 +134,7 @@ describe('inquirySchema', () => {
       projectDetails: {
         personName: 'David',
         occasion: 'Birthday',
+        eventDate: '2026-09-15',
         story: 'Long enough story for validation',
       },
       uploadedFiles: [

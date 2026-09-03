@@ -20,7 +20,7 @@ export class ContactStepComponent {
 
   submit(): void {
     if (this.store.isSubmitting() || this.store.submitResult()) return;
-    if (!this.store.isContactStepValid()) {
+    if (!this.store.isSubmissionValid()) {
       this.store.contactForm.markAllAsTouched();
       return;
     }

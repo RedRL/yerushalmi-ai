@@ -1,3 +1,4 @@
+import { formatDateTimeHeIl } from '../utils/datetime.util';
 import { escapeHtml } from '../utils/html-escape';
 import type { ContactMessageInput } from '../schemas/contact.schema';
 
@@ -11,7 +12,7 @@ export function buildContactEmailHtml(payload: ContactMessageInput, submittedAt:
       <p><strong>הודעה:</strong></p>
       <p style="white-space: pre-wrap;">${escapeHtml(payload.message)}</p>
       <hr />
-      <p style="font-size: 12px; color: #666;">נשלח בתאריך ${submittedAt.toISOString()}</p>
+      <p style="font-size: 12px; color: #666;">נשלח בתאריך ${formatDateTimeHeIl(submittedAt)}</p>
     </div>
   `.trim();
 }

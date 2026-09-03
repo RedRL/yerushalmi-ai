@@ -66,4 +66,10 @@
   flex: 1;
   min-height: 5rem;
   resize: none;
+  touch-action: pan-y;
+
+  @include bp.respond-down('lg') {
+    overflow: hidden;
+    field-sizing: content;
+  }
 }

@@ -16,7 +16,7 @@ export class TermsComponent {
   private readonly router = inject(Router);
 
   readonly brandName = SITE_CONFIG.brandName;
-  readonly lastUpdated = 'יולי 2026';
+  readonly lastUpdated = 'אוגוסט 2026';
 
   goHome(event: Event): void {
     if (!window.matchMedia('(max-width: 1023px)').matches) return;

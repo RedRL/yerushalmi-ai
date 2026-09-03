@@ -1,62 +1,104 @@
-<div class="step" [formGroup]="store.projectDetailsForm">
-  <h3 class="step__title">ספרו לנו על האדם והסיפור</h3>
-  <p class="step__description">ככל שתשתפו יותר פרטים, נוכל ליצור שיר וקליפ אישיים ומדויקים יותר.</p>
-
-  <div class="field-grid step__section">
-    <div class="field">
-      <label class="field__label" for="personName">שם האדם שעבורו יוצרים את הפרויקט *</label>
-      <input
-        id="personName"
-        class="field__control"
-        formControlName="personName"
-        placeholder="שם מלא"
-        [maxlength]="limits.personName"
-      />
-      <span class="field__error" aria-live="polite">
-        @if (store.projectDetailsForm.controls.personName.invalid && store.projectDetailsForm.controls.personName.touched) {
-          נא להזין שם
-        }
-      </span>
-    </div>
-
-    <div class="field">
-      <label class="field__label" for="occasion">סוג האירוע *</label>
-      <input
-        id="occasion"
-        class="field__control"
-        formControlName="occasion"
-        placeholder="יום הולדת, חתונה, יום נישואין..."
-        [maxlength]="limits.occasion"
-      />
-      <span class="field__error" aria-live="polite">
-        @if (store.projectDetailsForm.controls.occasion.invalid && store.projectDetailsForm.controls.occasion.touched) {
-          נא לבחור סוג אירוע
-        }
-      </span>
-    </div>
-  </div>
-
-  <div class="field step__section project-details-step__story-field">
-    <label class="field__label" for="story">הסיפור שמאחורי הפרויקט *</label>
-    <textarea
-      id="story"
-      class="field__control project-details-step__story"
-      formControlName="story"
-      rows="7"
-      [maxlength]="limits.story"
-      placeholder="כתבו כאן בחופשיות, כאילו אתם מספרים לחבר..."
-      aria-describedby="story-counter"
-      (wheel)="onStoryWheel($event)"
-    ></textarea>
-    <span class="field__error project-details-step__story-error" aria-live="polite">
-      @if (store.projectDetailsForm.controls.story.invalid && store.projectDetailsForm.controls.story.touched) {
-        נא לשתף כמה שיותר פרטים (לפחות 10 תווים)
-      }
-    </span>
-    <div class="project-details-step__counter-row">
-      <span id="story-counter" class="project-details-step__counter">
-        {{ store.projectDetailsForm.controls.story.value.length }} / {{ limits.story }}
-      </span>
-    </div>
-  </div>
-</div>
+<div class="step" [formGroup]="store.projectDetailsForm">
+  <h3 class="step__title">ספרו לנו על האדם והסיפור</h3>
+  <p class="step__description">ככל שתשתפו יותר פרטים, נוכל ליצור שיר וקליפ אישיים ומדויקים יותר.</p>
+
+  <div class="field-grid step__section">
+    <div class="field">
+      <label class="field__label" for="personName">{{ personNameLabel() }}</label>
+      <input
+        id="personName"
+        class="field__control"
+        formControlName="personName"
+        placeholder="שם מלא, או כמה שמות"
+        [maxlength]="limits.personName"
+      />
+      <span class="field__error" aria-live="polite">
+        @if (store.projectDetailsForm.controls.personName.invalid && store.projectDetailsForm.controls.personName.touched) {
+          נא להזין שם
+        }
+      </span>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="occasion">סוג האירוע *</label>
+      <input
+        id="occasion"
+        class="field__control"
+        formControlName="occasion"
+        placeholder="יום הולדת, חתונה, יום נישואין..."
+        [maxlength]="limits.occasion"
+      />
+      <span class="field__error" aria-live="polite">
+        @if (store.projectDetailsForm.controls.occasion.invalid && store.projectDetailsForm.controls.occasion.touched) {
+          נא לבחור סוג אירוע
+        }
+      </span>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="eventDate">מתי האירוע מתקיים</label>
+      <div class="project-details-step__date-controls">
+        <input
+          id="eventDate"
+          class="field__control project-details-step__date-text"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="dd/mm/yyyy"
+          maxlength="10"
+          [value]="eventDateText()"
+          (input)="onEventDateInput($event)"
+          (blur)="onEventDateBlur()"
+        />
+        <button
+          type="button"
+          class="project-details-step__date-icon"
+          aria-label="פתיחת לוח שנה"
+          (click)="openDatePicker()"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
+        <input
+          #nativeDatePicker
+          class="project-details-step__date-native"
+          type="date"
+          [value]="eventDateIso()"
+          (change)="onDatePickerChange($event)"
+          aria-label="בחירת תאריך מלוח שנה"
+        />
+      </div>
+      <span class="field__error" aria-live="polite">
+        @if (store.projectDetailsForm.controls.eventDate.invalid && store.projectDetailsForm.controls.eventDate.touched) {
+          נא להזין תאריך חוקי בפורמט dd/mm/yyyy
+        }
+      </span>
+    </div>
+  </div>
+
+  <div class="field step__section project-details-step__story-field">
+    <label class="field__label" for="story">הסיפור שמאחורי הפרויקט *</label>
+    <textarea
+      id="story"
+      class="field__control project-details-step__story"
+      formControlName="story"
+      rows="7"
+      [maxlength]="limits.story"
+      placeholder="כתבו כאן בחופשיות, כאילו אתם מספרים לחבר..."
+      aria-describedby="story-counter"
+      (wheel)="onStoryWheel($event)"
+    ></textarea>
+    <span class="field__error project-details-step__story-error" aria-live="polite">
+      @if (store.projectDetailsForm.controls.story.invalid && store.projectDetailsForm.controls.story.touched) {
+        נא לשתף כמה שיותר פרטים (לפחות 10 תווים)
+      }
+    </span>
+    <div class="project-details-step__counter-row">
+      <span id="story-counter" class="project-details-step__counter">
+        {{ store.projectDetailsForm.controls.story.value.length }} / {{ limits.story }}
+      </span>
+    </div>
+  </div>
+</div>

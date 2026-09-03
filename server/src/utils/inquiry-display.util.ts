@@ -41,6 +41,14 @@ export function resolveSubtitlesLabel(subtitlesId: string | undefined): string |
   return SUBTITLES_PRICES[subtitlesId as SubtitlesId]?.labelHe ?? subtitlesId;
 }
 
+export function resolveVocalistLabel(vocalistId: string | undefined): string | undefined {
+  if (!vocalistId) return undefined;
+  if (vocalistId === 'male') return 'זמר';
+  if (vocalistId === 'female') return 'זמרת';
+  if (vocalistId === 'both') return 'שילוב של זמר וזמרת';
+  return vocalistId;
+}
+
 export function resolveAddonLabel(addonId: string): string {
   return ADDON_CONFIG[addonId as AddonId]?.labelHe ?? addonId;
 }

@@ -27,7 +27,7 @@ export function buildInquiryConfirmationEmail(params: {
     'מה קורה עכשיו?',
     '1. נעבור על הפרטים והחומרים ששלחתם',
     '2. נחזור אליכם לאישור סופי ותיאום',
-    '3. לאחר אישור — מתחילים ליצור',
+    '3. לאחר אישור — מתחילים ליצור. המסירה היא עד שבעה ימי עסקים (בקשה אחרי 17:00 נספרת מיום העסקים הבא)',
     '',
     'שימו לב: שליחת הבקשה אינה מהווה תחילת עבודה בפועל, ולא בוצע כל תשלום בשלב זה.',
     '',
@@ -116,7 +116,7 @@ export function buildInquiryConfirmationEmail(params: {
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
                         <td width="28" valign="top" style="width:28px;padding-left:12px;font-size:14px;font-weight:bold;color:#6366f1;">3</td>
-                        <td style="font-size:15px;line-height:1.6;color:#374151;">לאחר אישור — מתחילים ליצור</td>
+                        <td style="font-size:15px;line-height:1.6;color:#374151;">לאחר אישור — מתחילים ליצור. המסירה היא עד שבעה ימי עסקים (בקשה אחרי 17:00 נספרת מיום העסקים הבא)</td>
                       </tr>
                     </table>
                   </td>

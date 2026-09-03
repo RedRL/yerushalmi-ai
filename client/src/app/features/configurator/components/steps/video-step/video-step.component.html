@@ -2,7 +2,11 @@
 
   <h3 class="step__title">פרטי הסרטון</h3>
 
-
+  @if (store.includesNewSong()) {
+    <p class="step__description video-step__notice">
+      לפני יצירת הסרטון נעדכן אתכם על השיר שנוצר — לאישור ולהערות. כל פרויקט כולל סבב תיקונים אחד לשיר וסבב תיקונים אחד לסרטון.
+    </p>
+  }
 
   @if (!hideVideoLength()) {
 
@@ -146,6 +150,37 @@
 
     </div>
 
+  </div>
+
+
+
+  <div class="step__section">
+    <div class="video-step__section-heading">
+      <span class="step__section-title">מילוי אוטומטי של התמונות לפורמט היציאה</span>
+      <span class="field__hint video-step__inline-hint">מילוי באמצעות AI מונע שוליים שחורים ומתאים את התמונה לפורמט הנבחר.</span>
+    </div>
+    <div class="option-card-grid subtitles-option-grid" role="radiogroup" aria-label="מילוי אוטומטי של התמונות">
+      <button
+        type="button"
+        class="option-card"
+        role="radio"
+        [attr.aria-checked]="!store.isAddonSelected('ai_image_fill')"
+        [class.option-card--selected]="!store.isAddonSelected('ai_image_fill')"
+        (click)="selectImageFill(false)"
+      >
+        <span class="option-card__title">ללא מילוי</span>
+      </button>
+      <button
+        type="button"
+        class="option-card"
+        role="radio"
+        [attr.aria-checked]="store.isAddonSelected('ai_image_fill')"
+        [class.option-card--selected]="store.isAddonSelected('ai_image_fill')"
+        (click)="selectImageFill(true)"
+      >
+        <span class="option-card__title">עם מילוי · ₪50</span>
+      </button>
+    </div>
   </div>
 
 </div>

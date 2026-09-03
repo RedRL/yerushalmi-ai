@@ -229,6 +229,10 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-tiny);
   flex-shrink: 0;
+
+  @include bp.respond-down('lg') {
+    display: none;
+  }
 }
 
 .file-upload-lightbox {

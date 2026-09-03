@@ -6,9 +6,9 @@ import { firstValueFrom, merge } from 'rxjs';
 import { InquiryApiService } from '../../../core/services/inquiry-api.service';
 import { UploadApiService } from '../../../core/services/upload-api.service';
 import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
-import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions } from '../../../core/config/pricing.config';
-import { getMinimumImageCountForVideoLength, getMaximumImageCountForVideoLength } from '../../../core/config/upload-requirements.config';
-import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoFormatId, VideoLengthId } from '../../../shared/models/pricing.model';
+import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions, findAddon, PRODUCT_INCLUDES_VIDEO } from '../../../core/config/pricing.config';
+import { getMinimumImageCountForVideoLength, getMaximumImageCountForVideoLength, getMaximumVideoCountForVideoLength } from '../../../core/config/upload-requirements.config';
+import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoFormatId, VideoLengthId, VocalistId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
@@ -20,6 +20,8 @@ import {
 } from '../../../shared/utils/inquiry-folder.util';
 import { generateInquiryReferenceId } from '../../../shared/utils/inquiry-reference.util';
 import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-file-store.util';
+import { compressImageForUpload } from '../../../shared/utils/compress-image.util';
+import { toHebrewUserError } from '../../../shared/utils/network-error.util';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import {
@@ -27,6 +29,7 @@ import {
   loadConfiguratorState,
   saveConfiguratorState,
   type PersistedConfiguratorState,
+  type ProductPricingSnapshot,
 } from './configurator-persistence.util';
 
 function splitToList(value: string): string[] {
@@ -62,6 +65,16 @@ function resolveSongLength(length: string | null | undefined, mainProduct: MainP
   return options.some((option) => option.id === normalized) ? normalized : DEFAULT_LENGTH_ID;
 }
 
+function filterAddonsForProduct(addons: AddonId[], product: MainProductId): AddonId[] {
+  const includesVideo = PRODUCT_INCLUDES_VIDEO[product];
+  return addons.filter((id) => {
+    const addon = findAddon(id);
+    if (!addon) return false;
+    if (addon.videoOnly && !includesVideo) return false;
+    return true;
+  });
+}
+
 export interface SubmitResult {
   inquiryId: string;
   priceBreakdown: PriceBreakdown;
@@ -85,6 +98,7 @@ export class ConfiguratorStoreService {
   readonly currentStepIndex = signal(0);
   readonly mainProduct = signal<MainProductId | null>(null);
   readonly addons = signal<AddonId[]>([]);
+  readonly productPricingByProduct = signal<Partial<Record<MainProductId, ProductPricingSnapshot>>>({});
   readonly uploadedFiles = signal<UploadedFileReference[]>([]);
   readonly inquiryFolderId = signal('');
   readonly inquiryReferenceId = signal('');
@@ -100,8 +114,9 @@ export class ConfiguratorStoreService {
   readonly songForm = this.fb.group({
     style: this.fb.control(''),
     customStyle: this.fb.control('', Validators.maxLength(FIELD_LIMITS.customStyle)),
+    vocalist: this.fb.control<VocalistId | ''>(''),
     mood: this.fb.control('', Validators.maxLength(FIELD_LIMITS.mood)),
-    length: this.fb.control<SongLengthId | ''>(DEFAULT_LENGTH_ID),
+    length: this.fb.control<SongLengthId | ''>(DEFAULT_LENGTH_ID, Validators.required),
     namesToInclude: this.fb.control('', Validators.maxLength(FIELD_LIMITS.namesToInclude)),
     importantWords: this.fb.control('', Validators.maxLength(FIELD_LIMITS.importantWords)),
     excludedTopics: this.fb.control('', Validators.maxLength(FIELD_LIMITS.excludedTopics)),
@@ -121,6 +136,7 @@ export class ConfiguratorStoreService {
   readonly projectDetailsForm = this.fb.group({
     personName: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.personName)]),
     occasion: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.occasion)]),
+    eventDate: this.fb.control('', Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)),
     age: this.fb.control('', Validators.maxLength(FIELD_LIMITS.age)),
     relationship: this.fb.control('', Validators.maxLength(FIELD_LIMITS.relationship)),
     characterTraits: this.fb.control('', Validators.maxLength(FIELD_LIMITS.characterTraits)),
@@ -158,6 +174,7 @@ export class ConfiguratorStoreService {
     const saved = loadConfiguratorState();
     if (saved) {
       this.applyPersistedFormState(saved);
+      this.productPricingByProduct.set(saved.productPricingByProduct ?? {});
       const savedIncludesVideo =
         saved.mainProduct === 'video_existing_song' || saved.mainProduct === 'video_new_song';
 
@@ -283,8 +300,11 @@ export class ConfiguratorStoreService {
       return value.existingSongName.trim().length > 0;
     }
     if (this.includesNewSong()) {
+      if (!value.length) return false;
       const styles = parseSongStyles(value.style);
       if (styles.length === 0) return false;
+      const vocalist = value.vocalist;
+      if (vocalist !== 'male' && vocalist !== 'female' && vocalist !== 'both') return false;
       const onlyOther = styles.length === 1 && styles[0] === 'אחר';
       if (onlyOther) return value.customStyle.trim().length > 0;
       return true;
@@ -308,9 +328,15 @@ export class ConfiguratorStoreService {
     this.uploadedFiles();
     if (!this.requiresUploadStep()) return true;
     const images = this.uploadedFiles().filter((file) => file.type === 'image');
-    if (images.some((file) => file.status === 'error')) return false;
-    const count = this.uploadImageCount();
-    return count >= this.minimumRequiredImages() && count <= this.maximumAllowedImages();
+    const videos = this.uploadedFiles().filter((file) => file.type === 'video');
+    if (images.some((file) => file.status === 'error') || videos.some((file) => file.status === 'error')) return false;
+    const imageCount = this.uploadImageCount();
+    const videoCount = this.uploadVideoCount();
+    return (
+      imageCount >= this.minimumRequiredImages() &&
+      imageCount <= this.maximumAllowedImages() &&
+      videoCount <= this.maximumAllowedVideos()
+    );
   });
 
   readonly selectedVideoLengthId = computed((): VideoLengthId => {
@@ -330,9 +356,16 @@ export class ConfiguratorStoreService {
     getMaximumImageCountForVideoLength(this.selectedVideoLengthId()),
   );
 
+  readonly maximumAllowedVideos = computed(() =>
+    getMaximumVideoCountForVideoLength(this.selectedVideoLengthId()),
+  );
+
   readonly uploadImageCount = computed(
-    () =>
-      this.uploadedFiles().filter((file) => file.type === 'image' && file.status !== 'error').length,
+    () => this.uploadedFiles().filter((file) => file.type === 'image').length,
+  );
+
+  readonly uploadVideoCount = computed(
+    () => this.uploadedFiles().filter((file) => file.type === 'video').length,
   );
 
   readonly pendingImageCount = computed(
@@ -357,14 +390,21 @@ export class ConfiguratorStoreService {
     return `יש להסיר ${excess} תמונות\n(מקסימום ${maximum} לאורך הסרטון שבחרתם, הועלו ${count})`;
   });
 
+  readonly uploadVideoLimitExceededLabelHe = computed(() => {
+    const count = this.uploadVideoCount();
+    const maximum = this.maximumAllowedVideos();
+    const excess = Math.max(0, count - maximum);
+    return `יש להסיר ${excess} סרטונים\n(מקסימום ${maximum} לאורך הסרטון שבחרתם, ועד 30 שניות לסרטון)`;
+  });
+
   readonly submitStatusLabelHe = computed(() => {
     const phase = this.submitPhase();
     if (phase === 'uploading') {
       const progress = this.submitUploadProgress();
       if (progress && progress.total > 0) {
-        return `מעלים את התמונות (${progress.completed} מתוך ${progress.total})...`;
+        return `מעלים את החומרים (${progress.completed} מתוך ${progress.total})...`;
       }
-      return 'מעלים את התמונות...';
+      return 'מעלים את החומרים...';
     }
     if (phase === 'sending') {
       return 'שולחים את הבקשה...';
@@ -382,6 +422,21 @@ export class ConfiguratorStoreService {
   readonly isContactStepValid = computed(() => {
     this.formRevision();
     return this.contactForm.valid;
+  });
+
+  readonly isSubmissionValid = computed(() => {
+    this.formRevision();
+    this.uploadedFiles();
+    return this.visibleSteps().every((step) => this.isStepValid(step.id));
+  });
+
+  readonly submissionValidationMessage = computed(() => {
+    this.formRevision();
+    this.uploadedFiles();
+    const messages = this.visibleSteps()
+      .filter((step) => !this.isStepValid(step.id))
+      .map((step) => this.getStepValidationMessage(step.id));
+    return messages.length ? messages.join('\n') : null;
   });
 
   isStepVisible(id: ConfiguratorStepId): boolean {
@@ -473,9 +528,16 @@ export class ConfiguratorStoreService {
     }
 
     if (this.includesNewSong()) {
+      if (!value.length) {
+        return 'נא לבחור אורך משוער כדי להמשיך';
+      }
       const styles = parseSongStyles(value.style);
       if (styles.length === 0) {
         return 'נא לבחור לפחות סגנון שיר אחד כדי להמשיך';
+      }
+      const vocalist = value.vocalist;
+      if (vocalist !== 'male' && vocalist !== 'female' && vocalist !== 'both') {
+        return 'נא לבחור זמר, זמרת או שילוב של שניהם';
       }
       if (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0) {
         return 'נא לפרט את הסגנון המוזיקלי כדי להמשיך';
@@ -491,7 +553,7 @@ export class ConfiguratorStoreService {
     const form = this.projectDetailsForm;
 
     if (form.controls.personName.invalid) {
-      missing.push('שם האדם');
+      missing.push('שם האדם/האנשים');
     }
     if (form.controls.occasion.invalid) {
       missing.push('סוג האירוע');
@@ -512,15 +574,21 @@ export class ConfiguratorStoreService {
 
   private getUploadStepValidationMessage(): string {
     const images = this.uploadedFiles().filter((file) => file.type === 'image');
+    const videos = this.uploadedFiles().filter((file) => file.type === 'video');
 
-    if (images.some((file) => file.status === 'error')) {
-      return 'יש תמונות שלא נשמרו במכשיר — הסירו אותן או העלו מחדש';
+    if (images.some((file) => file.status === 'error') || videos.some((file) => file.status === 'error')) {
+      return 'יש קבצים שלא נשמרו במכשיר — הסירו אותם או העלו מחדש';
     }
 
     const count = this.uploadImageCount();
+    const videoCount = this.uploadVideoCount();
 
     if (count > this.maximumAllowedImages()) {
       return this.uploadLimitExceededLabelHe();
+    }
+
+    if (videoCount > this.maximumAllowedVideos()) {
+      return this.uploadVideoLimitExceededLabelHe();
     }
 
     if (count < this.minimumRequiredImages()) {
@@ -565,35 +633,78 @@ export class ConfiguratorStoreService {
   }
 
   selectMainProduct(id: MainProductId): void {
+    const previous = this.mainProduct();
+    if (previous === id) {
+      this.persistState();
+      return;
+    }
+
+    if (previous) {
+      this.productPricingByProduct.update((map) => ({
+        ...map,
+        [previous]: this.capturePricingSnapshot(),
+      }));
+    }
+
     this.mainProduct.set(id);
     if (id === 'song_only') {
       this.clearStoredUploads();
     }
     if (id === 'video_existing_song' || id === 'video_new_song') {
       this.videoForm.controls.source.setValue(DEFAULT_VIDEO_SOURCE, { emitEvent: false });
-      this.videoForm.controls.format.setValue(DEFAULT_VIDEO_FORMAT, { emitEvent: false });
     }
-    if (id === 'song_only' || id === 'video_new_song') {
-      this.songForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
+
+    const savedSnapshot = this.productPricingByProduct()[id];
+    if (savedSnapshot) {
+      this.applyPricingSnapshot(savedSnapshot, id);
+    } else {
+      this.applyPricingDefaults();
     }
+
     this.ensureSongLengthDefault();
     this.persistState();
   }
 
   beginWithPackage(id: MainProductId): void {
-    this.mainProduct.set(id);
-    if (id === 'song_only') {
-      this.clearStoredUploads();
-    }
-    if (id === 'video_existing_song' || id === 'video_new_song') {
-      this.videoForm.controls.source.setValue(DEFAULT_VIDEO_SOURCE, { emitEvent: false });
-      this.videoForm.controls.format.setValue(DEFAULT_VIDEO_FORMAT, { emitEvent: false });
-    }
-    if (id === 'song_only' || id === 'video_new_song') {
-      this.songForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
-    }
-    this.ensureSongLengthDefault();
+    this.selectMainProduct(id);
     this.navigateToStep(1);
+  }
+
+  isAddonSelected(id: AddonId): boolean {
+    return this.addons().includes(id);
+  }
+
+  selectVocalist(id: VocalistId): void {
+    this.songForm.controls.vocalist.setValue(id);
+    this.songForm.controls.vocalist.markAsTouched();
+  }
+
+  private capturePricingSnapshot(): ProductPricingSnapshot {
+    const songLength = resolveSongLength(this.songForm.controls.length.value, this.mainProduct());
+    return {
+      songLength,
+      videoLength: this.videoForm.controls.length.value || DEFAULT_LENGTH_ID,
+      videoFormat: this.videoForm.controls.format.value || DEFAULT_VIDEO_FORMAT,
+      subtitles: this.videoForm.controls.subtitles.value || 'none',
+      addons: [...this.addons()],
+    };
+  }
+
+  private applyPricingDefaults(): void {
+    this.songForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
+    this.videoForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
+    this.videoForm.controls.format.setValue(DEFAULT_VIDEO_FORMAT, { emitEvent: false });
+    this.videoForm.controls.subtitles.setValue('none', { emitEvent: false });
+    this.addons.set([]);
+  }
+
+  private applyPricingSnapshot(snapshot: ProductPricingSnapshot, product: MainProductId): void {
+    this.songForm.controls.length.setValue(resolveSongLength(snapshot.songLength, product), { emitEvent: false });
+    this.videoForm.controls.length.setValue(snapshot.videoLength || DEFAULT_LENGTH_ID, { emitEvent: false });
+    this.videoForm.controls.format.setValue(normalizeVideoFormatId(snapshot.videoFormat), { emitEvent: false });
+    const subtitles = snapshot.subtitles === 'selected' || snapshot.subtitles === 'full' ? snapshot.subtitles : 'none';
+    this.videoForm.controls.subtitles.setValue(subtitles, { emitEvent: false });
+    this.addons.set(filterAddonsForProduct(snapshot.addons ?? [], product));
   }
 
   isSongStyleSelected(style: string): boolean {
@@ -661,12 +772,20 @@ export class ConfiguratorStoreService {
 
   private toUploadedFilePayload(
     file: UploadedFileReference,
-  ): { id: string; type: UploadedFileReference['type']; name: string; storageKey: string; url?: string } {
+  ): {
+    id: string;
+    type: UploadedFileReference['type'];
+    name: string;
+    storageKey: string;
+    url?: string;
+    durationSeconds?: number;
+  } {
     const payload = {
       id: file.id,
       type: file.type,
       name: file.name,
       storageKey: file.storageKey,
+      ...(file.durationSeconds ? { durationSeconds: file.durationSeconds } : {}),
     };
 
     if (file.url?.startsWith('http://') || file.url?.startsWith('https://')) {
@@ -688,6 +807,7 @@ export class ConfiguratorStoreService {
     this.addons.update((current) =>
       current.includes(id) ? current.filter((addonId) => addonId !== id) : [...current, id],
     );
+    this.persistState();
   }
 
   addUploadedFile(file: UploadedFileReference): void {
@@ -734,6 +854,8 @@ export class ConfiguratorStoreService {
         break;
       case 'song':
         this.songForm.controls.style.markAsTouched();
+        this.songForm.controls.vocalist.markAsTouched();
+        this.songForm.controls.length.markAsTouched();
         if (this.isOtherStyleOnly()) {
           this.songForm.controls.customStyle.markAsTouched();
         }
@@ -812,6 +934,7 @@ export class ConfiguratorStoreService {
       projectDetails: {
         personName: details.personName.trim(),
         occasion: details.occasion.trim(),
+        eventDate: undefinedIfEmpty(details.eventDate.trim()),
         age: undefinedIfEmpty(details.age),
         relationship: undefinedIfEmpty(details.relationship),
         characterTraits: undefinedIfEmpty(details.characterTraits),
@@ -843,6 +966,7 @@ export class ConfiguratorStoreService {
       payload.song = {
         style: undefinedIfEmpty(song.style),
         customStyle: styles.includes('אחר') ? undefinedIfEmpty(song.customStyle) : undefined,
+        vocalist: song.vocalist === 'male' || song.vocalist === 'female' || song.vocalist === 'both' ? song.vocalist : undefined,
         mood: undefinedIfEmpty(song.mood),
         length: undefinedIfEmpty(song.length),
         namesToInclude: splitToList(song.namesToInclude),
@@ -873,7 +997,9 @@ export class ConfiguratorStoreService {
 
     const requiresUploads = this.requiresUploadStep();
     const pendingUploadCountBeforePrepare = requiresUploads
-      ? this.uploadedFiles().filter((file) => file.type === 'image' && file.status === 'pending').length
+      ? this.uploadedFiles().filter(
+          (file) => (file.type === 'image' || file.type === 'video') && file.status === 'pending',
+        ).length
       : 0;
     this.submitPhase.set(pendingUploadCountBeforePrepare > 0 ? 'uploading' : 'sending');
     this.submitUploadProgress.set(null);
@@ -884,14 +1010,14 @@ export class ConfiguratorStoreService {
       }
 
       const contactName = this.getContactNameForUpload();
-      const inquiryReferenceId = generateInquiryReferenceId();
+      const inquiryReferenceId = this.inquiryReferenceId() || generateInquiryReferenceId();
       this.inquiryReferenceId.set(inquiryReferenceId);
 
       if (requiresUploads) {
         this.prepareUploadSessionForSubmit(contactName, inquiryReferenceId);
 
         const pendingUploadCount = this.uploadedFiles().filter(
-          (file) => file.type === 'image' && file.status === 'pending',
+          (file) => (file.type === 'image' || file.type === 'video') && file.status === 'pending',
         ).length;
         if (pendingUploadCount > 0) {
           this.submitPhase.set('uploading');
@@ -911,7 +1037,7 @@ export class ConfiguratorStoreService {
       this.revokeUploadedFilePreviewUrls();
       clearConfiguratorState();
     } catch (error) {
-      this.submitError.set(error instanceof Error ? error.message : 'שליחת הבקשה נכשלה. נסו שוב.');
+      this.submitError.set(toHebrewUserError(error, 'שליחת הבקשה נכשלה. נסו שוב.'));
     } finally {
       this.isSubmitting.set(false);
       this.submitPhase.set(null);
@@ -924,12 +1050,12 @@ export class ConfiguratorStoreService {
       this.inquiryFolderId.set('');
     }
 
-    const completeImages = this.uploadedFiles().filter(
-      (file) => file.type === 'image' && file.status === 'complete' && file.storageKey,
+    const completeFiles = this.uploadedFiles().filter(
+      (file) => (file.type === 'image' || file.type === 'video') && file.status === 'complete' && file.storageKey,
     );
     const folderIds = [
       ...new Set(
-        completeImages
+        completeFiles
           .map((file) => extractInquiryFolderId(file.storageKey))
           .filter((folderId): folderId is string => Boolean(folderId)),
       ),
@@ -950,7 +1076,7 @@ export class ConfiguratorStoreService {
       return;
     }
 
-    if (completeImages.length === 0) {
+    if (completeFiles.length === 0) {
       this.inquiryFolderId.set('');
       return;
     }
@@ -958,7 +1084,7 @@ export class ConfiguratorStoreService {
     this.inquiryFolderId.set('');
     this.uploadedFiles.update((files) =>
       files.map((file) => {
-        if (file.type !== 'image' || file.status !== 'complete') {
+        if ((file.type !== 'image' && file.type !== 'video') || file.status !== 'complete') {
           return file;
         }
 
@@ -973,12 +1099,15 @@ export class ConfiguratorStoreService {
   }
 
   private async uploadPendingFiles(contactName: string, inquiryReferenceId: string): Promise<void> {
-    const pendingImages = this.uploadedFiles().filter((file) => file.type === 'image' && file.status === 'pending');
-    const total = pendingImages.length;
+    const pendingFiles = this.uploadedFiles().filter(
+      (file) => (file.type === 'image' || file.type === 'video') && file.status === 'pending',
+    );
+    const total = pendingFiles.length;
 
     this.submitPhase.set('uploading');
-    this.submitUploadProgress.set(null);
+    this.submitUploadProgress.set({ completed: 0, total });
     const imageCount = this.uploadImageCount();
+    const videoCount = this.uploadVideoCount();
 
     if (this.requiresUploadStep() && imageCount > this.maximumAllowedImages()) {
       throw new Error(this.uploadLimitExceededLabelHe().replace('\n', ' '));
@@ -988,52 +1117,36 @@ export class ConfiguratorStoreService {
       throw new Error(this.uploadProgressLabelHe().replace('\n', ' '));
     }
 
-    for (let index = 0; index < pendingImages.length; index++) {
-      const reference = pendingImages[index]!;
-      this.submitUploadProgress.set({ completed: index + 1, total });
+    if (this.requiresUploadStep() && videoCount > this.maximumAllowedVideos()) {
+      throw new Error(this.uploadVideoLimitExceededLabelHe().replace('\n', ' '));
+    }
 
-      const file = reference.file ?? (await getUploadFile(reference.id));
-      if (!file) {
-        this.updateUploadedFile(reference.id, {
-          status: 'error',
-          errorMessageHe: 'התמונה לא נמצאה במכשיר. נא להעלות אותה שוב.',
-        });
-        throw new Error('חלק מהתמונות לא נמצאו במכשיר. נא לחזור לשלב החומרים ולהעלות שוב.');
-      }
+    const concurrency = 3;
+    let nextIndex = 0;
+    let completed = 0;
+    let firstError: Error | null = null;
 
-      this.updateUploadedFile(reference.id, { status: 'uploading', file });
+    const workers = Array.from({ length: Math.min(concurrency, pendingFiles.length) }, async () => {
+      while (!firstError) {
+        const index = nextIndex++;
+        if (index >= pendingFiles.length) return;
 
-      try {
-        const result = await this.uploadApi.registerFile(
-          file,
-          'image',
-          contactName,
-          inquiryReferenceId,
-          this.uploadFolderIdForRequest(),
-        );
-        const folderId = extractInquiryFolderId(result.storageKey);
-        if (folderId) {
-          this.inquiryFolderId.set(folderId);
+        const reference = pendingFiles[index]!;
+        try {
+          await this.uploadOnePendingFile(reference, contactName, inquiryReferenceId);
+          completed += 1;
+          this.submitUploadProgress.set({ completed, total });
+        } catch (error) {
+          firstError =
+            error instanceof Error ? error : new Error(toHebrewUserError(error, 'העלאת החומרים נכשלה. נסו שוב.'));
         }
-        this.updateUploadedFile(reference.id, {
-          status: 'complete',
-          storageKey: result.storageKey,
-          url: result.url,
-          file: undefined,
-        });
-      } catch (error) {
-        const message =
-          error instanceof Error && error.message.includes('תקשורת')
-            ? 'לא ניתן להתחבר לשרת. ודאו שהשרת פועל ונסו שוב.'
-            : error instanceof Error
-              ? error.message
-              : 'העלאת התמונות נכשלה. נסו שוב.';
-        this.updateUploadedFile(reference.id, {
-          status: 'error',
-          errorMessageHe: message,
-        });
-        throw new Error(message);
       }
+    });
+
+    await Promise.all(workers);
+
+    if (firstError) {
+      throw firstError;
     }
 
     if (total > 0) {
@@ -1044,10 +1157,58 @@ export class ConfiguratorStoreService {
     }
   }
 
+  private async uploadOnePendingFile(
+    reference: UploadedFileReference,
+    contactName: string,
+    inquiryReferenceId: string,
+  ): Promise<void> {
+    const original = reference.file ?? (await getUploadFile(reference.id));
+    if (!original) {
+      this.updateUploadedFile(reference.id, {
+        status: 'error',
+        errorMessageHe: reference.type === 'video' ? 'הסרטון לא נמצא במכשיר. נא להעלות אותו שוב.' : 'התמונה לא נמצאה במכשיר. נא להעלות אותה שוב.',
+      });
+      throw new Error('חלק מהקבצים לא נמצאו במכשיר. נא לחזור לשלב החומרים ולהעלות שוב.');
+    }
+
+    this.updateUploadedFile(reference.id, { status: 'uploading', file: original });
+
+    try {
+      const fileToUpload = reference.type === 'image' ? await compressImageForUpload(original) : original;
+      const result = await this.uploadApi.registerFile(
+        fileToUpload,
+        reference.type,
+        contactName,
+        inquiryReferenceId,
+        this.uploadFolderIdForRequest(),
+      );
+      const folderId = extractInquiryFolderId(result.storageKey);
+      if (folderId) {
+        this.inquiryFolderId.set(folderId);
+      }
+      this.updateUploadedFile(reference.id, {
+        status: 'complete',
+        storageKey: result.storageKey,
+        url: result.url,
+        file: undefined,
+        errorMessageHe: undefined,
+      });
+    } catch (error) {
+      const message = toHebrewUserError(error, 'העלאת החומרים נכשלה. נסו שוב.');
+      this.updateUploadedFile(reference.id, {
+        status: 'pending',
+        file: original,
+        errorMessageHe: undefined,
+      });
+      throw new Error(message);
+    }
+  }
+
   reset(): void {
     this.currentStepIndex.set(0);
     this.mainProduct.set(null);
     this.addons.set([]);
+    this.productPricingByProduct.set({});
     this.revokeUploadedFilePreviewUrls();
     this.uploadedFiles.set([]);
     this.inquiryFolderId.set('');
@@ -1055,6 +1216,7 @@ export class ConfiguratorStoreService {
     this.songForm.reset({
       style: '',
       customStyle: '',
+      vocalist: '',
       mood: '',
       length: DEFAULT_LENGTH_ID,
       namesToInclude: '',
@@ -1066,7 +1228,20 @@ export class ConfiguratorStoreService {
       existingSongLink: '',
     });
     this.videoForm.reset({ source: DEFAULT_VIDEO_SOURCE, length: DEFAULT_LENGTH_ID, format: DEFAULT_VIDEO_FORMAT, subtitles: 'none' });
-    this.projectDetailsForm.reset();
+    this.projectDetailsForm.reset({
+      personName: '',
+      occasion: '',
+      eventDate: '',
+      age: '',
+      relationship: '',
+      characterTraits: '',
+      hobbies: '',
+      occupation: '',
+      peopleToMention: '',
+      desiredAtmosphere: '',
+      story: '',
+      additionalNotes: '',
+    });
     this.contactForm.reset({
       name: '',
       phone: '',
@@ -1090,6 +1265,7 @@ export class ConfiguratorStoreService {
       currentStepIndex: this.currentStepIndex(),
       mainProduct: this.mainProduct(),
       addons: this.addons(),
+      productPricingByProduct: this.productPricingByProduct(),
       inquiryFolderId: this.includesVideo() ? this.inquiryFolderId() : '',
       songForm: this.songForm.getRawValue() as Record<string, string>,
       videoForm: this.videoForm.getRawValue(),
@@ -1106,6 +1282,7 @@ export class ConfiguratorStoreService {
             sizeBytes: file.sizeBytes,
             errorMessageHe: file.errorMessageHe,
             thumbnailDataUrl: file.thumbnailDataUrl,
+            durationSeconds: file.durationSeconds,
           }))
         : [],
     };
@@ -1152,7 +1329,7 @@ export class ConfiguratorStoreService {
     const restored: UploadedFileReference[] = [];
 
     for (const meta of savedFiles) {
-      if (meta.type !== 'image') continue;
+      if (meta.type !== 'image' && meta.type !== 'video') continue;
 
       const file = await getUploadFile(meta.id);
       if (!file) continue;
@@ -1167,6 +1344,7 @@ export class ConfiguratorStoreService {
         file,
         previewUrl: URL.createObjectURL(file),
         thumbnailDataUrl: meta.thumbnailDataUrl,
+        durationSeconds: meta.durationSeconds,
       });
     }
 

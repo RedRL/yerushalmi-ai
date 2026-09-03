@@ -1,9 +1,10 @@
-import type { AddonId, MainProductId, SubtitlesId, VideoFormatId, VideoLengthId, VideoSourceId } from './pricing.model';
+import type { AddonId, MainProductId, SubtitlesId, VideoFormatId, VideoLengthId, VideoSourceId, VocalistId } from './pricing.model';
 import type { UploadedFileReference } from './upload.model';
 
 export interface SongConfiguration {
   style?: string;
   customStyle?: string;
+  vocalist?: VocalistId;
   mood?: string;
   length?: string;
   namesToInclude?: string;
@@ -25,6 +26,7 @@ export interface VideoConfiguration {
 export interface ProjectDetails {
   personName: string;
   occasion: string;
+  eventDate?: string;
   age?: string;
   relationship?: string;
   characterTraits?: string;

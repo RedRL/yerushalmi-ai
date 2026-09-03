@@ -25,6 +25,8 @@ export type VideoFormatId = 'landscape' | 'portrait' | 'portrait_3_4' | 'classic
 
 export type SubtitlesId = 'none' | 'selected' | 'full';
 
+export type VocalistId = 'male' | 'female' | 'both';
+
 export type AddonId =
   | 'social_short_version'
   | 'custom_intro'
@@ -32,7 +34,8 @@ export type AddonId =
   | 'names_dates_overlay'
   | 'extra_version'
   | 'separate_audio_file'
-  | 'extra_revision_round';
+  | 'extra_revision_round'
+  | 'ai_image_fill';
 
 /** Raw selection identifiers coming from the client. Never trust attached prices. */
 export interface PricingSelection {

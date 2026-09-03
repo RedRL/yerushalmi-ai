@@ -4,6 +4,10 @@ const EXTENSION_BY_MIME: Record<string, string[]> = {
   'image/webp': ['.webp'],
   'image/heic': ['.heic', '.heif'],
   'image/heif': ['.heic', '.heif'],
+  'video/mp4': ['.mp4', '.m4v'],
+  'video/quicktime': ['.mov'],
+  'video/webm': ['.webm'],
+  'video/3gpp': ['.3gp'],
 };
 
 function fileExtension(name: string): string {
@@ -18,6 +22,11 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   '.webp': 'image/webp',
   '.heic': 'image/heic',
   '.heif': 'image/heif',
+  '.mp4': 'video/mp4',
+  '.m4v': 'video/mp4',
+  '.mov': 'video/quicktime',
+  '.webm': 'video/webm',
+  '.3gp': 'video/3gpp',
 };
 
 /** Resolves a file MIME type from the browser value or the file extension. */

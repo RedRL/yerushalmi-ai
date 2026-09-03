@@ -16,50 +16,52 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
     titleHe: 'קליפ מקטעי וידאו אמיתיים',
     descriptionHe: 'עריכה מוזיקלית מקטעי וידאו אמיתיים, בשילוב שיר אישי.',
   },
+  {
+    id: 'songs',
+    titleHe: 'דוגמאות לשירים',
+    descriptionHe: 'שירים מקוריים בלבד — בלי קליפ.',
+  },
 ];
 
 export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
   {
     id: 'yair',
-    titleHe: 'מזל טוב ליאיר',
+    titleHe: 'יום הולדת ליאיר',
     categoryId: 'birthday_photos',
     tagsHe: ['פופ', 'ים תיכוני'],
+    descriptionHe:
+      'קליפ דוגמה מהדור הקודם של הכלים. היום התוצאה חדה ומדויקת יותר. התמונות שהונפשו מסומנות בקליפ כ-AI generated.',
     youtubeUrl: 'https://youtu.be/4rhTEXQGJJU',
     youtubeId: '4rhTEXQGJJU',
   },
   {
-    id: 'dad',
-    titleHe: 'מזל טוב לאבא',
+    id: 'mom',
+    titleHe: 'יום הולדת לורד',
     categoryId: 'birthday_photos',
-    tagsHe: ['בלדה', 'מרגש', 'אחר · המנון הפועל'],
+    tagsHe: ['פופ', "ג'אז"],
+    youtubeUrl: 'https://youtu.be/QE3Er29fk9U',
+    youtubeId: 'QE3Er29fk9U',
+  },
+];
+
+export const PORTFOLIO_SONGS: readonly PortfolioVideo[] = [
+  {
+    id: 'dad',
+    titleHe: 'יום הולדת לשלום',
+    categoryId: 'songs',
+    kind: 'song',
+    tagsHe: ['בלדה', 'אחר · המנון הפועל'],
     youtubeUrl: 'https://youtu.be/LX_jkaLsTAw',
     youtubeId: 'LX_jkaLsTAw',
   },
   {
-    id: 'babylicious',
-    titleHe: 'בייבילישס',
-    categoryId: 'real_footage',
-    descriptionHe: 'שיר לא-AI עם קליפ שמבוסס על תמונות.',
-    tagsHe: [],
-    youtubeUrl: 'https://youtu.be/eXWSwv_8uwQ',
-    youtubeId: 'eXWSwv_8uwQ',
-  },
-  {
     id: 'dor-34',
-    titleHe: 'DOR 34',
-    categoryId: 'ai_generated',
-    categoryLabelHe: 'מבוסס על תוכן שנוצר ב-AI',
-    descriptionHe: 'קליפ מבוסס על תוכן שנוצר ב-AI — ללא תמונות מהלקוח.',
+    titleHe: 'יום הולדת לדור',
+    categoryId: 'songs',
+    kind: 'song',
+    categoryLabelHe: 'שיר מקורי',
     tagsHe: ['פופ', 'רוק'],
     youtubeUrl: 'https://youtu.be/8LqiYpObWZc',
     youtubeId: '8LqiYpObWZc',
-  },
-  {
-    id: 'mom',
-    titleHe: 'מזל טוב לאמא',
-    categoryId: 'birthday_photos',
-    tagsHe: ['פופ', 'ג\'אז'],
-    youtubeUrl: 'https://youtu.be/QE3Er29fk9U',
-    youtubeId: 'QE3Er29fk9U',
   },
 ];
