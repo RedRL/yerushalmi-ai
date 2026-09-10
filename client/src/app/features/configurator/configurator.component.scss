@@ -7,7 +7,7 @@
 
 $configurator-panel-height: calc(100dvh - var(--header-height) - 9rem);
 
-$configurator-sidebar-width: 380px;
+$configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
 
 
 
@@ -27,8 +27,14 @@ $configurator-sidebar-width: 380px;
   scroll-margin-top: 5rem;
 
   @include bp.respond-down('lg') {
-    padding-top: calc(var(--section-padding-y) * 1.2);
+    height: calc(100svh - var(--header-height));
+    min-height: calc(100svh - var(--header-height));
+    max-height: calc(100svh - var(--header-height));
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+    box-sizing: border-box;
     max-width: 100%;
+    padding-inline: var(--space-2);
     overflow-x: hidden;
   }
 
@@ -471,16 +477,22 @@ $configurator-sidebar-width: 380px;
   align-items: start;
 
   @include bp.respond-up('lg') {
-
-    grid-template-columns: minmax(0, 1fr) $configurator-sidebar-width;
-
     align-items: stretch;
+  }
 
+  &--with-sidebar {
+    @include bp.respond-up('xl') {
+      grid-template-columns: minmax(0, 1fr) $configurator-sidebar-width;
+    }
   }
 
   @include bp.respond-down('lg') {
+    flex: 1 1 auto;
+    min-height: 0;
     min-width: 0;
     max-width: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
 }
@@ -533,29 +545,16 @@ $configurator-sidebar-width: 380px;
 
   @include bp.respond-down('lg') {
     overflow: hidden;
+    flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
-    height: calc(100svh - var(--header-height) - 6.5rem);
-    max-height: calc(100svh - var(--header-height) - 6.5rem);
-    min-height: calc(100svh - var(--header-height) - 6.5rem);
+    height: auto;
+    max-height: none;
+    min-height: 0;
     gap: var(--space-1);
     padding: var(--space-2);
-    transition:
-      box-shadow var(--transition-base) var(--ease-out),
-      border-color var(--transition-base),
-      height 0.35s var(--ease-out),
-      max-height 0.35s var(--ease-out),
-      min-height 0.35s var(--ease-out);
   }
 
-}
-
-.configurator--form-expanded .configurator__panel {
-  @include bp.respond-down('lg') {
-    height: calc(100dvh - var(--header-height) - 0.75rem);
-    max-height: calc(100dvh - var(--header-height) - 0.75rem);
-    min-height: calc(100dvh - var(--header-height) - 0.75rem);
-  }
 }
 
 
@@ -632,7 +631,6 @@ $configurator-sidebar-width: 380px;
     > app-song-step,
     > app-video-step,
     > app-optional-details-step,
-    > app-upload-step,
     > app-project-details-step,
     > app-contact-step,
     > app-summary-step {
@@ -641,6 +639,14 @@ $configurator-sidebar-width: 380px;
       height: auto;
       min-height: 0;
       overflow: visible;
+    }
+
+    > app-upload-step {
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
+      overflow: hidden;
     }
   }
 
@@ -671,13 +677,13 @@ $configurator-sidebar-width: 380px;
 
   overflow: hidden;
 
-  @include bp.respond-up('lg') {
+  @include bp.respond-up('xl') {
     display: flex;
   }
 
 
 
-  @include bp.respond-up('lg') {
+  @include bp.respond-up('xl') {
 
     height: $configurator-panel-height;
 
@@ -795,7 +801,10 @@ $configurator-sidebar-width: 380px;
     flex-direction: column;
     gap: var(--space-2);
     flex-shrink: 0;
+    position: relative;
+    z-index: 6;
     padding-top: var(--space-4);
+    background: var(--color-bg-elevated);
   }
 }
 
@@ -808,7 +817,7 @@ $configurator-sidebar-width: 380px;
   border: 1px solid var(--color-border-accent);
   background: var(--gradient-brand-soft);
 
-  @include bp.respond-up('lg') {
+  @include bp.respond-up('xl') {
     display: none;
   }
 }
@@ -997,12 +1006,12 @@ $configurator-sidebar-width: 380px;
 
     ::ng-deep {
       .section-heading {
-        gap: var(--space-2);
+        flex-shrink: 0;
+        gap: var(--space-1);
       }
 
       .section-heading__subtitle {
-        font-size: var(--font-size-small);
-        line-height: 1.35;
+        display: none;
       }
 
       .step {
@@ -1022,7 +1031,7 @@ $configurator-sidebar-width: 380px;
       }
 
       .video-step__notice,
-      app-upload-step .step__description,
+      app-upload-step .step__description:not(.upload-step__pane-help),
       .contact-step__success .step__description {
         display: block;
         font-size: var(--font-size-small);

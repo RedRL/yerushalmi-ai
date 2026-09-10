@@ -1,0 +1,50 @@
+<div class="audio-player" [class.audio-player--playing]="playing()">
+  <audio
+    #audio
+    [src]="src()"
+    preload="metadata"
+    (loadedmetadata)="onLoadedMetadata($event)"
+    (timeupdate)="onTimeUpdate($event)"
+    (play)="onPlay()"
+    (pause)="onPause()"
+    (ended)="onEnded()"
+  ></audio>
+
+  <button
+    type="button"
+    class="audio-player__play"
+    (click)="toggle()"
+    [attr.aria-label]="playing() ? 'השהיית ' + label() : 'ניגון ' + label()"
+  >
+    @if (playing()) {
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" />
+        <rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" />
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5v14l11-7-11-7Z" fill="currentColor" />
+      </svg>
+    }
+  </button>
+
+  <div class="audio-player__timeline">
+    <input
+      class="audio-player__seek"
+      type="range"
+      min="0"
+      max="100"
+      step="0.1"
+      [value]="progress()"
+      [style.--audio-progress]="progress() + '%'"
+      [disabled]="duration() <= 0"
+      [attr.aria-label]="'מיקום ב' + label()"
+      [attr.aria-valuetext]="currentLabel() + ' מתוך ' + durationLabel()"
+      (input)="onSeek($event)"
+    />
+    <div class="audio-player__times">
+      <span>{{ currentLabel() }}</span>
+      <span>{{ durationLabel() }}</span>
+    </div>
+  </div>
+</div>

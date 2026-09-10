@@ -33,6 +33,7 @@ export class MockStorageService implements StorageService {
       folderId,
       input.fileName,
       randomUUID().slice(0, 8),
+      input.fileType,
     );
 
     logger.info('Mock storage: upload initiated (no bytes are actually stored)', {

@@ -6,8 +6,8 @@ import {
 } from '../../../../../core/config/upload-requirements.config';
 import { FileUploadComponent } from '../../../../../shared/components/file-upload/file-upload.component';
 import type { UploadedFileKind, UploadedFileReference } from '../../../../../shared/models/upload.model';
-import { createImageThumbnailDataUrl } from '../../../../../shared/utils/image-thumbnail.util';
-import { saveUploadFile } from '../../../../../shared/utils/upload-file-store.util';
+import { createImageThumbnailDataUrl, createVideoThumbnailDataUrl } from '../../../../../shared/utils/image-thumbnail.util';
+import { cloneUploadFile, saveUploadFile } from '../../../../../shared/utils/upload-file-store.util';
 import { readVideoDurationSeconds } from '../../../../../shared/utils/video-duration.util';
 import { yieldToMain } from '../../../../../shared/utils/yield-to-main.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
@@ -26,6 +26,7 @@ export class UploadStepComponent {
   readonly maxVideoFiles = MAX_UPLOADED_VIDEOS_PER_INQUIRY;
   readonly videoError = signal<string | null>(null);
   readonly mobileHelpOpen = signal(false);
+  readonly activeTab = signal<'image' | 'video'>('image');
 
   readonly imageFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'image'));
   readonly videoFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'video'));
@@ -63,8 +64,9 @@ export class UploadStepComponent {
     void this.store.removeUploadedFile(id);
   }
 
-  scrollToUpload(kind: UploadedFileKind): void {
-    document.getElementById(`upload-${kind}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setActiveTab(kind: 'image' | 'video'): void {
+    this.activeTab.set(kind);
+    this.mobileHelpOpen.set(false);
   }
 
   toggleMobileHelp(): void {
@@ -73,35 +75,46 @@ export class UploadStepComponent {
 
   private async addMediaFile(file: File, type: UploadedFileKind, durationSeconds?: number): Promise<void> {
     const id = this.store.generateFileId();
-    const previewUrl = URL.createObjectURL(file);
+    let durableFile = file;
+    try {
+      durableFile = await cloneUploadFile(file);
+    } catch {
+      durableFile = file;
+    }
+    const previewUrl = URL.createObjectURL(durableFile);
     const reference: UploadedFileReference = {
       id,
       type,
-      name: file.name,
-      sizeBytes: file.size,
+      name: durableFile.name,
+      sizeBytes: durableFile.size,
       storageKey: '',
       status: 'pending',
-      file,
+      file: durableFile,
       previewUrl,
       durationSeconds,
     };
 
     this.store.addUploadedFile(reference);
-    void this.persistFileInBackground(id, file, type);
+    await this.persistSelectedFile(id, durableFile, type);
   }
 
-  private async persistFileInBackground(id: string, file: File, type: UploadedFileKind): Promise<void> {
+  private async persistSelectedFile(id: string, file: File, type: UploadedFileKind): Promise<void> {
     try {
       await saveUploadFile(id, file, type);
     } catch {
-      return;
+      // Keep the in-memory File so same-session submit can still upload.
     }
 
-    if (type !== 'image') return;
-
     try {
-      const thumbnailDataUrl = await createImageThumbnailDataUrl(file);
-      this.store.updateUploadedFile(id, { thumbnailDataUrl });
+      const thumbnailDataUrl =
+        type === 'image'
+          ? await createImageThumbnailDataUrl(file)
+          : type === 'video'
+            ? await createVideoThumbnailDataUrl(file)
+            : null;
+      if (thumbnailDataUrl) {
+        this.store.updateUploadedFile(id, { thumbnailDataUrl });
+      }
     } catch {
       // Keep the in-session blob preview.
     }

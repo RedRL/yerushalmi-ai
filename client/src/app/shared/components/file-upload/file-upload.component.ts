@@ -15,7 +15,10 @@ import {
 } from '@angular/core';
 import type { UploadedFileKind, UploadedFileReference } from '../../models/upload.model';
 import { isAcceptedFileType } from '../../utils/file-type.util';
-import { resolveUploadedFilePreviewUrl } from '../../utils/image-thumbnail.util';
+import {
+  resolveUploadedFileLightboxUrl,
+  resolveUploadedFileTileUrl,
+} from '../../utils/image-thumbnail.util';
 
 interface RelativeRect {
   top: number;
@@ -85,6 +88,7 @@ export class FileUploadComponent implements OnDestroy {
   private readonly lightboxRoot = viewChild<ElementRef<HTMLElement>>('lightboxRoot');
   private readonly lightboxDialog = viewChild<ElementRef<HTMLElement>>('lightboxDialog');
   private readonly lightboxImage = viewChild<ElementRef<HTMLImageElement>>('lightboxImage');
+  private readonly lightboxVideo = viewChild<ElementRef<HTMLVideoElement>>('lightboxVideo');
   private readonly flightShell = viewChild<ElementRef<HTMLElement>>('flightShell');
   private previewOriginElement: HTMLElement | null = null;
   private backdropAnimation: Animation | null = null;
@@ -95,12 +99,16 @@ export class FileUploadComponent implements OnDestroy {
     this.finishClose(true);
   }
 
-  previewUrl(file: UploadedFileReference): string | undefined {
-    return resolveUploadedFilePreviewUrl(file);
+  tileUrl(file: UploadedFileReference): string | undefined {
+    return resolveUploadedFileTileUrl(file);
+  }
+
+  lightboxUrl(file: UploadedFileReference): string | undefined {
+    return resolveUploadedFileLightboxUrl(file);
   }
 
   canPreview(file: UploadedFileReference): boolean {
-    return this.kind() === 'image' && Boolean(this.previewUrl(file));
+    return Boolean(this.tileUrl(file) || this.lightboxUrl(file));
   }
 
   openPreview(file: UploadedFileReference, event: Event): void {
@@ -116,8 +124,9 @@ export class FileUploadComponent implements OnDestroy {
     afterNextRender(() => {
       this.attachLightboxToPanel();
 
-      if (!useMotion) {
-        this.lightboxDialog()?.nativeElement.focus();
+      if (!useMotion || file.type === 'video') {
+        this.completeOpen();
+        this.playLightboxVideo();
         return;
       }
 
@@ -419,11 +428,25 @@ export class FileUploadComponent implements OnDestroy {
       this.resetFlightSignals();
     }
 
+    this.pauseLightboxVideo();
     this.isOpeningPreview.set(false);
     this.isClosingPreview.set(false);
     this.previewOriginElement = null;
     this.previewedFileId.set(null);
     this.detachLightboxFromPanel();
+  }
+
+  private playLightboxVideo(): void {
+    const video = this.lightboxVideo()?.nativeElement;
+    if (!video) return;
+    void video.play().catch(() => undefined);
+  }
+
+  private pauseLightboxVideo(): void {
+    const video = this.lightboxVideo()?.nativeElement;
+    if (!video) return;
+    video.pause();
+    video.currentTime = 0;
   }
 
   private attachLightboxToPanel(): void {

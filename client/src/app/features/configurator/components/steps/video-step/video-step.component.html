@@ -21,6 +21,7 @@
           <span class="field__hint video-step__inline-hint">מומלץ לבחור אורך שמתאים לשיר שבחרתם.</span>
 
         }
+        <span class="field__hint video-step__inline-hint video-step__mobile-price-hint">תוספת של כל חצי דקה היא עוד ₪120.</span>
 
       </div>
 
@@ -142,7 +143,12 @@
 
         >
 
-          <span class="option-card__title">{{ option.labelHe }}</span>
+          <span class="option-card__title">
+            {{ option.labelHe }}
+            @if (option.price > 0) {
+              <span class="video-step__mobile-price"> · ₪{{ option.price }}</span>
+            }
+          </span>
 
         </button>
 
@@ -178,7 +184,7 @@
         [class.option-card--selected]="store.isAddonSelected('ai_image_fill')"
         (click)="selectImageFill(true)"
       >
-        <span class="option-card__title">עם מילוי · ₪50</span>
+        <span class="option-card__title">עם מילוי<span class="video-step__mobile-price"> · ₪50</span></span>
       </button>
     </div>
   </div>

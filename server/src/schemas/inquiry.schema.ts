@@ -78,6 +78,18 @@ export const projectDetailsSchema = z.object({
     .refine((value) => value.length === 0 || /^\d{4}-\d{2}-\d{2}$/.test(value), {
       message: 'נא לבחור תאריך אירוע תקין',
     })
+    .refine((value) => {
+      if (!value) return true;
+      const today = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Jerusalem',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date());
+      return value >= today;
+    }, {
+      message: 'תאריך האירוע לא יכול להיות לפני היום',
+    })
     .optional(),
   age: z.string().trim().max(20).optional(),
   relationship: z.string().trim().max(150).optional(),
@@ -162,6 +174,13 @@ export const inquirySchema = z
           code: z.ZodIssueCode.custom,
           path: ['song', 'existingSongName'],
           message: 'נא למלא את שם השיר הקיים',
+        });
+      }
+      if (!data.song?.existingSongLink) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['song', 'existingSongLink'],
+          message: 'נא להזין קישור לשיר',
         });
       }
       if (data.consents.musicRights !== true) {

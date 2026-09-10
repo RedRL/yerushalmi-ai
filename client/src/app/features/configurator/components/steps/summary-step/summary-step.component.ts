@@ -108,16 +108,6 @@ export class SummaryStepComponent {
     ),
   );
 
-  readonly videoDetailsSummary = computed(() => {
-    if (!this.store.isFullExperience()) {
-      return truncateSummaryText(
-        `אורך: ${this.lengthLabel()} · פורמט: ${this.formatLabel()} · כתוביות: ${this.subtitlesLabel()}`,
-        100,
-      );
-    }
-    return truncateSummaryText(`פורמט: ${this.formatLabel()} · כתוביות: ${this.subtitlesLabel()}`, 100);
-  });
-
   readonly songStyleSummary = computed(() => {
     const styles = this.store.selectedSongStyles();
     const custom = this.store.songForm.controls.customStyle.value.trim();
@@ -134,15 +124,6 @@ export class SummaryStepComponent {
   readonly aiFillLabel = computed(() =>
     this.store.isAddonSelected('ai_image_fill') ? 'מילוי אוטומטי לפורמט היציאה' : null,
   );
-
-  readonly uploadSummary = computed(() => {
-    const images = this.store.uploadImageCount();
-    const videos = this.store.uploadVideoCount();
-    if (videos > 0) {
-      return `${images} תמונות · ${videos} סרטונים`;
-    }
-    return `${images} תמונות`;
-  });
 
   constructor() {
     effect(() => {

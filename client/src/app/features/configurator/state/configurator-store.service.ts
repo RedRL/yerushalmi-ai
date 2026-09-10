@@ -13,8 +13,8 @@ import type { UploadedFileReference } from '../../../shared/models/upload.model'
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
 import {
+  buildInquiryFolderId,
   extractInquiryFolderId,
-  inquiryFolderContainsReference,
   inquiryFolderMatchesName,
   isLegacyInquiryFolderId,
 } from '../../../shared/utils/inquiry-folder.util';
@@ -22,6 +22,7 @@ import { generateInquiryReferenceId } from '../../../shared/utils/inquiry-refere
 import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-file-store.util';
 import { compressImageForUpload } from '../../../shared/utils/compress-image.util';
 import { toHebrewUserError } from '../../../shared/utils/network-error.util';
+import { isIsoDateBeforeToday } from '../../../shared/utils/he-date.util';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import {
@@ -48,6 +49,10 @@ function parseSongStyles(value: string): string[] {
 
 function joinSongStyles(styles: string[]): string {
   return styles.join(', ');
+}
+
+function isValidExistingSongLink(value: string): boolean {
+  return /^https?:\/\/\S+/i.test(value.trim());
 }
 
 function undefinedIfEmpty(value: string): string | undefined {
@@ -123,7 +128,10 @@ export class ConfiguratorStoreService {
     additionalNotes: this.fb.control('', Validators.maxLength(FIELD_LIMITS.songAdditionalNotes)),
     existingSongName: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongName)),
     existingSongArtist: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongArtist)),
-    existingSongLink: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongLink)),
+    existingSongLink: this.fb.control('', [
+      Validators.maxLength(FIELD_LIMITS.existingSongLink),
+      Validators.pattern(/^\s*$|^https?:\/\/\S+/i),
+    ]),
   });
 
   readonly videoForm = this.fb.group({
@@ -136,7 +144,14 @@ export class ConfiguratorStoreService {
   readonly projectDetailsForm = this.fb.group({
     personName: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.personName)]),
     occasion: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.occasion)]),
-    eventDate: this.fb.control('', Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)),
+    eventDate: this.fb.control('', [
+      Validators.pattern(/^\d{4}-\d{2}-\d{2}$/),
+      (control) => {
+        const value = String(control.value ?? '').trim();
+        if (!value) return null;
+        return isIsoDateBeforeToday(value) ? { pastDate: true } : null;
+      },
+    ]),
     age: this.fb.control('', Validators.maxLength(FIELD_LIMITS.age)),
     relationship: this.fb.control('', Validators.maxLength(FIELD_LIMITS.relationship)),
     characterTraits: this.fb.control('', Validators.maxLength(FIELD_LIMITS.characterTraits)),
@@ -183,6 +198,9 @@ export class ConfiguratorStoreService {
           this.inquiryFolderId.set(saved.inquiryFolderId);
         } else if (saved.inquiryFolderId && isLegacyInquiryFolderId(saved.inquiryFolderId)) {
           this.inquiryFolderId.set('');
+        }
+        if (saved.inquiryReferenceId) {
+          this.inquiryReferenceId.set(saved.inquiryReferenceId);
         }
         void this.restoreUploadedFilesFromStore(saved.uploadedFiles ?? []);
       } else {
@@ -297,7 +315,7 @@ export class ConfiguratorStoreService {
     const value = this.songValue();
     if (this.songForm.controls.additionalNotes.invalid) return false;
     if (this.requiresExistingSongRights()) {
-      return value.existingSongName.trim().length > 0;
+      return value.existingSongName.trim().length > 0 && isValidExistingSongLink(value.existingSongLink);
     }
     if (this.includesNewSong()) {
       if (!value.length) return false;
@@ -524,7 +542,12 @@ export class ConfiguratorStoreService {
     }
 
     if (this.requiresExistingSongRights()) {
-      return 'נא להזין את שם השיר כדי להמשיך';
+      if (value.existingSongName.trim().length === 0) {
+        return 'נא להזין את שם השיר כדי להמשיך';
+      }
+      if (!isValidExistingSongLink(value.existingSongLink)) {
+        return 'נא להזין קישור לשיר (יוטיוב גם בסדר)';
+      }
     }
 
     if (this.includesNewSong()) {
@@ -560,6 +583,9 @@ export class ConfiguratorStoreService {
     }
     if (form.controls.story.hasError('required') || form.controls.story.hasError('minlength')) {
       missing.push('הסיפור (לפחות 10 תווים)');
+    }
+    if (form.controls.eventDate.hasError('pastDate')) {
+      return 'תאריך האירוע לא יכול להיות לפני היום';
     }
 
     if (missing.length === 1) {
@@ -1053,46 +1079,44 @@ export class ConfiguratorStoreService {
     const completeFiles = this.uploadedFiles().filter(
       (file) => (file.type === 'image' || file.type === 'video') && file.status === 'complete' && file.storageKey,
     );
-    const folderIds = [
-      ...new Set(
-        completeFiles
-          .map((file) => extractInquiryFolderId(file.storageKey))
-          .filter((folderId): folderId is string => Boolean(folderId)),
-      ),
-    ];
+    const folderCounts = new Map<string, number>();
+    for (const file of completeFiles) {
+      const folderId = extractInquiryFolderId(file.storageKey);
+      if (!folderId || isLegacyInquiryFolderId(folderId)) continue;
+      folderCounts.set(folderId, (folderCounts.get(folderId) ?? 0) + 1);
+    }
 
-    const hasLegacyFolder = folderIds.some((folderId) => isLegacyInquiryFolderId(folderId));
-    const hasMultipleFolders = folderIds.length > 1;
-    const hasNameMismatch = folderIds.some(
-      (folderId) => !inquiryFolderMatchesName(folderId, contactName),
-    );
+    const usableFolders = [...folderCounts.entries()]
+      .filter(([folderId]) => inquiryFolderMatchesName(folderId, contactName))
+      .sort((left, right) => right[1] - left[1]);
 
-    const hasReferenceMismatch = folderIds.some(
-      (folderId) => !inquiryFolderContainsReference(folderId, inquiryReferenceId),
-    );
+    const canonicalFolderId = usableFolders[0]?.[0] ?? this.uploadFolderIdForRequest();
+    const reservedFolderId =
+      canonicalFolderId && inquiryFolderMatchesName(canonicalFolderId, contactName)
+        ? canonicalFolderId
+        : buildInquiryFolderId(contactName, inquiryReferenceId);
 
-    if (!hasLegacyFolder && !hasMultipleFolders && !hasNameMismatch && !hasReferenceMismatch && folderIds.length === 1) {
-      this.inquiryFolderId.set(folderIds[0]!);
+    this.inquiryFolderId.set(reservedFolderId);
+    this.persistState();
+
+    if (usableFolders.length <= 1) {
       return;
     }
 
-    if (completeFiles.length === 0) {
-      this.inquiryFolderId.set('');
-      return;
-    }
-
-    this.inquiryFolderId.set('');
     this.uploadedFiles.update((files) =>
       files.map((file) => {
-        if ((file.type !== 'image' && file.type !== 'video') || file.status !== 'complete') {
+        if ((file.type !== 'image' && file.type !== 'video') || file.status !== 'complete' || !file.storageKey) {
+          return file;
+        }
+
+        const folderId = extractInquiryFolderId(file.storageKey);
+        if (folderId === reservedFolderId) {
           return file;
         }
 
         return {
           ...file,
           status: 'pending',
-          storageKey: '',
-          url: undefined,
         };
       }),
     );
@@ -1121,7 +1145,7 @@ export class ConfiguratorStoreService {
       throw new Error(this.uploadVideoLimitExceededLabelHe().replace('\n', ' '));
     }
 
-    const concurrency = 3;
+    const concurrency = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches ? 2 : 3;
     let nextIndex = 0;
     let completed = 0;
     let firstError: Error | null = null;
@@ -1157,12 +1181,29 @@ export class ConfiguratorStoreService {
     }
   }
 
+  private async resolveLocalUploadFile(reference: UploadedFileReference): Promise<File | null> {
+    if (reference.file && reference.file.size > 0) {
+      return reference.file;
+    }
+
+    const latest = this.uploadedFiles().find((file) => file.id === reference.id);
+    if (latest?.file && latest.file.size > 0) {
+      return latest.file;
+    }
+
+    try {
+      return await getUploadFile(reference.id);
+    } catch {
+      return null;
+    }
+  }
+
   private async uploadOnePendingFile(
     reference: UploadedFileReference,
     contactName: string,
     inquiryReferenceId: string,
   ): Promise<void> {
-    const original = reference.file ?? (await getUploadFile(reference.id));
+    const original = await this.resolveLocalUploadFile(reference);
     if (!original) {
       this.updateUploadedFile(reference.id, {
         status: 'error',
@@ -1190,7 +1231,7 @@ export class ConfiguratorStoreService {
         status: 'complete',
         storageKey: result.storageKey,
         url: result.url,
-        file: undefined,
+        file: original,
         errorMessageHe: undefined,
       });
     } catch (error) {
@@ -1267,6 +1308,7 @@ export class ConfiguratorStoreService {
       addons: this.addons(),
       productPricingByProduct: this.productPricingByProduct(),
       inquiryFolderId: this.includesVideo() ? this.inquiryFolderId() : '',
+      inquiryReferenceId: this.includesVideo() ? this.inquiryReferenceId() : '',
       songForm: this.songForm.getRawValue() as Record<string, string>,
       videoForm: this.videoForm.getRawValue(),
       projectDetailsForm: this.projectDetailsForm.getRawValue(),
@@ -1331,18 +1373,21 @@ export class ConfiguratorStoreService {
     for (const meta of savedFiles) {
       if (meta.type !== 'image' && meta.type !== 'video') continue;
 
-      const file = await getUploadFile(meta.id);
-      if (!file) continue;
+      const file = await getUploadFile(meta.id).catch(() => null);
+      const isComplete = meta.status === 'complete' && Boolean(meta.storageKey);
+
+      if (!file && !isComplete) continue;
 
       restored.push({
         id: meta.id,
         type: meta.type,
         name: meta.name,
         sizeBytes: meta.sizeBytes,
-        storageKey: '',
-        status: 'pending',
-        file,
-        previewUrl: URL.createObjectURL(file),
+        storageKey: isComplete ? meta.storageKey : '',
+        url: isComplete ? meta.url : undefined,
+        status: isComplete ? 'complete' : 'pending',
+        file: file ?? undefined,
+        previewUrl: file ? URL.createObjectURL(file) : undefined,
         thumbnailDataUrl: meta.thumbnailDataUrl,
         durationSeconds: meta.durationSeconds,
       });

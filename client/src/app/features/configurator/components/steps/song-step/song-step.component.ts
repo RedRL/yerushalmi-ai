@@ -30,7 +30,6 @@ export class SongStepComponent {
   readonly vocalistOptions = VOCALIST_OPTIONS;
   readonly limits = FIELD_LIMITS;
   readonly lengthMenuOpen = signal(false);
-  readonly lengthMenuBox = signal({ top: 0, left: 0, width: 0 });
   private readonly lengthUiRevision = signal(0);
 
   readonly lengthOptions = computed(() => getSongLengthOptions(this.store.mainProduct()));
@@ -51,6 +50,11 @@ export class SongStepComponent {
     return options.find((option) => option.id === id)?.labelHe ?? options[0]?.labelHe ?? '';
   });
 
+  readonly showExistingSongLinkError = computed(() => {
+    const control = this.store.songForm.controls.existingSongLink;
+    return control.touched && !/^https?:\/\/\S+/i.test(control.value.trim());
+  });
+
   readonly showStyleSelectionError = computed(
     () =>
       this.store.selectedSongStyles().length === 0 && this.store.songForm.controls.style.touched,
@@ -67,14 +71,19 @@ export class SongStepComponent {
   });
 
   constructor() {
-    const onScroll = (): void => this.closeLengthMenu();
-    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    this.destroyRef.onDestroy(() => {
-      document.removeEventListener('scroll', onScroll, { capture: true });
-    });
+    const media = window.matchMedia('(max-width: 1023px)');
+    const syncMobile = (): void => this.isMobileViewport.set(media.matches);
+    syncMobile();
+    media.addEventListener('change', syncMobile);
+    this.destroyRef.onDestroy(() => media.removeEventListener('change', syncMobile));
   }
 
+  private readonly isMobileViewport = signal(false);
+
   lengthOptionLabel(option: { id: SongLengthId; labelHe: string; price: number }): string {
+    if (this.isMobileViewport() && option.price > 0) {
+      return `${option.labelHe} · ₪${option.price}`;
+    }
     return option.labelHe;
   }
 
@@ -95,15 +104,6 @@ export class SongStepComponent {
       return;
     }
 
-    const trigger = event.currentTarget as HTMLElement;
-    const rect = trigger.getBoundingClientRect();
-    const estimatedMenuHeight = this.lengthOptions().length * 38 + 12;
-    const opensUpward = rect.bottom + estimatedMenuHeight > window.innerHeight;
-    this.lengthMenuBox.set({
-      top: opensUpward ? Math.max(8, rect.top - estimatedMenuHeight - 6) : rect.bottom + 6,
-      left: rect.left,
-      width: rect.width,
-    });
     this.lengthMenuOpen.set(true);
   }
 

@@ -18,7 +18,7 @@
 .video-step {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-5);
   width: 100%;
   max-width: 100%;
 
@@ -45,13 +45,28 @@
   font-size: var(--font-size-tiny);
 }
 
+.video-step__mobile-price,
+.video-step__mobile-price-hint {
+  display: none;
+
+  @include bp.respond-down('lg') {
+    display: inline;
+  }
+}
+
+.video-step__mobile-price-hint {
+  @include bp.respond-down('lg') {
+    display: block;
+  }
+}
+
 .step__title {
   flex-shrink: 0;
 }
 
 .step__section {
   margin-top: 0;
-  gap: var(--space-1);
+  gap: var(--space-3);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -80,10 +95,17 @@
 
 .option-card-grid.subtitles-option-grid {
   width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
 
   @include bp.respond-down('lg') {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
     gap: var(--space-2);
+  }
+
+  .option-card {
+    min-width: 0;
+    width: 100%;
+    padding-inline: var(--space-4);
   }
 }
 

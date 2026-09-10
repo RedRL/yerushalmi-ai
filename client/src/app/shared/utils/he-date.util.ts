@@ -43,6 +43,21 @@ export function parseHeIlDateToIso(value: string): string | null {
   return `${year}-${pad2(month)}-${pad2(day)}`;
 }
 
+/** Today's calendar date as YYYY-MM-DD in Israel time. */
+export function todayIsoHeIl(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jerusalem',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+}
+
+export function isIsoDateBeforeToday(iso: string | null | undefined): boolean {
+  if (!iso || !ISO_DATE_PATTERN.test(iso.trim())) return false;
+  return iso.trim() < todayIsoHeIl();
+}
+
 /** Keeps only digits and inserts DD/MM/YYYY separators while typing. */
 export function maskHeIlDateInput(raw: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 8);

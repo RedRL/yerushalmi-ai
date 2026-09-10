@@ -15,10 +15,14 @@ export interface PortfolioVideo {
   kind?: PortfolioItemKind;
   /** Short genre/style tags shown on the card. */
   tagsHe: readonly string[];
+  /** Words or phrases that had to appear in the lyrics, shown as chips. */
+  requiredWordsHe?: readonly string[];
   /** Overrides the category badge label on the card when set. */
   categoryLabelHe?: string;
   /** Overrides the category description on the card when set. */
   descriptionHe?: string;
-  youtubeUrl: string;
-  youtubeId: string;
+  youtubeUrl?: string;
+  youtubeId?: string;
+  /** Local or hosted audio file. When set, songs play in a native player instead of YouTube. */
+  audioUrl?: string;
 }

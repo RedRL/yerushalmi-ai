@@ -1,6 +1,6 @@
 <div
   class="video-modal-backdrop"
-  [style.background-image]="'url(' + backdropUrl() + ')'"
+  [style.background-image]="backdropUrl() ? 'url(' + backdropUrl() + ')' : null"
   (click)="onBackdropClick($event)"
 >
   <div class="video-modal-backdrop__vignette" aria-hidden="true"></div>
@@ -21,14 +21,18 @@
       </svg>
     </button>
 
-    <div class="video-modal__frame">
-      <iframe
-        [src]="embedUrl()"
-        [attr.aria-label]="video().titleHe"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-      ></iframe>
+    <div class="video-modal__frame" [class.video-modal__frame--audio]="audioSrc()">
+      @if (audioSrc()) {
+        <app-audio-player [src]="audioSrc()" [label]="video().titleHe" [autoplay]="true" />
+      } @else if (embedUrl(); as url) {
+        <iframe
+          [src]="url"
+          [attr.aria-label]="video().titleHe"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      }
     </div>
 
     <div class="video-modal__meta">

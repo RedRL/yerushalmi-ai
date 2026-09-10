@@ -48,13 +48,14 @@
           @for (file of files(); track file.id) {
             <li class="file-upload__tile" [class.file-upload__tile--error]="file.status === 'error'">
               <div class="file-upload__preview" [attr.data-preview-id]="file.id">
-                @if (previewUrl(file); as thumbUrl) {
+                @if (tileUrl(file); as thumbUrl) {
                   @if (canPreview(file)) {
                     <button
                       type="button"
                       class="file-upload__thumb-button"
+                      [class.file-upload__thumb-button--video]="file.type === 'video'"
                       (click)="openPreview(file, $event)"
-                      [attr.aria-label]="'הצגת תמונה ' + file.name"
+                      [attr.aria-label]="(file.type === 'video' ? 'ניגון סרטון ' : 'הצגת תמונה ') + file.name"
                     >
                       <img
                         [src]="thumbUrl"
@@ -62,6 +63,9 @@
                         class="file-upload__thumb"
                         draggable="false"
                       />
+                      @if (file.type === 'video') {
+                        <span class="file-upload__play" aria-hidden="true"></span>
+                      }
                     </button>
                   } @else {
                     <img
@@ -71,6 +75,16 @@
                       draggable="false"
                     />
                   }
+                } @else if (canPreview(file) && file.type === 'video') {
+                  <button
+                    type="button"
+                    class="file-upload__thumb-button file-upload__thumb-button--video"
+                    (click)="openPreview(file, $event)"
+                    [attr.aria-label]="'ניגון סרטון ' + file.name"
+                  >
+                    <span class="file-upload__icon" aria-hidden="true">🎬</span>
+                    <span class="file-upload__play" aria-hidden="true"></span>
+                  </button>
                 } @else {
                   <span class="file-upload__icon" aria-hidden="true">
                     @switch (kind()) {
@@ -111,7 +125,7 @@
   }
 
   @if (previewedFile(); as file) {
-    @if (previewUrl(file); as fullUrl) {
+    @if (lightboxUrl(file) || tileUrl(file); as fullUrl) {
       <div
         #lightboxRoot
         class="file-upload-lightbox"
@@ -152,13 +166,24 @@
           </button>
 
           <div class="file-upload-lightbox__image-wrap">
-            <img
-              #lightboxImage
-              [src]="fullUrl"
-              [alt]="file.name"
-              class="file-upload-lightbox__image"
-              draggable="false"
-            />
+            @if (file.type === 'video' && lightboxUrl(file); as videoUrl) {
+              <video
+                #lightboxVideo
+                class="file-upload-lightbox__video"
+                [src]="videoUrl"
+                controls
+                playsinline
+                autoplay
+              ></video>
+            } @else {
+              <img
+                #lightboxImage
+                [src]="fullUrl"
+                [alt]="file.name"
+                class="file-upload-lightbox__image"
+                draggable="false"
+              />
+            }
           </div>
 
           <p class="file-upload-lightbox__name">{{ file.name }}</p>

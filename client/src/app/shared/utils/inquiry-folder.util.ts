@@ -1,3 +1,5 @@
+import { formatShortInquiryReference } from './inquiry-reference.util';
+
 const LEGACY_INQUIRY_FOLDER_UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -23,11 +25,40 @@ export function inquiryFolderMatchesName(folderId: string, name: string): boolea
   return folderId.startsWith(`${slug}-`);
 }
 
-import { formatShortInquiryReference } from './inquiry-reference.util';
-
 export function inquiryFolderContainsReference(folderId: string, inquiryReferenceId: string): boolean {
   const shortRef = formatShortInquiryReference(inquiryReferenceId);
   return folderId.endsWith(`-${shortRef}`) || folderId.includes(`-${shortRef}-`);
+}
+
+const INQUIRY_FOLDER_TIMESTAMP_TIMEZONE = 'Asia/Jerusalem';
+
+export function buildInquiryFolderTimestampSuffix(date: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: INQUIRY_FOLDER_TIMESTAMP_TIMEZONE,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? '0';
+  const withoutLeadingZero = (value: string) => String(Number(value));
+
+  return `${withoutLeadingZero(get('day'))}-${withoutLeadingZero(get('month'))}-${get('year')}-${get('hour')}:${get('minute')}:${get('second')}`;
+}
+
+/** One folder id for the whole inquiry — generated once, then reused for every upload. */
+export function buildInquiryFolderId(
+  contactName: string,
+  inquiryReferenceId: string,
+  submittedAt: Date = new Date(),
+): string {
+  const slug = sanitizeInquiryFolderSlug(contactName);
+  const suffix = `${buildInquiryFolderTimestampSuffix(submittedAt)}-${formatShortInquiryReference(inquiryReferenceId)}`;
+  return `${slug}-${suffix}`;
 }
 
 export function extractInquiryFolderId(storageKey: string): string | null {

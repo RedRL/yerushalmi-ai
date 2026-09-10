@@ -15,13 +15,20 @@
     <div class="portfolio__viewport">
       <div #scroller class="portfolio__track" tabindex="0" aria-label="גלריית קליפים">
         @for (video of loopVideos; track $index) {
-          <div class="portfolio__item">
-            <app-video-card
-              size="gallery"
-            [video]="video"
-            [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
-              (play)="openVideo($event)"
-            />
+          <div
+            class="portfolio__item"
+            [class.portfolio__item--active]="$index === centeredIndex()"
+            [class.portfolio__item--side-prev]="$index === centeredIndex() - 1"
+            [class.portfolio__item--side-next]="$index === centeredIndex() + 1"
+          >
+            <div class="portfolio__item-stage">
+              <app-video-card
+                size="gallery"
+                [video]="video"
+                [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
+                (play)="openVideo($event)"
+              />
+            </div>
           </div>
         }
       </div>
@@ -30,6 +37,21 @@
     <button type="button" class="portfolio__nav portfolio__nav--next" (click)="scrollNext()" aria-label="גלילה לדוגמה הבאה">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
+  </div>
+
+  <div class="portfolio__reactions" appReveal>
+    <h3 class="portfolio__songs-title">טל מגיבה לסרטון</h3>
+    <p class="portfolio__songs-subtitle">תגובה של טלטול לקליפ יום ההולדת שלה.</p>
+    <div class="portfolio__songs-grid">
+      @for (video of reactions; track video.id) {
+        <app-video-card
+          size="gallery"
+          [video]="video"
+          [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
+          (play)="openVideo($event)"
+        />
+      }
+    </div>
   </div>
 
   <div class="portfolio__songs" appReveal>

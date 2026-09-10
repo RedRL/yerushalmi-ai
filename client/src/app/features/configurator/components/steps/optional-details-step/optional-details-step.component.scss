@@ -27,6 +27,12 @@
   }
 }
 
+.step__title-optional {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
 .optional-details-step .step__section {
   flex: 1;
   min-height: 0;

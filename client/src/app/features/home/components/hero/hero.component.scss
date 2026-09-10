@@ -52,37 +52,34 @@
   }
 
   .hero__scroll-indicator {
-    position: absolute;
-
     @include bp.respond-down('md') {
       display: none;
     }
   }
 }
 
+.hero__banner-art {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+}
+
 .hero__banner-picture {
   display: block;
   width: 100%;
   max-width: 100%;
-
-  @include bp.respond-down('md') {
-    width: auto;
-    max-width: 100%;
-  }
 }
 
 .hero__banner-image {
   display: block;
-  width: min(100%, 3344px);
+  width: 100%;
   height: auto;
   max-height: none;
   max-width: 100%;
 
   @include bp.respond-down('md') {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
     object-fit: contain;
     object-position: center top;
   }
@@ -338,7 +335,7 @@
 .hero__scroll-indicator {
   @include button-reset;
   position: absolute;
-  bottom: clamp(10rem, 30vh, 14rem);
+  bottom: 20%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;

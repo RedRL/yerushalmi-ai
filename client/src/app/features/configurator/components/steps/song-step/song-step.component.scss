@@ -26,6 +26,10 @@
     @include scrollbars.scrollbar-inset-rtl;
     @include scrollbars.app-scrollbar;
     direction: rtl;
+
+    &:has(.length-select--open) {
+      overflow: visible;
+    }
   }
 
 }
@@ -102,7 +106,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: end;
+  align-items: start;
   width: 100%;
   overflow: visible;
 
@@ -150,8 +154,10 @@
 }
 
 .length-select__menu {
-  position: fixed;
-  z-index: var(--z-modal);
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline: 0;
+  z-index: 40;
   margin: 0;
   padding: 0.35rem;
   list-style: none;

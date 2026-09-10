@@ -19,6 +19,17 @@ describe('storage-key.util inquiry folders', () => {
     expect(extractInquiryFolderId(buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234'))).toBe(folderId);
   });
 
+  it('places images and videos in separate folders', () => {
+    const folderId = 'יוסי-כהן-a1b2c3d4';
+    expect(buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234', 'image')).toBe(
+      'inquiries/יוסי-כהן-a1b2c3d4/images/abcd1234-photo.jpg',
+    );
+    expect(buildInquiryStorageKey(folderId, 'clip.mp4', 'efgh5678', 'video')).toBe(
+      'inquiries/יוסי-כהן-a1b2c3d4/videos/efgh5678-clip.mp4',
+    );
+    expect(extractInquiryFolderId(buildInquiryStorageKey(folderId, 'clip.mp4', 'efgh5678', 'video'))).toBe(folderId);
+  });
+
   it('accepts contact-name folder ids with hex suffix', () => {
     const folderId = 'יוסי-כהן-a1b2c3d4';
     expect(isValidInquiryFolderId(folderId)).toBe(true);
@@ -53,8 +64,21 @@ describe('storage-key.util inquiry folders', () => {
     const legacyId = '181d4a54-80b2-48df-afd7-3dec2c1018b3';
     const resolved = resolveUploadFolderId('משה כהן', legacyId, submittedAt, inquiryReferenceId);
 
-    expect(resolved).toBe('משה-כהן-21-8-2026-04:07:32-48123456');
+    expect(resolved).toBe('משה-כהן-48123456');
     expect(resolved).not.toBe(legacyId);
+  });
+
+  it('uses a stable folder id for the same inquiry reference', () => {
+    const first = resolveUploadFolderId('משה כהן', undefined, submittedAt, inquiryReferenceId);
+    const second = resolveUploadFolderId(
+      'משה כהן',
+      undefined,
+      new Date('2026-08-21T01:08:11.000Z'),
+      inquiryReferenceId,
+    );
+
+    expect(first).toBe('משה-כהן-48123456');
+    expect(second).toBe(first);
   });
 
   it('reuses a matching named folder id within the same inquiry', () => {
@@ -66,7 +90,7 @@ describe('storage-key.util inquiry folders', () => {
     const legacyId = '181d4a54-80b2-48df-afd7-3dec2c1018b3';
     const resolved = resolveUploadFolderId('Moshe Cohen', legacyId, submittedAt, inquiryReferenceId);
 
-    expect(resolved).toBe('moshe-cohen-21-8-2026-04:07:32-48123456');
+    expect(resolved).toBe('moshe-cohen-48123456');
     expect(resolved).not.toBe(legacyId);
   });
 

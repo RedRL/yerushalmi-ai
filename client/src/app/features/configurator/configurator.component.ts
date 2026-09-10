@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 
 
 
@@ -148,8 +148,6 @@ export class ConfiguratorComponent {
   private static readonly MOBILE_HINT_FADE_MS = 200;
 
   readonly nextHintVisible = signal(false);
-  readonly mobileFormExpanded = signal(false);
-  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private readonly configuratorBody = viewChild<ElementRef<HTMLElement>>('configuratorBody');
   private readonly navNextWrap = viewChild<ElementRef<HTMLElement>>('navNextWrap');
@@ -179,43 +177,6 @@ export class ConfiguratorComponent {
     this.destroyRef.onDestroy(() => {
       this.dismissMobileNextHint(true);
     });
-
-    afterNextRender(() => this.bindMobileFormExpansion());
-  }
-
-  private bindMobileFormExpansion(): void {
-    const sync = (): void => this.syncMobileFormExpanded();
-    sync();
-
-    window.addEventListener('scroll', sync, { passive: true });
-    window.addEventListener('resize', sync, { passive: true });
-    window.visualViewport?.addEventListener('resize', sync);
-    window.visualViewport?.addEventListener('scroll', sync);
-
-    this.destroyRef.onDestroy(() => {
-      window.removeEventListener('scroll', sync);
-      window.removeEventListener('resize', sync);
-      window.visualViewport?.removeEventListener('resize', sync);
-      window.visualViewport?.removeEventListener('scroll', sync);
-    });
-  }
-
-  private syncMobileFormExpanded(): void {
-    if (!window.matchMedia('(max-width: 1023px)').matches) {
-      if (this.mobileFormExpanded()) this.mobileFormExpanded.set(false);
-      return;
-    }
-
-    const eyebrow = this.host.nativeElement.querySelector('.section-heading__eyebrow');
-    if (!(eyebrow instanceof HTMLElement)) return;
-
-    const headerHeight = Number.parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
-    ) || 76;
-    const scrolledPastEyebrow = eyebrow.getBoundingClientRect().bottom <= headerHeight + 8;
-    if (this.mobileFormExpanded() !== scrolledPastEyebrow) {
-      this.mobileFormExpanded.set(scrolledPastEyebrow);
-    }
   }
 
   private resetBodyScroll(): void {

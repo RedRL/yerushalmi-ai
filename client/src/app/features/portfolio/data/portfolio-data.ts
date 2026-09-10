@@ -30,38 +30,55 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
     categoryId: 'birthday_photos',
     tagsHe: ['פופ', 'ים תיכוני'],
     descriptionHe:
-      'קליפ דוגמה מהדור הקודם של הכלים. היום התוצאה חדה ומדויקת יותר. התמונות שהונפשו מסומנות בקליפ כ-AI generated.',
+      'קליפ דוגמה מהדור הקודם של הכלים, באורך של כ־2 דקות. היום התוצאה חדה ומדויקת יותר. התמונות שהונפשו מסומנות בקליפ כ-AI Generate.',
     youtubeUrl: 'https://youtu.be/4rhTEXQGJJU',
     youtubeId: '4rhTEXQGJJU',
+  },
+  {
+    id: 'tal',
+    titleHe: 'יום הולדת לטל',
+    categoryId: 'birthday_photos',
+    tagsHe: ['היפ הופ', 'גוספל'],
+    descriptionHe: 'קליפ דוגמה עם טכנולוגיות מתקדמות יותר, באורך של כ־3 דקות.',
+    requiredWordsHe: ['כוסית על'],
+    youtubeUrl: 'https://youtu.be/ch_ACN8mS_w',
+    youtubeId: 'ch_ACN8mS_w',
   },
   {
     id: 'mom',
     titleHe: 'יום הולדת לורד',
     categoryId: 'birthday_photos',
     tagsHe: ['פופ', "ג'אז"],
+    descriptionHe:
+      'קליפ דוגמה שמשלב הנפשת תמונות בטכנולוגיות ישנות יותר וסרטונים אמיתיים, באורך של כ־3 וחצי דקות.',
     youtubeUrl: 'https://youtu.be/QE3Er29fk9U',
     youtubeId: 'QE3Er29fk9U',
   },
 ];
 
-export const PORTFOLIO_SONGS: readonly PortfolioVideo[] = [
+export const PORTFOLIO_REACTIONS: readonly PortfolioVideo[] = [
   {
-    id: 'dad',
-    titleHe: 'יום הולדת לשלום',
-    categoryId: 'songs',
-    kind: 'song',
-    tagsHe: ['בלדה', 'אחר · המנון הפועל'],
-    youtubeUrl: 'https://youtu.be/LX_jkaLsTAw',
-    youtubeId: 'LX_jkaLsTAw',
+    id: 'tal-reaction',
+    titleHe: 'טל מגיבה לסרטון',
+    categoryId: 'birthday_photos',
+    categoryLabelHe: 'תגובה',
+    tagsHe: [],
+    descriptionHe: 'טלטול מגיבה לקליפ יום ההולדת שלה.',
+    youtubeUrl: 'https://youtu.be/7zMNxrOSdn0',
+    youtubeId: '7zMNxrOSdn0',
   },
+];
+
+export const PORTFOLIO_SONGS: readonly PortfolioVideo[] = [
   {
     id: 'dor-34',
     titleHe: 'יום הולדת לדור',
     categoryId: 'songs',
     kind: 'song',
     categoryLabelHe: 'שיר מקורי',
+    descriptionHe: 'שיר מקורי באורך של כ־3 וחצי דקות.',
     tagsHe: ['פופ', 'רוק'],
-    youtubeUrl: 'https://youtu.be/8LqiYpObWZc',
-    youtubeId: '8LqiYpObWZc',
+    requiredWordsHe: ['הבוטנים האסירים', 'הראלון של השבתות'],
+    audioUrl: '/audio/DOR 34.mp3',
   },
 ];

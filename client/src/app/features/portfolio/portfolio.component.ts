@@ -10,7 +10,12 @@ import {
 import { SectionHeadingComponent } from '../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import type { PortfolioCategory, PortfolioVideo } from '../../shared/models/portfolio-video.model';
-import { PORTFOLIO_CATEGORIES, PORTFOLIO_SONGS, PORTFOLIO_VIDEOS } from './data/portfolio-data';
+import {
+  PORTFOLIO_CATEGORIES,
+  PORTFOLIO_REACTIONS,
+  PORTFOLIO_SONGS,
+  PORTFOLIO_VIDEOS,
+} from './data/portfolio-data';
 import { VideoCardComponent } from './components/video-card/video-card.component';
 import { VideoModalComponent } from './components/video-modal/video-modal.component';
 
@@ -29,6 +34,8 @@ const DISPLAY_VIDEOS = [...PORTFOLIO_VIDEOS].reverse();
 export class PortfolioComponent implements AfterViewInit, OnDestroy {
   private readonly scrollerRef = viewChild<ElementRef<HTMLElement>>('scroller');
   private scrollEndHandler: (() => void) | null = null;
+  private scrollHandler: (() => void) | null = null;
+  private scrollFrame = 0;
 
   private readonly categoryById = new Map<string, PortfolioCategory>(
     PORTFOLIO_CATEGORIES.map((category) => [category.id, category]),
@@ -36,8 +43,10 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
 
   readonly videos = PORTFOLIO_VIDEOS;
   readonly songs = PORTFOLIO_SONGS;
+  readonly reactions = PORTFOLIO_REACTIONS;
   readonly loopVideos = Array.from({ length: LOOP_SETS }, () => [...DISPLAY_VIDEOS]).flat();
   readonly selectedVideo = signal<PortfolioVideo | null>(null);
+  readonly centeredIndex = signal(this.middleSetIndexOf('tal'));
 
   categoryOf(video: PortfolioVideo): PortfolioCategory {
     return this.categoryById.get(video.categoryId) ?? PORTFOLIO_CATEGORIES[0];
@@ -49,15 +58,26 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
 
     queueMicrotask(() => {
       this.scrollToMiddleSet(scroller);
+      this.updateCenteredIndex(scroller);
       this.scrollEndHandler = () => this.normalizeLoop(scroller);
+      this.scrollHandler = () => {
+        if (this.scrollFrame) return;
+        this.scrollFrame = requestAnimationFrame(() => {
+          this.scrollFrame = 0;
+          this.updateCenteredIndex(scroller);
+        });
+      };
       scroller.addEventListener('scrollend', this.scrollEndHandler, { passive: true });
+      scroller.addEventListener('scroll', this.scrollHandler, { passive: true });
     });
   }
 
   ngOnDestroy(): void {
     const scroller = this.scrollerRef()?.nativeElement;
-    if (!scroller || !this.scrollEndHandler) return;
-    scroller.removeEventListener('scrollend', this.scrollEndHandler);
+    if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
+    if (!scroller) return;
+    if (this.scrollEndHandler) scroller.removeEventListener('scrollend', this.scrollEndHandler);
+    if (this.scrollHandler) scroller.removeEventListener('scroll', this.scrollHandler);
   }
 
   openVideo(video: PortfolioVideo): void {
@@ -113,6 +133,8 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
     if (left > maxScroll - edgeBuffer) {
       this.jumpScroll(scroller, left - setWidth);
     }
+
+    this.updateCenteredIndex(scroller);
   }
 
   private jumpScroll(scroller: HTMLElement, nextLeft: number): void {
@@ -121,20 +143,51 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
     scroller.style.scrollSnapType = 'none';
     scroller.scrollLeft = clamped;
     scroller.style.scrollSnapType = '';
+    this.updateCenteredIndex(scroller);
+  }
+
+  private middleSetIndexOf(videoId: string): number {
+    const offset = DISPLAY_VIDEOS.findIndex((video) => video.id === videoId);
+    const indexInSet = offset >= 0 ? offset : Math.floor(DISPLAY_VIDEOS.length / 2);
+    return DISPLAY_VIDEOS.length + indexInSet;
   }
 
   private scrollToMiddleSet(scroller: HTMLElement): void {
-    const count = DISPLAY_VIDEOS.length;
     const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
-    const endIndex = count + count - 1;
-    if (items.length <= endIndex) return;
+    const target = items[this.middleSetIndexOf('tal')];
+    if (!target) return;
 
-    const target = items[endIndex];
     scroller.style.scrollSnapType = 'none';
     // Set scrollLeft directly — scrollIntoView also scrolls the page vertically.
-    const targetEnd = target.offsetLeft + target.offsetWidth;
-    scroller.scrollLeft = Math.max(0, targetEnd - scroller.clientWidth);
+    const isSingleItem = target.offsetWidth >= scroller.clientWidth * 0.85;
+    if (isSingleItem) {
+      scroller.scrollLeft = target.offsetLeft;
+    } else {
+      const center = target.offsetLeft + target.offsetWidth / 2;
+      scroller.scrollLeft = center - scroller.clientWidth / 2;
+    }
     scroller.style.scrollSnapType = '';
+    this.updateCenteredIndex(scroller);
+  }
+
+  private updateCenteredIndex(scroller: HTMLElement): void {
+    const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
+    if (items.length === 0) return;
+
+    const viewportCenter = scroller.scrollLeft + scroller.clientWidth / 2;
+    let closest = 0;
+    let closestDist = Number.POSITIVE_INFINITY;
+
+    items.forEach((item, index) => {
+      const center = item.offsetLeft + item.offsetWidth / 2;
+      const distance = Math.abs(center - viewportCenter);
+      if (distance < closestDist) {
+        closestDist = distance;
+        closest = index;
+      }
+    });
+
+    this.centeredIndex.set(closest);
   }
 
   private setWidth(scroller: HTMLElement): number {

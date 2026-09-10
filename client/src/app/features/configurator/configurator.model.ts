@@ -16,12 +16,12 @@ export interface ConfiguratorStepDef {
 }
 
 export const CONFIGURATOR_STEPS: readonly ConfiguratorStepDef[] = [
-  { id: 'product', labelHe: 'סוג הפרויקט', labelHeMobile: 'הפרויקט' },
+  { id: 'product', labelHe: 'הפרויקט' },
   { id: 'details', labelHe: 'הסיפור' },
   { id: 'song', labelHe: 'השיר' },
   { id: 'video', labelHe: 'הסרטון' },
-  { id: 'extras', labelHe: 'פרטים נוספים', labelHeMobile: 'פרטים' },
-  { id: 'upload', labelHe: 'תמונות וסרטונים', labelHeMobile: 'חומרים' },
+  { id: 'extras', labelHe: 'פרטים' },
+  { id: 'upload', labelHe: 'חומרים' },
   { id: 'summary', labelHe: 'סיכום' },
   { id: 'contact', labelHe: 'פרטי קשר' },
 ];

@@ -10,6 +10,7 @@ import {
   buildInquiryPhotoBundleKey,
   buildInquiryStorageKey,
   extractInquiryFolderId,
+  zipFolderNameForStorageKey,
   isInquiryPhotoBundleKey,
   isManagedStorageKey,
   isValidInquiryFolderId,
@@ -60,6 +61,7 @@ export class R2StorageService implements StorageService {
       folderId,
       input.fileName,
       randomUUID().slice(0, 8),
+      input.fileType,
     );
     const command = new PutObjectCommand({
       Bucket: this.bucket,
@@ -100,7 +102,7 @@ export class R2StorageService implements StorageService {
     );
 
     if (imageKeys.length === 0) {
-      throw new ValidationError('לא נמצאו תמונות ליצירת קובץ ZIP');
+      throw new ValidationError('לא נמצאו קבצים ליצירת קובץ ZIP');
     }
 
     const bundleKey = buildInquiryPhotoBundleKey(input.folderId);
@@ -135,7 +137,8 @@ export class R2StorageService implements StorageService {
         throw new NotFoundError(`הקובץ ${storageKey} לא נמצא באחסון`);
       }
 
-      const entryName = storageKey.split('/').pop() ?? storageKey;
+      const fileName = storageKey.split('/').pop() ?? storageKey;
+      const entryName = `${zipFolderNameForStorageKey(storageKey)}/${fileName}`;
       archive.append(object.Body as Readable, { name: entryName });
     }
 

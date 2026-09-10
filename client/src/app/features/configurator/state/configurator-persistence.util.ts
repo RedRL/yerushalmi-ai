@@ -17,6 +17,7 @@ export interface PersistedConfiguratorState {
   mainProduct: MainProductId | null;
   addons: AddonId[];
   inquiryFolderId?: string;
+  inquiryReferenceId?: string;
   productPricingByProduct?: Partial<Record<MainProductId, ProductPricingSnapshot>>;
   songForm: Record<string, string>;
   videoForm: {

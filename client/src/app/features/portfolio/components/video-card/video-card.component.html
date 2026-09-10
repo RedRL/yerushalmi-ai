@@ -3,30 +3,49 @@
   [class.video-card--featured]="size() === 'featured'"
   [class.video-card--gallery]="size() === 'gallery'"
   [class.video-card--song]="video().kind === 'song'"
-  [class.video-card--expanded-description]="video().id === 'yair'"
+  [class.video-card--audio]="isAudioSong()"
+  [class.video-card--playing]="audioPlaying()"
+  [class.video-card--expanded-description]="!isAudioSong()"
 >
-  <button
-    type="button"
-    class="video-card__media"
-    (click)="onActivate()"
-    [attr.aria-label]="(video().kind === 'song' ? 'האזנה לשיר: ' : 'צפייה בקליפ: ') + video().titleHe"
-  >
-    <img
-      [src]="thumbnailUrl()"
-      [alt]="video().titleHe"
-      loading="lazy"
-      decoding="async"
-      width="480"
-      height="270"
-    />
-    <span class="video-card__play" aria-hidden="true">
-      <span class="video-card__play-icon">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 5v14l11-7-11-7Z" fill="currentColor" />
-        </svg>
+  @if (isAudioSong()) {
+    <div class="video-card__media video-card__media--audio">
+      <div class="video-card__audio-art" aria-hidden="true">
+        <span class="video-card__eq" [class.is-playing]="audioPlaying()">
+          @for (bar of [1, 2, 3, 4, 5]; track bar) {
+            <i></i>
+          }
+        </span>
+      </div>
+      <app-audio-player
+        [src]="audioSrc()"
+        [label]="video().titleHe"
+        (playingChange)="audioPlaying.set($event)"
+      />
+    </div>
+  } @else {
+    <button
+      type="button"
+      class="video-card__media"
+      (click)="onActivate()"
+      [attr.aria-label]="'צפייה בקליפ: ' + video().titleHe"
+    >
+      <img
+        [src]="thumbnailUrl()"
+        [alt]="video().titleHe"
+        loading="lazy"
+        decoding="async"
+        width="480"
+        height="270"
+      />
+      <span class="video-card__play" aria-hidden="true">
+        <span class="video-card__play-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14l11-7-11-7Z" fill="currentColor" />
+          </svg>
+        </span>
       </span>
-    </span>
-  </button>
+    </button>
+  }
 
   <div class="video-card__body">
     <h3 class="video-card__title">{{ video().titleHe }}</h3>
@@ -37,6 +56,16 @@
         <ul class="video-card__tags" aria-label="סגנונות מוזיקליים">
           @for (tag of video().tagsHe; track tag) {
             <li class="video-card__tag">{{ tag }}</li>
+          }
+        </ul>
+      </div>
+    }
+    @if (video().requiredWordsHe?.length) {
+      <div class="video-card__genres video-card__genres--words">
+        <span class="video-card__genre-label">מילים שצריכות להופיע:</span>
+        <ul class="chip-group video-card__tags" aria-label="מילים שצריכות להופיע">
+          @for (word of video().requiredWordsHe; track word) {
+            <li class="chip chip--selected">{{ word }}</li>
           }
         </ul>
       </div>

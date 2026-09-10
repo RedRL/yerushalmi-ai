@@ -68,20 +68,7 @@ export class UploadApiService {
     const { storageKey, uploadUrl, method } = initiateResponse.data;
 
     if (!uploadUrl.startsWith('mock://')) {
-      let uploadResponse: Response;
-      try {
-        uploadResponse = await fetch(uploadUrl, {
-          method,
-          body: file,
-          headers: { 'Content-Type': resolveFileMimeType(file) },
-        });
-      } catch (error) {
-        throw new Error(toHebrewUserError(error, 'לא ניתן להתחבר לשרת. בדקו את החיבור לאינטרנט ונסו שוב.'));
-      }
-
-      if (!uploadResponse.ok) {
-        throw new Error('העלאת הקובץ נכשלה. נסו שוב.');
-      }
+      await putFileToSignedUrl(uploadUrl, method, file);
     }
 
     const completeResponse = await firstValueFrom(
@@ -90,4 +77,43 @@ export class UploadApiService {
 
     return completeResponse.data;
   }
+}
+
+const PUT_RETRY_ATTEMPTS = 3;
+
+async function putFileToSignedUrl(uploadUrl: string, method: 'PUT' | 'POST', file: File): Promise<void> {
+  const mimeType = resolveFileMimeType(file);
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < PUT_RETRY_ATTEMPTS; attempt++) {
+    try {
+      const uploadResponse = await fetch(uploadUrl, {
+        method,
+        body: file,
+        headers: { 'Content-Type': mimeType },
+      });
+
+      if (uploadResponse.ok) {
+        return;
+      }
+
+      const shouldRetry = uploadResponse.status >= 500 || uploadResponse.status === 408 || uploadResponse.status === 429;
+      lastError = new Error('העלאת הקובץ נכשלה. נסו שוב.');
+      if (!shouldRetry) {
+        throw lastError;
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'העלאת הקובץ נכשלה. נסו שוב.') {
+        lastError = error;
+      } else {
+        lastError = new Error(toHebrewUserError(error, 'לא ניתן להתחבר לשרת. בדקו את החיבור לאינטרנט ונסו שוב.'));
+      }
+    }
+
+    if (attempt < PUT_RETRY_ATTEMPTS - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+    }
+  }
+
+  throw lastError ?? new Error('העלאת הקובץ נכשלה. נסו שוב.');
 }

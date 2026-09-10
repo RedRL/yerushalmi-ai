@@ -24,19 +24,9 @@
 
 
 
-      <div class="field">
-
-        <label class="field__label" for="existingSongArtist">אמן</label>
-
-        <input id="existingSongArtist" class="field__control" formControlName="existingSongArtist" placeholder="שם האמן" [maxlength]="limits.existingSongArtist" />
-
-      </div>
-
-
-
       <div class="field field--full">
 
-        <label class="field__label" for="existingSongLink">קישור לשיר</label>
+        <label class="field__label" for="existingSongLink">קישור לשיר * <span class="song-step__title-hint">(יוטיוב, ספוטיפיי וכו')</span></label>
 
         <input
 
@@ -48,11 +38,16 @@
 
           formControlName="existingSongLink"
 
-          placeholder="https://..."
+          placeholder="https://youtube.com/... או קישור אחר"
 
           [maxlength]="limits.existingSongLink"
 
         />
+        <span class="field__error" aria-live="polite">
+          @if (showExistingSongLinkError()) {
+            נא להזין קישור לשיר (יוטיוב גם בסדר)
+          }
+        </span>
 
       </div>
 
@@ -167,9 +162,6 @@
                 class="length-select__menu"
                 role="listbox"
                 [attr.aria-labelledby]="'length'"
-                [style.top.px]="lengthMenuBox().top"
-                [style.left.px]="lengthMenuBox().left"
-                [style.width.px]="lengthMenuBox().width"
               >
                 @for (option of lengthOptions(); track option.id) {
                   <li>

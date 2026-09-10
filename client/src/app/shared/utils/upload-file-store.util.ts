@@ -52,6 +52,15 @@ function runTransaction<T>(
   );
 }
 
+/** Copies a picker File into a durable File. iOS can invalidate the original after the input event. */
+export async function cloneUploadFile(file: File): Promise<File> {
+  const buffer = await file.arrayBuffer();
+  return new File([buffer], file.name, {
+    type: file.type || 'application/octet-stream',
+    lastModified: file.lastModified,
+  });
+}
+
 /** Persists a selected file locally until the inquiry is submitted. */
 export async function saveUploadFile(id: string, file: File, fileType: UploadedFileKind): Promise<void> {
   const record: StoredUploadFileRecord = {

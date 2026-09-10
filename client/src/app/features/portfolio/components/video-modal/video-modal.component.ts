@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
+import { AudioPlayerComponent } from '../../../../shared/components/audio-player/audio-player.component';
 import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
 
 const FOCUSABLE_SELECTOR =
@@ -19,6 +20,7 @@ const FOCUSABLE_SELECTOR =
 
 @Component({
   selector: 'app-video-modal',
+  imports: [AudioPlayerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './video-modal.component.html',
   styleUrl: './video-modal.component.scss',
@@ -34,16 +36,24 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   private lockedScrollY = 0;
 
   readonly isSong = computed(() => this.video().kind === 'song');
+  readonly audioSrc = computed(() => {
+    const audioUrl = this.video().audioUrl;
+    return audioUrl ? encodeURI(audioUrl) : '';
+  });
 
-  readonly embedUrl = computed<SafeResourceUrl>(() =>
-    this.sanitizer.bypassSecurityTrustResourceUrl(
-      `https://www.youtube.com/embed/${this.video().youtubeId}?autoplay=1&rel=0`,
-    ),
-  );
+  readonly embedUrl = computed<SafeResourceUrl | null>(() => {
+    const youtubeId = this.video().youtubeId;
+    if (!youtubeId) return null;
 
-  readonly backdropUrl = computed(
-    () => `https://i.ytimg.com/vi/${this.video().youtubeId}/maxresdefault.jpg`,
-  );
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`,
+    );
+  });
+
+  readonly backdropUrl = computed(() => {
+    const youtubeId = this.video().youtubeId;
+    return youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : '';
+  });
 
   ngOnInit(): void {
     this.lockedScrollY = window.scrollY;

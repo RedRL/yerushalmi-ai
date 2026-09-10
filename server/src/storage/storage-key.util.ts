@@ -142,9 +142,11 @@ export function resolveUploadFolderId(
     throw new Error('Inquiry reference id is required to resolve an upload folder id.');
   }
 
+  // Stable per inquiry so concurrent initiate calls land in the same folder
+  // even when the client has not reserved a timestamped folder id yet.
   return buildInquiryFolderIdFromContactName(
     trimmedName,
-    buildInquiryFolderSuffix(inquiryReferenceId, submittedAt),
+    formatShortInquiryReference(inquiryReferenceId),
   );
 }
 
@@ -163,9 +165,31 @@ export function extractInquiryFolderId(storageKey: string): string | null {
   return folderId;
 }
 
-export function buildInquiryStorageKey(folderId: string, fileName: string, uniqueSuffix: string): string {
+const STORAGE_KIND_FOLDER = {
+  image: 'images',
+  video: 'videos',
+  audio: 'audio',
+} as const;
+
+export function storageKindFolder(kind: 'image' | 'video' | 'audio' = 'image'): string {
+  return STORAGE_KIND_FOLDER[kind] ?? STORAGE_KIND_FOLDER.image;
+}
+
+export function zipFolderNameForStorageKey(storageKey: string): string {
+  const kind = storageKey.split('/')[2];
+  if (kind === 'videos') return 'סרטונים';
+  if (kind === 'audio') return 'אודיו';
+  return 'תמונות';
+}
+
+export function buildInquiryStorageKey(
+  folderId: string,
+  fileName: string,
+  uniqueSuffix: string,
+  kind: 'image' | 'video' | 'audio' = 'image',
+): string {
   const safeName = sanitizeUploadFileName(fileName);
-  return `inquiries/${folderId}/${uniqueSuffix}-${safeName}`;
+  return `inquiries/${folderId}/${storageKindFolder(kind)}/${uniqueSuffix}-${safeName}`;
 }
 
 export function buildInquiryPhotoBundleKey(folderId: string): string {

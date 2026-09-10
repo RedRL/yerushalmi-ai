@@ -14,12 +14,14 @@ import {
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { scrollToConfigurator, scrollToSectionFromNav } from '../../../../shared/utils/scroll-to.util';
 
-/** Dor 34 — background video for the hero stage. */
-const HERO_VIDEO_ID = '8LqiYpObWZc';
+/** יום הולדת לטל — background video for the hero stage. */
+const HERO_VIDEO_ID = 'ch_ACN8mS_w';
+const YT_PLAYING = 1;
+const YT_UNSTARTED = -1;
 
-/** Native pixel dimensions of `og-image-16-9-high res-shortest-large-centered.png`. */
-const DESKTOP_BANNER_WIDTH = 3344;
-const DESKTOP_BANNER_HEIGHT = 1453;
+/** Native pixel dimensions of `hero-banner-desktop.png`. */
+const DESKTOP_BANNER_WIDTH = 1903;
+const DESKTOP_BANNER_HEIGHT = 826;
 
 @Component({
   selector: 'app-hero',
@@ -33,9 +35,12 @@ export class HeroComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly bannerRef = viewChild<ElementRef<HTMLElement>>('banner');
   private readonly stageRef = viewChild<ElementRef<HTMLElement>>('stage');
+  private readonly heroVideoRef = viewChild<ElementRef<HTMLIFrameElement>>('heroVideo');
+  private keepPlayingTimer = 0;
+  private heroVideoVisible = false;
 
-  readonly desktopBannerImageUrl = '/og-image-16-9-high%20res-shortest-large-centered.png';
-  readonly mobileBannerImageUrl = '/og-image-mobile.png';
+  readonly desktopBannerImageUrl = '/hero-banner-desktop.png';
+  readonly mobileBannerImageUrl = '/hero-banner-mobile.png';
   readonly desktopBannerWidth = DESKTOP_BANNER_WIDTH;
   readonly desktopBannerHeight = DESKTOP_BANNER_HEIGHT;
   readonly heroPosterUrl = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;
@@ -62,14 +67,85 @@ export class HeroComponent implements AfterViewInit {
     update();
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update, { passive: true });
+
+    const resume = () => this.playHeroVideo();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') this.playHeroVideo();
+    };
+    const onPlayerMessage = (event: MessageEvent) => this.onYouTubeMessage(event);
+
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', resume);
+    window.addEventListener('pageshow', resume);
+    window.addEventListener('message', onPlayerMessage);
+
+    const iframe = this.heroVideoRef()?.nativeElement;
+    const observer =
+      iframe &&
+      new IntersectionObserver(
+        (entries) => {
+          this.heroVideoVisible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0.15);
+          if (this.heroVideoVisible) this.playHeroVideo();
+        },
+        { threshold: [0, 0.15, 0.4] },
+      );
+    if (iframe && observer) observer.observe(iframe);
+
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', resume);
+      window.removeEventListener('pageshow', resume);
+      window.removeEventListener('message', onPlayerMessage);
+      observer?.disconnect();
+      if (this.keepPlayingTimer) window.clearInterval(this.keepPlayingTimer);
     });
   }
 
   onVideoLoad(): void {
     this.videoReady.set(true);
+    this.bindYouTubePlayer();
+    this.playHeroVideo();
+    if (this.keepPlayingTimer) window.clearInterval(this.keepPlayingTimer);
+    this.keepPlayingTimer = window.setInterval(() => this.playHeroVideo(), 2000);
+  }
+
+  private bindYouTubePlayer(): void {
+    this.postToHeroPlayer({ event: 'listening', id: 1 });
+  }
+
+  private playHeroVideo(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (document.visibilityState !== 'visible') return;
+    this.postToHeroPlayer({ event: 'command', func: 'playVideo', args: [] });
+  }
+
+  private onYouTubeMessage(event: MessageEvent): void {
+    if (typeof event.data !== 'string' || !event.data.includes('info')) return;
+
+    try {
+      const payload = JSON.parse(event.data) as {
+        event?: string;
+        info?: number | { playerState?: number };
+      };
+      const state =
+        typeof payload.info === 'number'
+          ? payload.info
+          : typeof payload.info?.playerState === 'number'
+            ? payload.info.playerState
+            : null;
+      if (state === null || state === YT_PLAYING || state === YT_UNSTARTED) return;
+      this.playHeroVideo();
+    } catch {
+      return;
+    }
+  }
+
+  private postToHeroPlayer(message: object): void {
+    const frame = this.heroVideoRef()?.nativeElement.contentWindow;
+    if (!frame) return;
+    frame.postMessage(JSON.stringify(message), '*');
   }
 
   private updateScrollParallax(): void {
@@ -87,8 +163,8 @@ export class HeroComponent implements AfterViewInit {
     const scrollY = window.scrollY;
     const bannerHeight = banner.offsetHeight;
 
-    this.bannerShift.set(scrollY * 0.1);
-    this.stageLift.set(-Math.min(scrollY * 0.35, bannerHeight * 0.5));
+    this.bannerShift.set(Math.round(scrollY * 0.1));
+    this.stageLift.set(-Math.round(Math.min(scrollY * 0.35, bannerHeight * 0.5)));
 
     // Fully transparent well before the hero stage finishes scrolling past.
     const stageBottomScroll = scrollY + stage.getBoundingClientRect().bottom;

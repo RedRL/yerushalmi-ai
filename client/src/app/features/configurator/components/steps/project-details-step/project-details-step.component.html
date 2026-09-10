@@ -54,32 +54,61 @@
           type="button"
           class="project-details-step__date-icon"
           aria-label="פתיחת לוח שנה"
-          (click)="openDatePicker()"
+          (click)="toggleCalendar()"
         >
           <svg viewBox="0 0 24 24" width="18" height="18">
             <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
             <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
           </svg>
         </button>
-        <input
-          #nativeDatePicker
-          class="project-details-step__date-native"
-          type="date"
-          [value]="eventDateIso()"
-          (change)="onDatePickerChange($event)"
-          aria-label="בחירת תאריך מלוח שנה"
-        />
+        @if (calendarOpen()) {
+          <div class="project-details-step__calendar" role="dialog" aria-label="בחירת תאריך">
+            <div class="project-details-step__calendar-head">
+              <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" aria-label="חודש קודם">‹</button>
+              <span>{{ calendarTitle() }}</span>
+              <button type="button" (click)="shiftCalendarMonth(1)" aria-label="חודש הבא">›</button>
+            </div>
+            <button type="button" class="project-details-step__calendar-today" (click)="selectToday()">היום</button>
+            <div class="project-details-step__calendar-weekdays">
+              @for (day of weekdayLabels; track day) {
+                <span>{{ day }}</span>
+              }
+            </div>
+            <div class="project-details-step__calendar-grid">
+              @for (cell of calendarCells(); track $index) {
+                @if (cell) {
+                  <button
+                    type="button"
+                    class="project-details-step__calendar-day"
+                    [class.project-details-step__calendar-day--selected]="cell === selectedCalendarDay()"
+                    [class.project-details-step__calendar-day--disabled]="isPastCalendarDay(cell)"
+                    [disabled]="isPastCalendarDay(cell)"
+                    (click)="selectCalendarDay(cell)"
+                  >
+                    {{ cell }}
+                  </button>
+                } @else {
+                  <span></span>
+                }
+              }
+            </div>
+          </div>
+        }
       </div>
       <span class="field__error" aria-live="polite">
         @if (store.projectDetailsForm.controls.eventDate.invalid && store.projectDetailsForm.controls.eventDate.touched) {
-          נא להזין תאריך חוקי בפורמט dd/mm/yyyy
+          @if (store.projectDetailsForm.controls.eventDate.hasError('pastDate')) {
+            תאריך האירוע לא יכול להיות לפני היום
+          } @else {
+            נא להזין תאריך חוקי בפורמט dd/mm/yyyy
+          }
         }
       </span>
     </div>
   </div>
 
   <div class="field step__section project-details-step__story-field">
-    <label class="field__label" for="story">הסיפור שמאחורי הפרויקט *</label>
+    <label class="field__label" for="story">מה חשוב שנדע על הפרויקט? *</label>
     <textarea
       id="story"
       class="field__control project-details-step__story"

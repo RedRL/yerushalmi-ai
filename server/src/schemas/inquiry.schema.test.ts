@@ -18,7 +18,7 @@ describe('inquirySchema', () => {
     const result = inquirySchema.safeParse({
       contact: { name: 'משה כהן', phone: '0501234567', email: 'test@example.com' },
       mainProduct: 'video_existing_song',
-      song: { existingSongName: 'שיר קיים' },
+      song: { existingSongName: 'שיר קיים', existingSongLink: 'https://www.youtube.com/watch?v=example' },
       video: {
         source: 'customer_photos',
         length: 'min_2_0',
@@ -58,7 +58,7 @@ describe('inquirySchema', () => {
     const result = inquirySchema.safeParse({
       contact: { name: 'משה כהן', phone: '0501234567', email: 'test@example.com' },
       mainProduct: 'video_existing_song',
-      song: { existingSongName: 'שיר קיים' },
+      song: { existingSongName: 'שיר קיים', existingSongLink: 'https://www.youtube.com/watch?v=example' },
       video: {
         source: 'customer_photos',
         length: 'min_2_0',
@@ -124,7 +124,7 @@ describe('inquirySchema', () => {
     const result = inquirySchema.safeParse({
       contact: { name: 'Test User', phone: '0501234567', email: 'test@example.com' },
       mainProduct: 'video_existing_song',
-      song: { existingSongName: 'Song' },
+      song: { existingSongName: 'Song', existingSongLink: 'https://www.youtube.com/watch?v=example' },
       video: {
         source: 'customer_photos',
         length: 'min_2_0',
@@ -157,5 +157,36 @@ describe('inquirySchema', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('rejects an existing-song clip without a song link', () => {
+    const result = inquirySchema.safeParse({
+      contact: { name: 'משה כהן', phone: '0501234567', email: 'test@example.com' },
+      mainProduct: 'video_existing_song',
+      song: { existingSongName: 'שיר קיים' },
+      video: {
+        source: 'customer_photos',
+        length: 'min_2_0',
+        format: 'landscape',
+        subtitles: 'none',
+      },
+      projectDetails: {
+        personName: 'דוד',
+        occasion: 'יום הולדת',
+        eventDate: '2026-09-15',
+        story: 'זהו סיפור ארוך מספיק לבדיקה',
+      },
+      consents: {
+        mediaRights: true,
+        contactPermission: true,
+        termsAccepted: true,
+        musicRights: true,
+      },
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((issue) => issue.path.join('.') === 'song.existingSongLink')).toBe(true);
+    }
   });
 });

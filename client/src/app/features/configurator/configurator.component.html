@@ -1,7 +1,6 @@
 <section
   id="configurator"
   class="configurator"
-  [class.configurator--form-expanded]="mobileFormExpanded()"
 >
 
   <app-section-heading
@@ -13,7 +12,11 @@
 
 
 
-  <div class="configurator__layout" appReveal>
+  <div
+    class="configurator__layout"
+    [class.configurator__layout--with-sidebar]="showSidebarPrice"
+    appReveal
+  >
 
     <div class="configurator__panel">
 

@@ -62,7 +62,7 @@
   }
 }
 
-.video-modal--song .video-modal__frame {
+.video-modal--song .video-modal__frame:not(.video-modal__frame--audio) {
   aspect-ratio: 16 / 9;
   max-height: 360px;
 }
@@ -92,6 +92,21 @@
     inset: 0;
     width: 100%;
     height: 100%;
+  }
+
+  &--audio {
+    aspect-ratio: auto;
+    display: flex;
+    align-items: center;
+    padding: var(--space-5);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(155, 109, 255, 0.28), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(79, 124, 255, 0.2), transparent 45%),
+      #070b18;
+
+    &::after {
+      display: none;
+    }
   }
 }
 

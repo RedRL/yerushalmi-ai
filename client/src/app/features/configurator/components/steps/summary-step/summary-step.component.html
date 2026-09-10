@@ -52,7 +52,11 @@
           <h4>הסרטון</h4>
           <button type="button" (click)="goToStep('video')">עריכה</button>
         </div>
-        <p class="summary-step__text">{{ videoDetailsSummary() }}</p>
+        @if (!store.isFullExperience()) {
+          <p class="summary-step__text">אורך: {{ lengthLabel() }}</p>
+        }
+        <p class="summary-step__text">פורמט: {{ formatLabel() }}</p>
+        <p class="summary-step__text">כתוביות: {{ subtitlesLabel() }}</p>
         @if (aiFillLabel()) {
           <p class="summary-step__text">{{ aiFillLabel() }}</p>
         }
@@ -83,7 +87,8 @@
           <h4>קבצים</h4>
           <button type="button" (click)="goToStep('upload')">עריכה</button>
         </div>
-        <p class="summary-step__text">{{ uploadSummary() }}</p>
+        <p class="summary-step__text">תמונות: {{ store.uploadImageCount() }}</p>
+        <p class="summary-step__text">סרטונים: {{ store.uploadVideoCount() }}</p>
       </div>
     }
   </div>
