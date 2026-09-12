@@ -120,7 +120,6 @@ export function inquiryFolderContainsReference(folderId: string, inquiryReferenc
 export function resolveUploadFolderId(
   contactName: string,
   requestedFolderId?: string,
-  submittedAt: Date = new Date(),
   inquiryReferenceId?: string,
 ): string {
   const trimmedName = contactName.trim();

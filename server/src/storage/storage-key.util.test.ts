@@ -62,20 +62,15 @@ describe('storage-key.util inquiry folders', () => {
 
   it('replaces legacy client folder ids with a contact-name folder', () => {
     const legacyId = '181d4a54-80b2-48df-afd7-3dec2c1018b3';
-    const resolved = resolveUploadFolderId('משה כהן', legacyId, submittedAt, inquiryReferenceId);
+    const resolved = resolveUploadFolderId('משה כהן', legacyId, inquiryReferenceId);
 
     expect(resolved).toBe('משה-כהן-48123456');
     expect(resolved).not.toBe(legacyId);
   });
 
   it('uses a stable folder id for the same inquiry reference', () => {
-    const first = resolveUploadFolderId('משה כהן', undefined, submittedAt, inquiryReferenceId);
-    const second = resolveUploadFolderId(
-      'משה כהן',
-      undefined,
-      new Date('2026-08-21T01:08:11.000Z'),
-      inquiryReferenceId,
-    );
+    const first = resolveUploadFolderId('משה כהן', undefined, inquiryReferenceId);
+    const second = resolveUploadFolderId('משה כהן', undefined, inquiryReferenceId);
 
     expect(first).toBe('משה-כהן-48123456');
     expect(second).toBe(first);
@@ -88,7 +83,7 @@ describe('storage-key.util inquiry folders', () => {
 
   it('ignores legacy uuid folder ids even when provided', () => {
     const legacyId = '181d4a54-80b2-48df-afd7-3dec2c1018b3';
-    const resolved = resolveUploadFolderId('Moshe Cohen', legacyId, submittedAt, inquiryReferenceId);
+    const resolved = resolveUploadFolderId('Moshe Cohen', legacyId, inquiryReferenceId);
 
     expect(resolved).toBe('moshe-cohen-48123456');
     expect(resolved).not.toBe(legacyId);

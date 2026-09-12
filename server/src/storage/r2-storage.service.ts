@@ -52,7 +52,6 @@ export class R2StorageService implements StorageService {
     const folderId = resolveUploadFolderId(
       input.contactName ?? '',
       input.inquiryFolderId,
-      new Date(),
       input.inquiryReferenceId,
     );
     this.assertValidFolderId(folderId);

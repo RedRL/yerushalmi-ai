@@ -4,10 +4,9 @@ import { inquirySchema } from './inquiry.schema';
 
 describe('inquirySchema', () => {
   const inquiryReferenceId = '48123456';
-  const submittedAt = new Date('2026-08-21T01:07:32.000Z');
 
   it('accepts an inquiry with a contact-name upload folder', () => {
-    const folderId = resolveUploadFolderId('משה כהן', undefined, submittedAt, inquiryReferenceId);
+    const folderId = resolveUploadFolderId('משה כהן', undefined, inquiryReferenceId);
     const uploadedFiles = Array.from({ length: 36 }, (_, index) => ({
       id: String(index),
       type: 'image' as const,
@@ -46,13 +45,8 @@ describe('inquirySchema', () => {
   });
 
   it('rejects when inquiryFolderId does not match uploaded file folders', () => {
-    const folderId = resolveUploadFolderId('משה כהן', undefined, submittedAt, inquiryReferenceId);
-    const otherFolderId = resolveUploadFolderId(
-      'משה כהן',
-      undefined,
-      new Date('2026-08-21T01:08:00.000Z'),
-      '87654321',
-    );
+    const folderId = resolveUploadFolderId('משה כהן', undefined, inquiryReferenceId);
+    const otherFolderId = resolveUploadFolderId('משה כהן', undefined, '87654321');
     const storageKey = buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234');
 
     const result = inquirySchema.safeParse({
@@ -86,7 +80,7 @@ describe('inquirySchema', () => {
   });
 
   it('rejects uploads for song-only inquiries', () => {
-    const folderId = resolveUploadFolderId('Test User', undefined, submittedAt, inquiryReferenceId);
+    const folderId = resolveUploadFolderId('Test User', undefined, inquiryReferenceId);
     const storageKey = buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234');
 
     const result = inquirySchema.safeParse({
@@ -113,12 +107,7 @@ describe('inquirySchema', () => {
   });
 
   it('rejects blob preview urls on uploaded files', () => {
-    const folderId = resolveUploadFolderId(
-      'Test User',
-      undefined,
-      submittedAt,
-      inquiryReferenceId,
-    );
+    const folderId = resolveUploadFolderId('Test User', undefined, inquiryReferenceId);
     const storageKey = buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234');
 
     const result = inquirySchema.safeParse({

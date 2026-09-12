@@ -26,7 +26,6 @@ export class MockStorageService implements StorageService {
     const folderId = resolveUploadFolderId(
       input.contactName ?? '',
       input.inquiryFolderId,
-      new Date(),
       input.inquiryReferenceId,
     );
     const storageKey = buildInquiryStorageKey(
