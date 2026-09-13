@@ -125,40 +125,15 @@ export function buildInquiryEmailHtml(
         )
       : '';
 
-  const uploadedImages = payload.uploadedFiles.filter((file) => file.type === 'image');
-  const uploadedVideos = payload.uploadedFiles.filter((file) => file.type === 'video');
-  const uploadedOther = payload.uploadedFiles.filter((file) => file.type !== 'image' && file.type !== 'video');
-  const uploadedNameList = (files: typeof payload.uploadedFiles) =>
-    files
-      .map((file) => `<div style="padding:2px 0;color:#1a1a2e;font-size:13px;">${escapeHtml(file.name)}</div>`)
-      .join('');
-
   const uploadedFilesHtml =
     payload.uploadedFiles.length > 0
-      ? `${
-          photosBundleUrl
-            ? `<p style="margin:0 0 12px;">
+      ? photosBundleUrl
+        ? `<p style="margin:0;">
           <a href="${escapeHtml(photosBundleUrl)}" style="display:inline-block;padding:10px 16px;background:#6d28d9;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
             הורדת כל הקבצים (ZIP)
           </a>
         </p>`
-            : '<p style="color:#8a8a99;font-size:13px;">לא ניתן היה ליצור קובץ ZIP. נא לפנות לתמיכה.</p>'
-        }
-        ${
-          uploadedImages.length > 0
-            ? `<div style="margin-top:8px;"><div style="color:#8a8a99;font-size:12px;margin-bottom:4px;">תמונות (${uploadedImages.length})</div>${uploadedNameList(uploadedImages)}</div>`
-            : ''
-        }
-        ${
-          uploadedVideos.length > 0
-            ? `<div style="margin-top:8px;"><div style="color:#8a8a99;font-size:12px;margin-bottom:4px;">סרטונים (${uploadedVideos.length})</div>${uploadedNameList(uploadedVideos)}</div>`
-            : ''
-        }
-        ${
-          uploadedOther.length > 0
-            ? `<div style="margin-top:8px;"><div style="color:#8a8a99;font-size:12px;margin-bottom:4px;">קבצים נוספים (${uploadedOther.length})</div>${uploadedNameList(uploadedOther)}</div>`
-            : ''
-        }`
+        : '<p style="color:#8a8a99;font-size:13px;">לא ניתן היה ליצור קובץ ZIP. נא לפנות לתמיכה.</p>'
       : '<p style="color:#8a8a99;font-size:13px;">לא הועלו קבצים.</p>';
 
   return `<!doctype html>

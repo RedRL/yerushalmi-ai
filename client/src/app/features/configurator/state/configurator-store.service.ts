@@ -7,7 +7,7 @@ import { InquiryApiService } from '../../../core/services/inquiry-api.service';
 import { UploadApiService } from '../../../core/services/upload-api.service';
 import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
 import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions, findAddon, PRODUCT_INCLUDES_VIDEO } from '../../../core/config/pricing.config';
-import { getMinimumImageCountForVideoLength, getMaximumImageCountForVideoLength, getMaximumVideoCountForVideoLength } from '../../../core/config/upload-requirements.config';
+import { getMinimumImageCountForVideoLength, getRecommendedMaxImageCountForVideoLength, getMaximumImageCountForVideoLength, getMaximumVideoCountForVideoLength } from '../../../core/config/upload-requirements.config';
 import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoFormatId, VideoLengthId, VocalistId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
@@ -370,6 +370,10 @@ export class ConfiguratorStoreService {
     getMinimumImageCountForVideoLength(this.selectedVideoLengthId()),
   );
 
+  readonly recommendedMaxImages = computed(() =>
+    getRecommendedMaxImageCountForVideoLength(this.selectedVideoLengthId()),
+  );
+
   readonly maximumAllowedImages = computed(() =>
     getMaximumImageCountForVideoLength(this.selectedVideoLengthId()),
   );
@@ -582,7 +586,7 @@ export class ConfiguratorStoreService {
       missing.push('סוג האירוע');
     }
     if (form.controls.story.hasError('required') || form.controls.story.hasError('minlength')) {
-      missing.push('הסיפור (לפחות 10 תווים)');
+      missing.push('מה חשוב שנדע על הפרויקט? (לפחות 10 תווים)');
     }
     if (form.controls.eventDate.hasError('pastDate')) {
       return 'תאריך האירוע לא יכול להיות לפני היום';
@@ -868,7 +872,7 @@ export class ConfiguratorStoreService {
     this.navigateToStep(nextIndex);
   }
 
-  private markCurrentStepTouched(): void {
+  markCurrentStepTouched(): void {
     const stepId = this.currentStep()?.id;
     switch (stepId) {
       case 'details':
@@ -1323,7 +1327,6 @@ export class ConfiguratorStoreService {
             status: file.status,
             sizeBytes: file.sizeBytes,
             errorMessageHe: file.errorMessageHe,
-            thumbnailDataUrl: file.thumbnailDataUrl,
             durationSeconds: file.durationSeconds,
           }))
         : [],
@@ -1388,7 +1391,6 @@ export class ConfiguratorStoreService {
         status: isComplete ? 'complete' : 'pending',
         file: file ?? undefined,
         previewUrl: file ? URL.createObjectURL(file) : undefined,
-        thumbnailDataUrl: meta.thumbnailDataUrl,
         durationSeconds: meta.durationSeconds,
       });
     }

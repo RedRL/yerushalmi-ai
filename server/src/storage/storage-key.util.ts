@@ -176,9 +176,9 @@ export function storageKindFolder(kind: 'image' | 'video' | 'audio' = 'image'): 
 
 export function zipFolderNameForStorageKey(storageKey: string): string {
   const kind = storageKey.split('/')[2];
-  if (kind === 'videos') return 'סרטונים';
-  if (kind === 'audio') return 'אודיו';
-  return 'תמונות';
+  if (kind === 'videos') return 'files/videos';
+  if (kind === 'audio') return 'files/audio';
+  return 'files/images';
 }
 
 export function buildInquiryStorageKey(
@@ -192,9 +192,9 @@ export function buildInquiryStorageKey(
 }
 
 export function buildInquiryPhotoBundleKey(folderId: string): string {
-  return `inquiries/${folderId}/photos.zip`;
+  return `inquiries/${folderId}/files.zip`;
 }
 
 export function isInquiryPhotoBundleKey(storageKey: string): boolean {
-  return /\/photos\.zip$/i.test(storageKey);
+  return /\/(files|photos)\.zip$/i.test(storageKey);
 }

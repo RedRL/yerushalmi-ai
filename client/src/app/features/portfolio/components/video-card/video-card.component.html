@@ -63,9 +63,9 @@
     @if (video().requiredWordsHe?.length) {
       <div class="video-card__genres video-card__genres--words">
         <span class="video-card__genre-label">מילים שצריכות להופיע:</span>
-        <ul class="chip-group video-card__tags" aria-label="מילים שצריכות להופיע">
+        <ul class="video-card__tags" aria-label="מילים שצריכות להופיע">
           @for (word of video().requiredWordsHe; track word) {
-            <li class="chip chip--selected">{{ word }}</li>
+            <li class="video-card__tag video-card__tag--words">{{ word }}</li>
           }
         </ul>
       </div>

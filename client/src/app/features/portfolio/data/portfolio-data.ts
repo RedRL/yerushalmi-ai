@@ -59,13 +59,13 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
 export const PORTFOLIO_REACTIONS: readonly PortfolioVideo[] = [
   {
     id: 'tal-reaction',
-    titleHe: 'טל מגיבה לסרטון',
+    titleHe: 'טליה מגיבה לסרטון',
     categoryId: 'birthday_photos',
     categoryLabelHe: 'תגובה',
     tagsHe: [],
     descriptionHe: 'טלטול מגיבה לקליפ יום ההולדת שלה.',
-    youtubeUrl: 'https://youtu.be/7zMNxrOSdn0',
-    youtubeId: '7zMNxrOSdn0',
+    youtubeUrl: 'https://youtu.be/cL_UgC1TmGo',
+    youtubeId: 'cL_UgC1TmGo',
   },
 ];
 

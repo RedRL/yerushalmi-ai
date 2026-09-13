@@ -118,9 +118,15 @@ video {
   display: block;
 }
 
+/* Chrome ignores custom properties on ::selection — keep a literal color. */
 ::selection {
-  background: var(--color-accent-blue);
-  color: var(--color-text-on-accent);
+  color: #ffffff;
+  background: #c56fd4;
+}
+
+::-moz-selection {
+  color: #ffffff;
+  background: #c56fd4;
 }
 
 :focus-visible {
@@ -583,5 +589,12 @@ select.field__control {
     display: inline-flex;
     min-width: 0;
     margin-inline-start: 0;
+  }
+
+  .configurator__submit-wrap--invalid::after,
+  .configurator__submit-wrap--invalid:hover::after,
+  .configurator__submit-wrap--invalid:focus-visible::after {
+    content: none;
+    display: none;
   }
 }

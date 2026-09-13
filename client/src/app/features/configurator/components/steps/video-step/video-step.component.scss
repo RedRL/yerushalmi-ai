@@ -72,6 +72,14 @@
   flex-direction: column;
 }
 
+.step__section.video-step__section--spaced {
+  padding-top: var(--space-3);
+
+  @include bp.respond-up('lg') {
+    padding-top: 1.25rem;
+  }
+}
+
 .option-card-grid {
   gap: var(--space-2);
 

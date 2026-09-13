@@ -121,6 +121,7 @@ export class R2StorageService implements StorageService {
         Key: bundleKey,
         Body: passThrough,
         ContentType: 'application/zip',
+        ContentDisposition: 'attachment; filename="files.zip"',
       },
     }).done();
 

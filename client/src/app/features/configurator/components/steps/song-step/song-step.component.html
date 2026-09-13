@@ -43,11 +43,6 @@
           [maxlength]="limits.existingSongLink"
 
         />
-        <span class="field__error" aria-live="polite">
-          @if (showExistingSongLinkError()) {
-            נא להזין קישור לשיר (יוטיוב גם בסדר)
-          }
-        </span>
 
       </div>
 
@@ -64,12 +59,6 @@
     <div class="step__section">
       <div class="song-step__styles-header field__label-row">
         <span class="step__section-title">סגנונות מועדפים * <span class="song-step__title-hint">(אפשר לבחור כמה)</span></span>
-        @if (showStyleSelectionError()) {
-          <span class="field__error song-step__styles-error song-step__styles-error--full" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד כדי להמשיך.</span>
-          <span class="field__error song-step__styles-error song-step__styles-error--short" role="alert">נא לבחור לפחות סגנון מוזיקלי אחד.</span>
-        } @else if (showCustomStyleError()) {
-          <span class="field__error song-step__styles-error" role="alert">נא לציין את הסגנון המוזיקלי.</span>
-        }
       </div>
       <div class="chip-group song-step__chips" role="group" aria-label="סגנונות מוזיקליים">
         @for (style of styleOptions; track style) {
@@ -117,9 +106,6 @@
     <div class="step__section">
       <div class="song-step__styles-header field__label-row">
         <span class="step__section-title">קול *</span>
-        @if (showVocalistError()) {
-          <span class="field__error song-step__styles-error" role="alert">נא לבחור זמר, זמרת או שילוב.</span>
-        }
       </div>
       <div class="chip-group song-step__chips" role="radiogroup" aria-label="בחירת קול">
         @for (option of vocalistOptions; track option.id) {
@@ -144,7 +130,7 @@
       <div class="song-step__mood-length">
         <div class="field">
           <label class="field__label" for="length">{{ lengthFieldLabel() }} *</label>
-          <div class="length-select" [class.length-select--open]="lengthMenuOpen()">
+          <div class="length-select" [class.length-select--open]="lengthMenuOpen()" [class.length-select--invalid]="store.songForm.controls.length.invalid && store.songForm.controls.length.touched">
             <button
               type="button"
               id="length"
@@ -179,11 +165,6 @@
               </ul>
             }
           </div>
-          <span class="field__error" aria-live="polite">
-            @if (store.songForm.controls.length.invalid && store.songForm.controls.length.touched) {
-              נא לבחור אורך משוער
-            }
-          </span>
         </div>
 
         <div class="field">

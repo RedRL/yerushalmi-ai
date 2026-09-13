@@ -105,7 +105,7 @@
 .video-card--gallery {
   height: 100%;
   transform: translateY(0);
-  animation: card-float 6s ease-in-out infinite;
+  animation: card-float 4s ease-in-out infinite;
 
   .video-card__media {
     aspect-ratio: 16 / 10;
@@ -168,7 +168,7 @@
 
 @keyframes card-float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  50% { transform: translateY(-7px); }
 }
 
 @keyframes play-pulse {
@@ -311,10 +311,6 @@
     .video-card__genre-label {
       flex: 0 0 100%;
     }
-
-    .chip {
-      cursor: default;
-    }
   }
 }
 
@@ -341,6 +337,12 @@
   color: var(--color-accent-blue-light);
   font-size: var(--font-size-tiny);
   font-weight: var(--font-weight-medium);
+
+  &--words {
+    border-color: var(--color-accent-purple-light);
+    background: var(--gradient-brand-soft);
+    color: var(--color-accent-purple-light);
+  }
 }
 
 @include reduced-motion {

@@ -29,7 +29,7 @@ export class PriceSummaryComponent {
 
   readonly addonItems = computed(() => {
     const items = this.breakdown()?.lineItems ?? [];
-    return items.filter((item) => !item.id.startsWith('main_product:'));
+    return items.filter((item) => !item.id.startsWith('main_product:') && item.id !== 'subtitles:none');
   });
 
   private previousTotal: number | null = null;

@@ -3,10 +3,12 @@ import {
   buildInquiryFolderSuffix,
   buildInquiryFolderTimestampSuffix,
   buildInquiryPhotoBundleKey,
+  isInquiryPhotoBundleKey,
   buildInquiryStorageKey,
   extractInquiryFolderId,
   isValidInquiryFolderId,
   resolveUploadFolderId,
+  zipFolderNameForStorageKey,
 } from './storage-key.util';
 
 describe('storage-key.util inquiry folders', () => {
@@ -17,6 +19,16 @@ describe('storage-key.util inquiry folders', () => {
     const folderId = 'e719c35a-d4b9-4d5a-95a9-0cf1bd8c2a8d';
     expect(isValidInquiryFolderId(folderId)).toBe(true);
     expect(extractInquiryFolderId(buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234'))).toBe(folderId);
+  });
+
+  it('nests zip entries under English files/images and files/videos folders', () => {
+    const folderId = 'יוסי-כהן-a1b2c3d4';
+    expect(zipFolderNameForStorageKey(buildInquiryStorageKey(folderId, 'photo.jpg', 'abcd1234', 'image'))).toBe(
+      'files/images',
+    );
+    expect(zipFolderNameForStorageKey(buildInquiryStorageKey(folderId, 'clip.mp4', 'efgh5678', 'video'))).toBe(
+      'files/videos',
+    );
   });
 
   it('places images and videos in separate folders', () => {
@@ -33,7 +45,9 @@ describe('storage-key.util inquiry folders', () => {
   it('accepts contact-name folder ids with hex suffix', () => {
     const folderId = 'יוסי-כהן-a1b2c3d4';
     expect(isValidInquiryFolderId(folderId)).toBe(true);
-    expect(buildInquiryPhotoBundleKey(folderId)).toBe('inquiries/יוסי-כהן-a1b2c3d4/photos.zip');
+    expect(buildInquiryPhotoBundleKey(folderId)).toBe('inquiries/יוסי-כהן-a1b2c3d4/files.zip');
+    expect(isInquiryPhotoBundleKey('inquiries/יוסי-כהן-a1b2c3d4/files.zip')).toBe(true);
+    expect(isInquiryPhotoBundleKey('inquiries/יוסי-כהן-a1b2c3d4/photos.zip')).toBe(true);
   });
 
   it('accepts contact-name folder ids with reference and timestamp suffix', () => {

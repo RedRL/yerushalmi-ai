@@ -33,7 +33,12 @@ export async function compressImageForUpload(file: File): Promise<File> {
 
   try {
     if (typeof createImageBitmap !== 'undefined') {
-      const bitmap = await createImageBitmap(file);
+      const bitmap = await Promise.race([
+        createImageBitmap(file),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('compress-timeout')), 4000);
+        }),
+      ]);
       try {
         const scale = Math.min(1, MAX_EDGE_PX / Math.max(bitmap.width, bitmap.height));
         if (scale >= 1 && isJpeg(file) && file.size <= SKIP_UNDER_BYTES * 2) {

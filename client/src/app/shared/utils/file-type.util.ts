@@ -29,6 +29,13 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   '.3gp': 'video/3gpp',
 };
 
+/** iPhone camera photos are often HEIC; many browsers cannot render those blob URLs in <img>. */
+export function isHeicLikeFile(file: Pick<File, 'name' | 'type'> | { name?: string; type?: string }): boolean {
+  const mime = (file.type || '').toLowerCase();
+  const name = (file.name || '').toLowerCase();
+  return mime.includes('heic') || mime.includes('heif') || name.endsWith('.heic') || name.endsWith('.heif');
+}
+
 /** Resolves a file MIME type from the browser value or the file extension. */
 export function resolveFileMimeType(file: File): string {
   const mime = (file.type || '').toLowerCase();

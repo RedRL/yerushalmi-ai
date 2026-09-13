@@ -61,7 +61,7 @@
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 0;
   padding-inline: 0;
-  padding-block: var(--space-2) var(--space-3);
+  padding-block: var(--space-5) var(--space-3);
   direction: ltr;
   min-width: 0;
   -ms-overflow-style: none;
@@ -73,7 +73,7 @@
   }
 
   @include bp.respond-up('lg') {
-    padding-block: var(--space-6) var(--space-7);
+    padding-block: var(--space-8) var(--space-7);
   }
 }
 
@@ -224,6 +224,10 @@
   font-size: var(--font-size-h3);
   color: var(--color-text-primary);
   text-align: center;
+}
+
+.portfolio__reactions .portfolio__songs-title {
+  margin-bottom: var(--space-5);
 }
 
 .portfolio__songs-subtitle {

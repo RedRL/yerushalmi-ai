@@ -153,6 +153,10 @@
   background-color: var(--color-bg-surface);
 }
 
+.length-select--invalid .length-select__trigger {
+  border-color: var(--color-error);
+}
+
 .length-select__menu {
   position: absolute;
   top: calc(100% + 6px);

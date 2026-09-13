@@ -171,6 +171,7 @@ export class ConfiguratorComponent {
 
     effect(() => {
       this.store.isCurrentStepValid();
+      this.store.isSubmissionValid();
       this.dismissMobileNextHint(true);
     });
 
@@ -254,7 +255,13 @@ export class ConfiguratorComponent {
   }
 
   onNextWrapClick(): void {
-    if (!this.store.isCurrentStepValid() && window.matchMedia('(max-width: 1023px)').matches) {
+    const blocked = this.isFinalStep
+      ? !this.store.isSubmissionValid()
+      : !this.store.isCurrentStepValid();
+    if (!blocked) return;
+
+    this.store.markCurrentStepTouched();
+    if (window.matchMedia('(max-width: 1023px)').matches) {
       this.showMobileNextHint();
     }
   }
@@ -333,7 +340,8 @@ export class ConfiguratorComponent {
       document.body.appendChild(tooltip);
     }
 
-    const rect = wrap.getBoundingClientRect();
+    const nav = wrap.closest('.configurator__nav');
+    const rect = (nav instanceof HTMLElement ? nav : wrap).getBoundingClientRect();
     const gap = 8;
     tooltip.style.setProperty('position', 'fixed');
     tooltip.style.setProperty('left', '50%');
@@ -379,6 +387,13 @@ export class ConfiguratorComponent {
     if (this.store.isCurrentStepValid()) {
       event.stopPropagation();
       this.goNext();
+    }
+  }
+
+  onSubmitButtonClick(event: Event): void {
+    if (this.store.isSubmissionValid() && !this.store.isSubmitting()) {
+      event.stopPropagation();
+      this.submitContact();
     }
   }
 

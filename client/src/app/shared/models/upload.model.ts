@@ -14,7 +14,7 @@ export interface UploadedFileReference {
   durationSeconds?: number;
   /** Local preview URL (object URL) - must be revoked with URL.revokeObjectURL on cleanup. */
   previewUrl?: string;
-  /** Small persisted thumbnail (data URL) for gallery tiles after refresh. */
+  /** In-session JPEG thumbnail for gallery tiles. Not written to localStorage. */
   thumbnailDataUrl?: string;
   /** In-memory file handle for the current session (not persisted). */
   file?: File;

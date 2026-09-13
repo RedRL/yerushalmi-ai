@@ -50,26 +50,6 @@ export class SongStepComponent {
     return options.find((option) => option.id === id)?.labelHe ?? options[0]?.labelHe ?? '';
   });
 
-  readonly showExistingSongLinkError = computed(() => {
-    const control = this.store.songForm.controls.existingSongLink;
-    return control.touched && !/^https?:\/\/\S+/i.test(control.value.trim());
-  });
-
-  readonly showStyleSelectionError = computed(
-    () =>
-      this.store.selectedSongStyles().length === 0 && this.store.songForm.controls.style.touched,
-  );
-
-  readonly showCustomStyleError = computed(() => {
-    const styles = this.store.selectedSongStyles();
-    return (
-      styles.length === 1 &&
-      styles[0] === 'אחר' &&
-      this.store.songCustomStyleTouched() &&
-      this.store.songCustomStyleText().trim().length === 0
-    );
-  });
-
   constructor() {
     const media = window.matchMedia('(max-width: 1023px)');
     const syncMobile = (): void => this.isMobileViewport.set(media.matches);
@@ -86,12 +66,6 @@ export class SongStepComponent {
     }
     return option.labelHe;
   }
-
-  readonly showVocalistError = computed(
-    () =>
-      this.store.songForm.controls.vocalist.touched &&
-      !this.store.songForm.controls.vocalist.value,
-  );
 
   selectVocalist(id: VocalistId): void {
     this.store.selectVocalist(id);

@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import type { UploadedFileKind, UploadedFileReference } from '../../models/upload.model';
 import { isAcceptedFileType } from '../../utils/file-type.util';
+import { cloneUploadFiles } from '../../utils/upload-file-store.util';
 import {
   resolveUploadedFileLightboxUrl,
   resolveUploadedFileTileUrl,
@@ -535,7 +536,7 @@ export class FileUploadComponent implements OnDestroy {
 
     const files = event.dataTransfer?.files;
     if (files?.length) {
-      this.validateAndEmit(Array.from(files));
+      void cloneUploadFiles(Array.from(files)).then((durable) => this.validateAndEmit(durable));
     }
   }
 
@@ -546,12 +547,15 @@ export class FileUploadComponent implements OnDestroy {
     return Array.from(types).includes('Files');
   }
 
-  onFileInputChange(event: Event): void {
+  async onFileInputChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      this.validateAndEmit(Array.from(input.files));
-    }
+    const picked = input.files ? Array.from(input.files) : [];
+    if (picked.length === 0) return;
+
+    // Clone while the input still owns the FileList. Clearing first empties files on iOS.
+    const durable = await cloneUploadFiles(picked);
     input.value = '';
+    this.validateAndEmit(durable);
   }
 
   private validateAndEmit(candidateFiles: File[]): void {
@@ -571,6 +575,11 @@ export class FileUploadComponent implements OnDestroy {
       if (!isAcceptedFileType(file, accept)) {
         const typeLabel = this.kind() === 'image' ? 'תמונה נתמכת' : this.kind() === 'video' ? 'סרטון נתמך' : 'קובץ נתמך';
         this.errorMessage.set(`"${file.name}" אינו ${typeLabel}. ניתן להעלות ${acceptLabel}.`);
+        continue;
+      }
+
+      if (file.size <= 0) {
+        this.errorMessage.set(`לא ניתן לקרוא את הקובץ "${file.name}". נסו לבחור אותו שוב.`);
         continue;
       }
 

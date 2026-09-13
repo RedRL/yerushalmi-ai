@@ -322,6 +322,10 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
         gap: var(--space-2);
       }
 
+      .step__section.video-step__section--spaced {
+        padding-top: 1.25rem;
+      }
+
       .step__section-title {
         font-size: var(--font-size-small);
         flex-shrink: 0;
@@ -454,7 +458,7 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
 
       .file-upload__gallery {
         @include bp.respond-down('lg') {
-          height: auto;
+          height: 0;
           max-height: none;
         }
       }
@@ -911,6 +915,10 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   margin-inline-start: auto;
 }
 
+.configurator__nav-next-wrap--blocked .configurator__nav-next {
+  pointer-events: none;
+}
+
 .configurator__nav-back {
 
   border: 1px solid var(--color-border-strong);
@@ -1019,6 +1027,11 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
         height: auto;
         min-height: 0;
         overflow: visible;
+      }
+
+      app-upload-step .step {
+        height: 100%;
+        overflow: hidden;
       }
 
       .step__title {
@@ -1190,14 +1203,16 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
           gap: var(--space-2);
         }
 
-        .contact-step__submit {
+        .contact-step__submit,
+        .contact-step__submit-wrap {
           display: none;
+          margin-top: 0;
         }
 
         .contact-step__consents {
           gap: var(--space-2);
-          padding-bottom: var(--space-2);
-          margin-bottom: var(--space-1);
+          padding-bottom: 0;
+          margin-bottom: 0;
         }
       }
 
@@ -1226,6 +1241,10 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
           &:not(:first-of-type) {
             margin-top: var(--space-6);
           }
+        }
+
+        .step__section.video-step__section--spaced {
+          padding-top: var(--space-3);
         }
 
         .video-step {
@@ -1284,11 +1303,17 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
       app-video-step,
       app-project-details-step,
       app-optional-details-step,
-      app-upload-step,
       app-summary-step,
       app-contact-step {
         height: auto;
         overflow: visible;
+      }
+
+      app-upload-step {
+        height: 100%;
+        overflow: hidden;
+        flex: 1 1 auto;
+        min-height: 0;
       }
 
       .step,
@@ -1300,16 +1325,45 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
         flex: 0 0 auto;
       }
 
+      app-upload-step .step {
+        height: 100%;
+        overflow: hidden;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
       .optional-details-step .step__section,
-      app-upload-step .step__section,
-      app-file-upload .file-upload,
-      app-file-upload .file-upload__files,
-      app-file-upload .file-upload__gallery {
+      app-upload-step .step__section {
         height: auto;
         max-height: none;
         min-height: 0;
         overflow: visible;
         flex: 0 0 auto;
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      app-file-upload .file-upload,
+      app-file-upload .file-upload__files {
+        flex: 1 1 auto;
+        min-height: 0;
+        height: auto;
+        max-height: none;
+        overflow: hidden;
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      app-file-upload .file-upload__gallery {
+        flex: 1 1 auto;
+        min-height: 0;
+        height: 0;
+        max-height: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
         padding-left: 0;
         padding-right: 0;
       }
@@ -1403,7 +1457,8 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
     padding-inline: var(--space-2);
   }
 
-  .configurator__nav-next-wrap--blocked .configurator__nav-next {
+  .configurator__nav-next-wrap--blocked .configurator__nav-next,
+  .configurator__submit-wrap--blocked .configurator__nav-submit {
     pointer-events: none;
   }
 

@@ -1,56 +1,77 @@
 import type { UploadedFileReference } from '../models/upload.model';
+import { isHeicLikeFile } from './file-type.util';
 
-/** Small JPEG data URL for gallery tiles — persisted in localStorage across refresh. */
-export async function createImageThumbnailDataUrl(
+function canvasFromSize(width: number, height: number, maxEdgePx: number): HTMLCanvasElement {
+  const scale = Math.min(1, maxEdgePx / Math.max(width, height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(width * scale));
+  canvas.height = Math.max(1, Math.round(height * scale));
+  return canvas;
+}
+
+function thumbnailFromImageElement(
   file: File,
-  maxEdgePx = 160,
-  quality = 0.72,
+  maxEdgePx: number,
+  quality: number,
 ): Promise<string> {
-  if (typeof createImageBitmap !== 'undefined') {
-    const bitmap = await createImageBitmap(file);
-    try {
-      const scale = Math.min(1, maxEdgePx / Math.max(bitmap.width, bitmap.height));
-      const width = Math.max(1, Math.round(bitmap.width * scale));
-      const height = Math.max(1, Math.round(bitmap.height * scale));
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas not supported');
-      ctx.drawImage(bitmap, 0, 0, width, height);
-      return canvas.toDataURL('image/jpeg', quality);
-    } finally {
-      bitmap.close();
-    }
-  }
-
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const image = new Image();
+    const finish = (error?: unknown, dataUrl?: string): void => {
+      clearTimeout(timeoutId);
+      URL.revokeObjectURL(url);
+      if (dataUrl) {
+        resolve(dataUrl);
+        return;
+      }
+      reject(error instanceof Error ? error : new Error('Failed to load image for thumbnail'));
+    };
+    const timeoutId = setTimeout(() => finish(new Error('thumbnail-timeout')), 2500);
     image.onload = () => {
       try {
-        const scale = Math.min(1, maxEdgePx / Math.max(image.naturalWidth, image.naturalHeight));
-        const width = Math.max(1, Math.round(image.naturalWidth * scale));
-        const height = Math.max(1, Math.round(image.naturalHeight * scale));
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        const canvas = canvasFromSize(image.naturalWidth, image.naturalHeight, maxEdgePx);
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error('Canvas not supported');
-        ctx.drawImage(image, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        finish(undefined, canvas.toDataURL('image/jpeg', quality));
       } catch (error) {
-        reject(error);
-      } finally {
-        URL.revokeObjectURL(url);
+        finish(error);
       }
     };
-    image.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image for thumbnail'));
-    };
+    image.onerror = () => finish(new Error('Failed to load image for thumbnail'));
     image.src = url;
   });
+}
+
+/** Small JPEG data URL for gallery tiles. Not persisted — localStorage quota is too small on mobile. */
+export async function createImageThumbnailDataUrl(
+  file: File,
+  maxEdgePx = 128,
+  quality = 0.62,
+): Promise<string> {
+  if (typeof createImageBitmap !== 'undefined') {
+    try {
+      const bitmap = await Promise.race([
+        createImageBitmap(file),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('thumbnail-timeout')), 2500);
+        }),
+      ]);
+      try {
+        const canvas = canvasFromSize(bitmap.width, bitmap.height, maxEdgePx);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas not supported');
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', quality);
+      } finally {
+        bitmap.close();
+      }
+    } catch {
+      // HEIC and some iOS bitmaps fail here; try a regular image decode next.
+    }
+  }
+
+  return thumbnailFromImageElement(file, maxEdgePx, quality);
 }
 
 /** First-frame JPEG data URL for gallery tiles. */
@@ -101,28 +122,29 @@ export async function createVideoThumbnailDataUrl(
 }
 
 export function resolveUploadedFileTileUrl(
-  file: Pick<UploadedFileReference, 'previewUrl' | 'thumbnailDataUrl' | 'url' | 'type'>,
+  file: Pick<UploadedFileReference, 'previewUrl' | 'thumbnailDataUrl' | 'url' | 'type' | 'name'>,
 ): string | undefined {
   if (file.thumbnailDataUrl) return file.thumbnailDataUrl;
   if (file.type === 'image') {
-    if (file.previewUrl) return file.previewUrl;
+    if (file.previewUrl && !isHeicLikeFile(file)) return file.previewUrl;
     if (file.url?.startsWith('http')) return file.url;
   }
   return undefined;
 }
 
 export function resolveUploadedFileLightboxUrl(
-  file: Pick<UploadedFileReference, 'previewUrl' | 'thumbnailDataUrl' | 'url' | 'type'>,
+  file: Pick<UploadedFileReference, 'previewUrl' | 'thumbnailDataUrl' | 'url' | 'type' | 'name'>,
 ): string | undefined {
-  if (file.previewUrl) return file.previewUrl;
+  if (file.previewUrl && !isHeicLikeFile(file)) return file.previewUrl;
+  if (file.thumbnailDataUrl) return file.thumbnailDataUrl;
   if (file.type === 'image' && file.url?.startsWith('http')) return file.url;
   return undefined;
 }
 
 export function resolveUploadedFilePreviewUrl(
-  file: Pick<UploadedFileReference, 'previewUrl' | 'thumbnailDataUrl' | 'url' | 'type'>,
+  file: Pick<UploadedFileReference, 'previewUrl' | 'thumbnailDataUrl' | 'url' | 'type' | 'name'>,
 ): string | undefined {
-  if (file.previewUrl) return file.previewUrl;
+  if (file.previewUrl && !isHeicLikeFile(file)) return file.previewUrl;
   if (file.thumbnailDataUrl) return file.thumbnailDataUrl;
   if (file.type === 'image' && file.url?.startsWith('http')) return file.url;
   return undefined;

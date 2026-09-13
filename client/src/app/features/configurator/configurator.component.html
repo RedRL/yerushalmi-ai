@@ -137,18 +137,20 @@
 
           @if (isFinalStep && !store.submitResult()) {
             <span
+              #navNextWrap
               class="configurator__submit-wrap"
+              [class.configurator__submit-wrap--blocked]="!store.isSubmissionValid()"
+              [class.configurator__submit-wrap--hint-visible]="nextHintVisible()"
               [class.configurator__submit-wrap--invalid]="!store.isSubmissionValid()"
-              [attr.title]="!store.isSubmissionValid() ? store.submissionValidationMessage() : null"
-              [attr.data-tooltip]="!store.isSubmissionValid() ? store.submissionValidationMessage() : null"
-              [attr.tabindex]="!store.isSubmissionValid() ? 0 : null"
+              (click)="onNextWrapClick()"
             >
               <button
                 type="button"
                 class="configurator__nav-next configurator__nav-submit"
                 [disabled]="store.isSubmitting() || !store.isSubmissionValid()"
                 [attr.aria-busy]="store.isSubmitting()"
-                (click)="submitContact()"
+                [attr.aria-describedby]="!store.isSubmissionValid() && nextHintVisible() ? 'configurator-next-hint' : null"
+                (click)="onSubmitButtonClick($event)"
               >
                 @if (store.isSubmitting()) {
                   {{ store.submitStatusLabelHe() }}
@@ -156,6 +158,16 @@
                   הגשת הבקשה
                 }
               </button>
+
+              @if (!store.isSubmissionValid() && store.submissionValidationMessage(); as hint) {
+                <span
+                  #navTooltip
+                  id="configurator-next-hint"
+                  class="configurator__nav-tooltip"
+                  [class.configurator__nav-tooltip--visible]="nextHintVisible()"
+                  role="tooltip"
+                >{{ hint }}</span>
+              }
             </span>
           }
 

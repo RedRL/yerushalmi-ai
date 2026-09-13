@@ -27,16 +27,16 @@
       class="upload-step__info-button"
       aria-label="מידע על העלאת קבצים"
       [attr.aria-expanded]="mobileHelpOpen()"
-      (click)="toggleMobileHelp()"
+      (click)="toggleMobileHelp($event)"
     >i</button>
     @if (mobileHelpOpen()) {
       <div class="upload-step__help" role="tooltip">
         @if (activeTab() === 'image') {
-          <p>מומלץ לספק 18–22 תמונות לכל דקה של סרטון, ועד 25 לדקה לכל היותר (לדוגמה – מומלצות 36–44 תמונות לסרטון של כ-2 דקות, ועד 50 במקסימום).</p>
-          <p>אם חשוב לכם שהתמונות יופיעו בסדר מסוים, כדאי לתת לתמונות שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר את התמונות כפי שנראה לנו לנכון בהתאם לתמונות עצמן ולשיר ברקע.</p>
+          <p>{{ imageCountGuidanceHe() }}</p>
         } @else {
-          <p>אפשר להוסיף סרטונים קצרים, ועד שלושה סרטונים לכל דקה של קליפ.</p>
+          <p>{{ videoCountGuidanceHe() }}</p>
         }
+        <p>{{ orderGuidanceHe }}</p>
       </div>
     }
   </div>
@@ -45,10 +45,10 @@
     <div class="upload-step__pane">
       <div class="step__description upload-step__pane-help">
         <p>
-          מומלץ לספק 18–22 תמונות לכל דקה של סרטון, ועד 25 לדקה לכל היותר (לדוגמה – מומלצות 36–44 תמונות לסרטון של כ-2 דקות, ועד 50 במקסימום).
+          {{ imageCountGuidanceHe() }}
         </p>
         <p>
-          אם חשוב לכם שהתמונות יופיעו בסדר מסוים, כדאי לתת לתמונות שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר את התמונות כפי שנראה לנו לנכון בהתאם לתמונות עצמן ולשיר ברקע.
+          {{ orderGuidanceHe }}
         </p>
       </div>
       <app-file-upload
@@ -64,9 +64,10 @@
     </div>
   } @else {
     <div class="upload-step__pane">
-      <p class="step__description upload-step__pane-help">
-        אפשר להוסיף סרטונים קצרים, ועד שלושה סרטונים לכל דקה של קליפ.
-      </p>
+      <div class="step__description upload-step__pane-help">
+        <p>{{ videoCountGuidanceHe() }}</p>
+        <p>{{ orderGuidanceHe }}</p>
+      </div>
       @if (videoError()) {
         <p class="step__description upload-step__error" role="alert">{{ videoError() }}</p>
       }

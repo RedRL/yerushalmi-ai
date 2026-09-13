@@ -85,7 +85,7 @@
   .file-upload__files {
     flex: 1 1 auto;
     min-height: 0;
-    overflow: auto;
+    overflow: hidden;
   }
 }
 
@@ -114,8 +114,12 @@
   padding-inline-end: var(--space-1);
 
   @include bp.respond-down('lg') {
-    height: auto;
-    overflow: visible;
+    height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     scrollbar-gutter: auto;
   }
 }
@@ -253,12 +257,14 @@
   position: absolute;
   top: var(--space-1);
   inset-inline-start: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 22px;
   height: 22px;
   border-radius: var(--radius-full);
   color: var(--color-text-primary);
   background: rgba(8, 7, 20, 0.72);
-  font-size: 0.75rem;
   line-height: 1;
   transition: color var(--transition-fast), background var(--transition-fast);
 

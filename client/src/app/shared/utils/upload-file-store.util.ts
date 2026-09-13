@@ -61,6 +61,22 @@ export async function cloneUploadFile(file: File): Promise<File> {
   });
 }
 
+/**
+ * Clones every picker file before the file input is cleared.
+ * iOS Safari can empty FileList entries once the change handler yields and the input resets.
+ */
+export async function cloneUploadFiles(files: File[]): Promise<File[]> {
+  const cloned: File[] = [];
+  for (const file of files) {
+    try {
+      cloned.push(await cloneUploadFile(file));
+    } catch {
+      cloned.push(file);
+    }
+  }
+  return cloned;
+}
+
 /** Persists a selected file locally until the inquiry is submitted. */
 export async function saveUploadFile(id: string, file: File, fileType: UploadedFileKind): Promise<void> {
   const record: StoredUploadFileRecord = {

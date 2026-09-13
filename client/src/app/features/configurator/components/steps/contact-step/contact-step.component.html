@@ -32,35 +32,16 @@
         <div class="field">
           <label class="field__label" for="contactName">שם מלא *</label>
           <input id="contactName" class="field__control" formControlName="name" autocomplete="name" [maxlength]="limits.contactName" />
-          <span class="field__error" aria-live="polite">
-            @if (store.contactForm.controls.name.invalid && store.contactForm.controls.name.touched) {
-              נא להזין שם מלא
-            }
-          </span>
         </div>
 
         <div class="field">
           <label class="field__label" for="contactPhone">טלפון *</label>
           <input id="contactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" [maxlength]="limits.contactPhone" />
-          <span class="field__error" aria-live="polite">
-            @if (store.contactForm.controls.phone.invalid && store.contactForm.controls.phone.touched) {
-              נא להזין מספר טלפון תקין
-            }
-          </span>
         </div>
 
         <div class="field">
           <label class="field__label" for="contactEmail">מייל *</label>
           <input id="contactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" [maxlength]="limits.contactEmail" />
-          <span class="field__error" aria-live="polite">
-            @if (store.contactForm.controls.email.invalid && store.contactForm.controls.email.touched) {
-              @if (store.contactForm.controls.email.hasError('required')) {
-                נא להזין כתובת אימייל
-              } @else {
-                כתובת אימייל לא תקינה
-              }
-            }
-          </span>
         </div>
 
         <div class="field">
@@ -77,12 +58,6 @@
               <label for="mediaRightsConsent">
                 אני מאשר/ת שיש לי הרשאה להשתמש ולשלוח את התמונות והמידע שסיפקתי. *
               </label>
-              @if (store.contactForm.controls.mediaRightsConsent.touched) {
-                <span
-                  class="field__error"
-                  [class.field__error--hidden]="store.contactForm.controls.mediaRightsConsent.valid"
-                >נא לאשר</span>
-              }
             </div>
           </div>
         </div>
@@ -92,12 +67,6 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="contactPermissionConsent">אני מאשר/ת שיחזרו אליי בנוגע לבקשה. *</label>
-              @if (store.contactForm.controls.contactPermissionConsent.touched) {
-                <span
-                  class="field__error"
-                  [class.field__error--hidden]="store.contactForm.controls.contactPermissionConsent.valid"
-                >נא לאשר</span>
-              }
             </div>
           </div>
         </div>
@@ -109,12 +78,6 @@
               <label for="termsConsent">
                 אני מאשר/ת שקראתי והסכמתי ל<a href="/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a>. *
               </label>
-              @if (store.contactForm.controls.termsConsent.touched) {
-                <span
-                  class="field__error"
-                  [class.field__error--hidden]="store.contactForm.controls.termsConsent.valid"
-                >נא לאשר</span>
-              }
             </div>
           </div>
         </div>

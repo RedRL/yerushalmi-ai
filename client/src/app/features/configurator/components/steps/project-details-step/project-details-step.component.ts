@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   HostListener,
   computed,
@@ -43,13 +44,28 @@ const MONTH_LABELS = [
   styleUrl: './project-details-step.component.scss',
 })
 export class ProjectDetailsStepComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
   readonly store = inject(ConfiguratorStoreService);
   readonly limits = FIELD_LIMITS;
   readonly weekdayLabels = WEEKDAY_LABELS;
+  readonly isMobileViewport = signal(false);
   readonly eventDateText = signal(formatIsoDateToHeIl(this.store.projectDetailsForm.controls.eventDate.value));
   readonly calendarOpen = signal(false);
   readonly calendarMonth = signal(initialCalendarMonth(this.store.projectDetailsForm.controls.eventDate.value));
+
+  constructor() {
+    const media = window.matchMedia('(max-width: 1023px)');
+    const syncMobile = (): void => {
+      this.isMobileViewport.set(media.matches);
+      if (media.matches) {
+        this.calendarOpen.set(false);
+      }
+    };
+    syncMobile();
+    media.addEventListener('change', syncMobile);
+    this.destroyRef.onDestroy(() => media.removeEventListener('change', syncMobile));
+  }
 
   readonly personNameLabel = computed(() =>
     this.store.includesVideo()
@@ -70,6 +86,15 @@ export class ProjectDetailsStepComponent {
     if (year !== view.getFullYear() || month !== view.getMonth() + 1) return 0;
     return day ?? 0;
   });
+
+  readonly todayCalendarDay = computed(() => {
+    const [year, month, day] = todayIsoHeIl().split('-').map(Number);
+    const view = this.calendarMonth();
+    if (year !== view.getFullYear() || month !== view.getMonth() + 1) return 0;
+    return day ?? 0;
+  });
+
+  readonly minEventDate = todayIsoHeIl;
 
   readonly canGoPrevMonth = computed(() => {
     const view = this.calendarMonth();
@@ -109,6 +134,18 @@ export class ProjectDetailsStepComponent {
     }
   }
 
+  onNativeEventDateInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    const control = this.store.projectDetailsForm.controls.eventDate;
+    control.setValue(value);
+    control.markAsTouched();
+    this.eventDateText.set(formatIsoDateToHeIl(value));
+  }
+
+  onNativeEventDateBlur(): void {
+    this.store.projectDetailsForm.controls.eventDate.markAsTouched();
+  }
+
   onEventDateBlur(): void {
     const control = this.store.projectDetailsForm.controls.eventDate;
     const parsed = parseHeIlDateToIso(this.eventDateText());
@@ -135,14 +172,9 @@ export class ProjectDetailsStepComponent {
     this.calendarMonth.set(new Date(current.getFullYear(), current.getMonth() + delta, 1));
   }
 
-  selectToday(): void {
-    const iso = todayIsoHeIl();
-    const [year, month] = iso.split('-').map(Number);
+  revealToday(): void {
+    const [year, month] = todayIsoHeIl().split('-').map(Number);
     this.calendarMonth.set(new Date(year ?? new Date().getFullYear(), (month ?? 1) - 1, 1));
-    this.store.projectDetailsForm.controls.eventDate.setValue(iso);
-    this.eventDateText.set(formatIsoDateToHeIl(iso));
-    this.store.projectDetailsForm.controls.eventDate.markAsTouched();
-    this.calendarOpen.set(false);
   }
 
   selectCalendarDay(day: number): void {
@@ -173,7 +205,9 @@ export class ProjectDetailsStepComponent {
 
   onStoryWheel(event: WheelEvent): void {
     if (window.matchMedia('(max-width: 1023px)').matches) return;
-    containScrollWheel(event, event.currentTarget as HTMLElement);
+    const element = event.currentTarget as HTMLElement;
+    if (element.scrollHeight <= element.clientHeight) return;
+    containScrollWheel(event, element);
   }
 }
 
