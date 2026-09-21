@@ -13,7 +13,8 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  scroll-margin-top: 5rem;
+  scroll-margin-top: 0;
+  overflow-anchor: none;
 
   @include bp.respond-down('lg') {
     height: calc(100svh - var(--header-height));
@@ -33,14 +34,17 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   grid-template-columns: 1fr;
   gap: var(--space-5);
   align-items: start;
+  overflow-anchor: none;
 
   @include bp.respond-up('lg') {
     align-items: stretch;
   }
 
-  &--with-sidebar {
-    @include bp.respond-up('xl') {
-      grid-template-columns: minmax(0, 1fr) $configurator-sidebar-width;
+  @include bp.respond-up('xl') {
+    grid-template-columns: minmax(0, 1fr) $configurator-sidebar-width;
+
+    &--solo {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
@@ -109,28 +113,15 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
 .configurator__body {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
   padding-inline-start: var(--space-2);
   padding-inline-end: 0;
   animation: step-fade var(--transition-slow) var(--ease-out);
   display: flex;
   flex-direction: column;
-
-  > app-song-step,
-  > app-video-step,
-  > app-optional-details-step,
-  > app-upload-step {
-    flex: 1;
-    min-height: 0;
-  }
-
-  &--scrollable {
-    @include scrollbars.scroll-area-custom-props;
-  }
+  overflow-anchor: none;
+  @include scrollbars.scroll-area-custom-props;
 
   &--summary {
-    overflow: visible;
-
     @include bp.respond-down('lg') {
       @include scrollbars.scroll-area-custom-props;
     }
@@ -149,20 +140,13 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
     > app-optional-details-step,
     > app-project-details-step,
     > app-contact-step,
-    > app-summary-step {
+    > app-summary-step,
+    > app-upload-step {
       display: block;
       flex: 0 0 auto;
       height: auto;
       min-height: 0;
       overflow: visible;
-    }
-
-    > app-upload-step {
-      display: flex;
-      flex: 1 1 auto;
-      min-height: 0;
-      height: 100%;
-      overflow: hidden;
     }
   }
 }
@@ -259,7 +243,9 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
 .configurator__inline-price {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--space-1);
+  min-height: 5.75rem;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-accent);
@@ -267,6 +253,12 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
 
   @include bp.respond-up('xl') {
     display: none;
+  }
+
+  &--placeholder {
+    visibility: hidden;
+    pointer-events: none;
+    user-select: none;
   }
 }
 

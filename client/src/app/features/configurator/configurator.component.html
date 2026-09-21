@@ -14,7 +14,7 @@
 
   <div
     class="configurator__layout"
-    [class.configurator__layout--with-sidebar]="showSidebarPrice"
+    [class.configurator__layout--solo]="!showSidebarPrice"
     appReveal
   >
 
@@ -108,24 +108,27 @@
 
         <div class="configurator__footer">
 
-          @if (showInlinePrice) {
-            <div class="configurator__inline-price" aria-live="polite">
-              <div class="configurator__inline-price-row">
-                <span class="configurator__inline-price-label">סה"כ משוער</span>
-                <div class="configurator__inline-price-values">
-                  <div class="configurator__inline-price-figures">
-                    @if (showIntroPricing) {
-                      <span class="configurator__inline-price-original">₪{{ store.originalPriceTotal() }}</span>
-                    }
-                    <strong class="configurator__inline-price-amount">₪{{ store.priceBreakdown()!.total }}</strong>
-                  </div>
+          <div
+            class="configurator__inline-price"
+            [class.configurator__inline-price--placeholder]="!showInlinePrice"
+            [attr.aria-hidden]="showInlinePrice ? null : 'true'"
+            [attr.aria-live]="showInlinePrice ? 'polite' : null"
+          >
+            <div class="configurator__inline-price-row">
+              <span class="configurator__inline-price-label">סה"כ משוער</span>
+              <div class="configurator__inline-price-values">
+                <div class="configurator__inline-price-figures">
                   @if (showIntroPricing) {
-                    <span class="configurator__inline-price-promo">מחיר היכרות · לזמן מוגבל</span>
+                    <span class="configurator__inline-price-original">₪{{ store.originalPriceTotal() }}</span>
                   }
+                  <strong class="configurator__inline-price-amount">₪{{ store.priceBreakdown()?.total ?? 0 }}</strong>
                 </div>
+                @if (showIntroPricing) {
+                  <span class="configurator__inline-price-promo">מחיר היכרות · לזמן מוגבל</span>
+                }
               </div>
             </div>
-          }
+          </div>
 
           <div class="configurator__nav">
 
@@ -212,17 +215,13 @@
 
 
     @if (showSidebarPrice) {
-
       <aside class="configurator__sidebar" aria-label="סיכום מחיר">
-
         <app-price-summary
           [breakdown]="store.priceBreakdown()"
           [originalTotal]="store.originalPriceTotal()"
           [mainProductId]="store.mainProduct()"
         />
-
       </aside>
-
     }
 
   </div>

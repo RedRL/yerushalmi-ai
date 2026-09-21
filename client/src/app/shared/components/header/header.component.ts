@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { NAV_LINKS, SITE_CONFIG } from '../../../core/config/site.config';
-import { scrollToSectionFromNav } from '../../utils/scroll-to.util';
+import { scrollToPageTop, scrollToSectionFromNav } from '../../utils/scroll-to.util';
 
 const MOBILE_MENU_CLOSE_MS = 180;
 
@@ -87,7 +87,7 @@ export class HeaderComponent {
     this.closeMobileMenu();
 
     if (sectionId === 'top') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToPageTop();
       return;
     }
 

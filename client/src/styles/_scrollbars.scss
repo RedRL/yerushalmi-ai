@@ -69,7 +69,12 @@
   padding-left: var(--scrollbar-gutter);
 }
 
-/** Hide native scrollbar — pair with appPersistentScrollbar directive. */
+.persistent-scroll-shell:not(.persistent-scroll-shell--gutter) > .persistent-scroll__rail {
+  display: none !important;
+}
+
+/** Hide native scrollbar — pair with appPersistentScrollbar directive.
+ *  `scrollbar-width` is inherited, so descendants must restore a visible bar. */
 .persistent-scroll-host {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -79,6 +84,11 @@
     width: 0;
     height: 0;
   }
+
+  * {
+    scrollbar-width: auto;
+    -ms-overflow-style: auto;
+  }
 }
 
 .persistent-scroll__rail {
@@ -86,28 +96,58 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: var(--scrollbar-size);
-  pointer-events: none;
-  z-index: 3;
+  width: var(--scrollbar-gutter);
+  pointer-events: auto;
+  z-index: 8;
   overflow: hidden;
+  touch-action: none;
+  cursor: default;
+
+  &[hidden] {
+    display: none !important;
+  }
 }
 
 .persistent-scroll__thumb {
   position: absolute;
   left: 0;
   top: 0;
-  width: 100%;
+  width: var(--scrollbar-size);
   min-height: 2rem;
   border-radius: var(--radius-full);
   background: var(--scrollbar-gradient);
   background-repeat: no-repeat;
   box-shadow: 0 0 8px rgba(155, 109, 246, 0.45);
+  pointer-events: auto;
+  cursor: default;
+}
+
+.persistent-scroll__thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--scrollbar-size);
+  min-height: 2rem;
+  border-radius: var(--radius-full);
+  background: var(--scrollbar-gradient);
+  background-repeat: no-repeat;
+  box-shadow: 0 0 8px rgba(155, 109, 246, 0.45);
+  pointer-events: auto;
+}
+
+.persistent-scroll__thumb:hover,
+.persistent-scroll__thumb--dragging {
+  background: var(--scrollbar-gradient-hover);
+}
+
+.persistent-scroll__rail--dragging {
+  user-select: none;
 }
 
 /** Scroll behaviour only — pair with global :where() scrollbar styling. */
 @mixin vertical-scroll-props {
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 /** Reserve physical-left gutter for the native scrollbar (no box-shadow fake rail). */

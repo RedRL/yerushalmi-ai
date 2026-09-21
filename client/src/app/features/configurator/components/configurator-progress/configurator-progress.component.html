@@ -10,6 +10,7 @@
         <button
           type="button"
           class="progress__button"
+          (mousedown)="$event.preventDefault()"
           (click)="onStepClick(index)"
           [attr.aria-current]="stepState(index) === 'current' ? 'step' : null"
           [attr.aria-label]="'שלב ' + (index + 1) + ' מתוך ' + store.visibleSteps().length + ': ' + step.labelHe"

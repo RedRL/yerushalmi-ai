@@ -247,17 +247,3 @@
   }
 }
 
-@include reduced-motion {
-  .portfolio__item {
-    opacity: 1;
-    transform: none;
-    animation: none !important;
-  }
-
-  .portfolio__item-stage {
-    transition: none;
-    transform: none !important;
-    opacity: 1;
-    filter: none;
-  }
-}

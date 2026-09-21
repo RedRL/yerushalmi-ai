@@ -1,37 +1,15 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
-@use 'scrollbars' as scrollbars;
 
 :host {
   display: block;
   width: 100%;
   max-width: 100%;
   min-height: 0;
-
-  @include bp.respond-up('lg') {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    height: 100%;
-  }
 }
 
 .song-step {
-  @include bp.respond-up('lg') {
-    flex: 1;
-    min-height: 0;
-    height: 100%;
-    @include scrollbars.vertical-scroll-props;
-    @include scrollbars.scrollbar-inset-rtl;
-    @include scrollbars.app-scrollbar;
-    direction: rtl;
-
-    &:has(.length-select--open) {
-      overflow: visible;
-    }
-  }
-
+  overflow: visible;
 }
 
 .song-step__styles-header {

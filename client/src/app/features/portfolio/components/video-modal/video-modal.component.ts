@@ -14,6 +14,11 @@ import {
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { AudioPlayerComponent } from '../../../../shared/components/audio-player/audio-player.component';
 import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
+import {
+  bindYouTubePlayer,
+  buildYouTubeEmbedUrl,
+  disableYouTubeCaptions,
+} from '../../../../shared/utils/youtube-embed.util';
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
@@ -32,8 +37,10 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   private readonly hostRef: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly dialogRef = viewChild<ElementRef<HTMLElement>>('dialog');
+  private readonly youtubeFrame = viewChild<ElementRef<HTMLIFrameElement>>('youtubeFrame');
   private previouslyFocusedElement: HTMLElement | null = null;
   private lockedScrollY = 0;
+  private readonly onPlayerMessage = (event: MessageEvent): void => this.onYouTubeMessage(event);
 
   readonly isSong = computed(() => this.video().kind === 'song');
   readonly audioSrc = computed(() => {
@@ -46,7 +53,10 @@ export class VideoModalComponent implements OnInit, OnDestroy {
     if (!youtubeId) return null;
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(
-      `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`,
+      buildYouTubeEmbedUrl(youtubeId, {
+        autoplay: true,
+        origin: window.location.origin,
+      }),
     );
   });
 
@@ -59,12 +69,26 @@ export class VideoModalComponent implements OnInit, OnDestroy {
     this.lockedScrollY = window.scrollY;
     this.previouslyFocusedElement = document.activeElement as HTMLElement | null;
     this.lockBodyScroll();
+    window.addEventListener('message', this.onPlayerMessage);
     queueMicrotask(() => this.dialogRef()?.nativeElement.focus());
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('message', this.onPlayerMessage);
     this.unlockBodyScroll();
     this.restoreFocusWithoutScroll();
+  }
+
+  onYouTubeLoad(): void {
+    const iframe = this.youtubeFrame()?.nativeElement;
+    bindYouTubePlayer(iframe);
+    disableYouTubeCaptions(iframe);
+  }
+
+  private onYouTubeMessage(event: MessageEvent): void {
+    if (event.source !== this.youtubeFrame()?.nativeElement?.contentWindow) return;
+    if (typeof event.data !== 'string' || !event.data.includes('info')) return;
+    disableYouTubeCaptions(this.youtubeFrame()?.nativeElement);
   }
 
   private lockBodyScroll(): void {

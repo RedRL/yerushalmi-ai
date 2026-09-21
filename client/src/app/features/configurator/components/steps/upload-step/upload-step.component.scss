@@ -1,24 +1,13 @@
 @use 'breakpoints' as bp;
 
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  display: block;
   min-height: 0;
-  height: 100%;
-
-  @include bp.respond-down('lg') {
-    display: flex;
-    height: 100%;
-    flex: 1;
-    min-height: 0;
-  }
 }
 
 .step {
   display: flex;
   flex-direction: column;
-  flex: 1;
   min-height: 0;
   gap: var(--space-2);
 }
@@ -90,7 +79,6 @@
 .upload-step__pane {
   display: flex;
   flex-direction: column;
-  flex: 1;
   min-height: 0;
   gap: var(--space-3);
 }
@@ -134,16 +122,8 @@
 }
 
 @include bp.respond-down('lg') {
-  .step {
-    height: 100%;
-  }
-
   .upload-step__tabs {
     padding-block: var(--space-1);
     background: var(--color-bg-elevated);
-  }
-
-  .upload-step__pane {
-    overflow: hidden;
   }
 }

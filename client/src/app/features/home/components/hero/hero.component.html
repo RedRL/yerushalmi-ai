@@ -25,13 +25,13 @@
     </div>
   </div>
 
-  <div #stage id="hero-stage" class="hero__stage" [style.transform]="stageStyle().transform">
+  <div #stage id="hero-stage" class="hero__stage">
     <div class="hero__stage-cover" aria-hidden="true"></div>
 
     <div class="hero__background" aria-hidden="true">
       <div
         class="hero__poster"
-        [class.hero__poster--hidden]="videoReady()"
+        [class.hero__poster--hidden]="videoPlaying()"
         [style.background-image]="'url(' + heroPosterUrl + ')'"
       ></div>
       <div class="hero__video-wrap">
@@ -50,7 +50,7 @@
       <div class="hero__gradient"></div>
     </div>
 
-    <div class="hero__content">
+    <div class="hero__content" [style.transform]="stageStyle().transform">
       <span class="hero__kicker">שירים וקליפים אישיים · YERUSHALMI.AI</span>
 
       <h1 class="hero__headline">

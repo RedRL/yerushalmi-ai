@@ -8,15 +8,11 @@
 }
 
 .summary-step {
-  height: 100%;
+  height: auto;
   overflow: visible;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-
-  @include bp.respond-down('lg') {
-    height: auto;
-  }
 }
 
 .step__title {
@@ -29,13 +25,9 @@
   flex-direction: column;
   gap: var(--space-1);
   margin-top: var(--space-1);
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 0;
-  overflow: hidden;
-
-  @include bp.respond-down('lg') {
-    overflow: visible;
-  }
+  overflow: visible;
 }
 
 .summary-step__row {

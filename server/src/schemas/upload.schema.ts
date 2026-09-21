@@ -55,8 +55,6 @@ export function normalizeInitiateUploadInput(value: unknown): unknown {
   return input;
 }
 
-export const MAX_UPLOAD_SIZE_BYTES = 200 * 1024 * 1024; // 200MB, TODO(storage): revisit once a real provider is wired up
-
 export const initiateUploadSchema = z.preprocess(
   normalizeInitiateUploadInput,
   z
@@ -74,11 +72,7 @@ export const initiateUploadSchema = z.preprocess(
         .optional(),
       inquiryFolderId: inquiryFolderIdSchema.optional(),
       inquiryReferenceId: inquiryReferenceIdSchema.optional(),
-      sizeBytes: z
-        .number()
-        .int()
-        .positive()
-        .max(MAX_UPLOAD_SIZE_BYTES, 'הקובץ חורג מהגודל המקסימלי המותר'),
+      sizeBytes: z.number().int().positive(),
     })
     .superRefine((data, ctx) => {
       const hasContactName = Boolean(data.contactName && data.contactName.length >= 2);

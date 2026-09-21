@@ -126,6 +126,7 @@ app-configurator .configurator {
 
   .field-grid {
     gap: var(--space-5);
+    align-items: start;
     overflow: visible;
 
     @include bp.respond-up('md') {
@@ -296,9 +297,6 @@ app-configurator .configurator {
 
   app-summary-step {
     .step {
-      @include bp.respond-up('lg') {
-        height: 100%;
-      }
       overflow: visible;
     }
 
@@ -316,15 +314,18 @@ app-configurator .configurator {
     min-height: 200px;
   }
 
+  app-project-details-step .field > .project-details-step__date-error,
+  app-project-details-step .field > .project-details-step__date-error:empty {
+    display: block;
+    order: 5;
+    flex: 1 1 100%;
+    width: 100%;
+    min-height: 2.7em;
+  }
+
   app-file-upload {
     .file-upload {
       gap: var(--space-2);
-
-      @include bp.respond-up('lg') {
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
-      }
     }
 
     .file-upload__dropzone {
@@ -383,8 +384,8 @@ app-configurator .configurator {
     }
 
     app-upload-step .step {
-      height: 100%;
-      overflow: hidden;
+      height: auto;
+      overflow: visible;
     }
 
     .step__title {
@@ -434,6 +435,7 @@ app-configurator .configurator {
       flex-direction: row;
       flex-wrap: wrap;
       align-items: baseline;
+      align-content: start;
       column-gap: var(--space-2);
       row-gap: var(--space-1);
 
@@ -443,9 +445,21 @@ app-configurator .configurator {
         max-width: 100%;
       }
 
-      > .field__error {
+      > .field__control {
         order: 2;
-        flex: 0 1 auto;
+        flex: 1 1 100%;
+        width: 100%;
+      }
+
+      > :not(.field__label):not(.field__error):not(.field__control) {
+        order: 3;
+        flex: 1 1 100%;
+        width: 100%;
+      }
+
+      > .field__error {
+        order: 4;
+        flex: 1 1 100%;
         min-height: 0;
         max-width: 100%;
         white-space: normal;
@@ -453,18 +467,6 @@ app-configurator .configurator {
 
       > .field__error:empty {
         display: none;
-      }
-
-      > .field__control {
-        order: 3;
-        flex: 1 1 100%;
-        width: 100%;
-      }
-
-      > :not(.field__label):not(.field__error):not(.field__control) {
-        order: 4;
-        flex: 1 1 100%;
-        width: 100%;
       }
     }
 
@@ -658,9 +660,9 @@ app-configurator .configurator {
     }
 
     app-upload-step {
-      height: 100%;
-      overflow: hidden;
-      flex: 1 1 auto;
+      height: auto;
+      overflow: visible;
+      flex: 0 0 auto;
       min-height: 0;
     }
 
@@ -674,9 +676,9 @@ app-configurator .configurator {
     }
 
     app-upload-step .step {
-      height: 100%;
-      overflow: hidden;
-      flex: 1 1 auto;
+      height: auto;
+      overflow: visible;
+      flex: 0 0 auto;
       min-height: 0;
     }
 
@@ -692,26 +694,13 @@ app-configurator .configurator {
     }
 
     app-file-upload .file-upload,
-    app-file-upload .file-upload__files {
-      flex: 1 1 auto;
+    app-file-upload .file-upload__files,
+    app-file-upload .file-upload__gallery {
+      flex: 0 0 auto;
       min-height: 0;
       height: auto;
       max-height: none;
-      overflow: hidden;
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    app-file-upload .file-upload__gallery {
-      flex: 1 1 auto;
-      min-height: 0;
-      height: 0;
-      max-height: none;
-      overflow-x: hidden;
-      overflow-y: auto;
-      touch-action: pan-y;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
+      overflow: visible;
       padding-left: 0;
       padding-right: 0;
     }

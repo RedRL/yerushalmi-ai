@@ -13,6 +13,12 @@ import {
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { scrollToConfigurator, scrollToSectionFromNav } from '../../../../shared/utils/scroll-to.util';
+import {
+  bindYouTubePlayer,
+  buildYouTubeEmbedUrl,
+  disableYouTubeCaptions,
+  postToYouTubePlayer,
+} from '../../../../shared/utils/youtube-embed.util';
 
 /** יום הולדת לטל — background video for the hero stage. */
 const HERO_VIDEO_ID = 'ch_ACN8mS_w';
@@ -44,7 +50,7 @@ export class HeroComponent implements AfterViewInit {
   readonly desktopBannerWidth = DESKTOP_BANNER_WIDTH;
   readonly desktopBannerHeight = DESKTOP_BANNER_HEIGHT;
   readonly heroPosterUrl = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;
-  readonly videoReady = signal(false);
+  readonly videoPlaying = signal(false);
   readonly heroVideoEmbedUrl = this.buildVideoEmbedUrl();
 
   private readonly bannerShift = signal(0);
@@ -104,24 +110,25 @@ export class HeroComponent implements AfterViewInit {
   }
 
   onVideoLoad(): void {
-    this.videoReady.set(true);
-    this.bindYouTubePlayer();
+    const iframe = this.heroVideoRef()?.nativeElement;
+    bindYouTubePlayer(iframe);
+    disableYouTubeCaptions(iframe);
     this.playHeroVideo();
     if (this.keepPlayingTimer) window.clearInterval(this.keepPlayingTimer);
-    this.keepPlayingTimer = window.setInterval(() => this.playHeroVideo(), 2000);
-  }
-
-  private bindYouTubePlayer(): void {
-    this.postToHeroPlayer({ event: 'listening', id: 1 });
+    this.keepPlayingTimer = window.setInterval(() => {
+      this.playHeroVideo();
+      disableYouTubeCaptions(this.heroVideoRef()?.nativeElement);
+    }, 2000);
   }
 
   private playHeroVideo(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     if (document.visibilityState !== 'visible') return;
-    this.postToHeroPlayer({ event: 'command', func: 'playVideo', args: [] });
+    postToYouTubePlayer(this.heroVideoRef()?.nativeElement, 'playVideo');
   }
 
   private onYouTubeMessage(event: MessageEvent): void {
+    if (event.source !== this.heroVideoRef()?.nativeElement?.contentWindow) return;
     if (typeof event.data !== 'string' || !event.data.includes('info')) return;
 
     try {
@@ -135,17 +142,16 @@ export class HeroComponent implements AfterViewInit {
           : typeof payload.info?.playerState === 'number'
             ? payload.info.playerState
             : null;
-      if (state === null || state === YT_PLAYING || state === YT_UNSTARTED) return;
+      if (state === YT_PLAYING) {
+        this.videoPlaying.set(true);
+        disableYouTubeCaptions(this.heroVideoRef()?.nativeElement);
+        return;
+      }
+      if (state === null || state === YT_UNSTARTED) return;
       this.playHeroVideo();
     } catch {
       return;
     }
-  }
-
-  private postToHeroPlayer(message: object): void {
-    const frame = this.heroVideoRef()?.nativeElement.contentWindow;
-    if (!frame) return;
-    frame.postMessage(JSON.stringify(message), '*');
   }
 
   private updateScrollParallax(): void {
@@ -179,10 +185,13 @@ export class HeroComponent implements AfterViewInit {
       : 'https://yerushalmi.ai';
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(
-      `https://www.youtube.com/embed/${HERO_VIDEO_ID}` +
-        `?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}` +
-        '&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3' +
-        `&disablekb=1&enablejsapi=1&origin=${encodeURIComponent(origin)}`,
+      buildYouTubeEmbedUrl(HERO_VIDEO_ID, {
+        autoplay: true,
+        mute: true,
+        loop: true,
+        controls: false,
+        origin,
+      }),
     );
   }
 

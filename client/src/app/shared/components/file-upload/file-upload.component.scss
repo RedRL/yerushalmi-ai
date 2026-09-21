@@ -1,35 +1,17 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
-@use 'scrollbars' as scrollbars;
 
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  display: block;
   width: 100%;
-
-  @include bp.respond-down('lg') {
-    display: flex;
-    height: 100%;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-  }
+  min-height: 0;
 }
 
 .file-upload {
   display: flex;
   flex-direction: column;
-  flex: 1;
   min-height: 0;
   gap: var(--space-4);
-
-  @include bp.respond-down('lg') {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-  }
 }
 
 .file-upload__dropzone {
@@ -81,12 +63,6 @@
     background: var(--color-bg-elevated);
     padding: var(--space-4) var(--space-3);
   }
-
-  .file-upload__files {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-  }
 }
 
 .file-upload__error {
@@ -98,30 +74,14 @@
 .file-upload__files {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
   min-height: 0;
   gap: var(--space-2);
 }
 
 .file-upload__gallery {
-  @include scrollbars.vertical-scroll-props;
-  @include scrollbars.scrollbar-inset-rtl;
-  direction: rtl;
-  flex: 1 1 auto;
+  overflow: visible;
   min-height: 0;
-  height: 0;
-  overscroll-behavior: contain;
-  padding-inline-end: var(--space-1);
-
-  @include bp.respond-down('lg') {
-    height: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    touch-action: pan-y;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    scrollbar-gutter: auto;
-  }
+  height: auto;
 }
 
 .file-upload__grid {

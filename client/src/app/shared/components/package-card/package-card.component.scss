@@ -189,9 +189,3 @@
   }
 }
 
-@include reduced-motion {
-  .package-card,
-  .package-card--featured {
-    animation: none;
-  }
-}

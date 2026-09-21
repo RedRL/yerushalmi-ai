@@ -5,8 +5,10 @@ import {
   ElementRef,
   HostListener,
   computed,
+  effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
@@ -46,10 +48,12 @@ const MONTH_LABELS = [
 export class ProjectDetailsStepComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly nativeDate = viewChild<ElementRef<HTMLInputElement>>('nativeDate');
   readonly store = inject(ConfiguratorStoreService);
   readonly limits = FIELD_LIMITS;
   readonly weekdayLabels = WEEKDAY_LABELS;
   readonly isMobileViewport = signal(false);
+  readonly dateFieldTouched = signal(this.store.projectDetailsForm.controls.eventDate.touched);
   readonly eventDateText = signal(formatIsoDateToHeIl(this.store.projectDetailsForm.controls.eventDate.value));
   readonly calendarOpen = signal(false);
   readonly calendarMonth = signal(initialCalendarMonth(this.store.projectDetailsForm.controls.eventDate.value));
@@ -58,13 +62,19 @@ export class ProjectDetailsStepComponent {
     const media = window.matchMedia('(max-width: 1023px)');
     const syncMobile = (): void => {
       this.isMobileViewport.set(media.matches);
-      if (media.matches) {
-        this.calendarOpen.set(false);
-      }
+      if (media.matches) this.calendarOpen.set(false);
     };
     syncMobile();
     media.addEventListener('change', syncMobile);
     this.destroyRef.onDestroy(() => media.removeEventListener('change', syncMobile));
+
+    effect(() => {
+      this.store.isCurrentStepValid();
+      this.store.currentStepValidationMessage();
+      if (this.store.projectDetailsForm.controls.eventDate.touched) {
+        this.dateFieldTouched.set(true);
+      }
+    });
   }
 
   readonly personNameLabel = computed(() =>
@@ -96,6 +106,21 @@ export class ProjectDetailsStepComponent {
 
   readonly minEventDate = todayIsoHeIl;
 
+  readonly nativeDateValue = computed(() => {
+    const parsed = parseHeIlDateToIso(this.eventDateText());
+    return parsed || '';
+  });
+
+  readonly eventDateError = computed(() => {
+    this.eventDateText();
+    this.dateFieldTouched();
+    const control = this.store.projectDetailsForm.controls.eventDate;
+    if (!control.touched && !this.dateFieldTouched()) return null;
+    if (control.hasError('pastDate')) return 'תאריך האירוע לא יכול להיות לפני היום';
+    if (control.hasError('invalidDate')) return 'נא להזין תאריך תקין';
+    return null;
+  });
+
   readonly canGoPrevMonth = computed(() => {
     const view = this.calendarMonth();
     const today = todayIsoHeIl();
@@ -123,43 +148,30 @@ export class ProjectDetailsStepComponent {
     const input = event.target as HTMLInputElement;
     const masked = maskHeIlDateInput(input.value);
     input.value = masked;
-    this.eventDateText.set(masked);
-    const parsed = parseHeIlDateToIso(masked);
-    if (parsed === '') {
-      this.store.projectDetailsForm.controls.eventDate.setValue('');
-      return;
-    }
+    this.syncTypedDate(masked);
+  }
+
+  onEventDateBlur(): void {
+    const parsed = parseHeIlDateToIso(this.eventDateText());
     if (parsed) {
-      this.store.projectDetailsForm.controls.eventDate.setValue(parsed);
+      this.eventDateText.set(formatIsoDateToHeIl(parsed));
     }
+    this.markDateTouched();
   }
 
   onNativeEventDateInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     const control = this.store.projectDetailsForm.controls.eventDate;
     control.setValue(value);
-    control.markAsTouched();
     this.eventDateText.set(formatIsoDateToHeIl(value));
-  }
-
-  onNativeEventDateBlur(): void {
-    this.store.projectDetailsForm.controls.eventDate.markAsTouched();
-  }
-
-  onEventDateBlur(): void {
-    const control = this.store.projectDetailsForm.controls.eventDate;
-    const parsed = parseHeIlDateToIso(this.eventDateText());
-    if (parsed === null) {
-      control.setValue(this.eventDateText().trim());
-      control.markAsTouched();
-      return;
-    }
-    control.setValue(parsed);
-    this.eventDateText.set(parsed ? formatIsoDateToHeIl(parsed) : '');
-    control.markAsTouched();
+    this.markDateTouched();
   }
 
   toggleCalendar(): void {
+    if (this.isMobileViewport()) {
+      this.openNativePicker();
+      return;
+    }
     if (!this.calendarOpen()) {
       this.calendarMonth.set(initialCalendarMonth(this.store.projectDetailsForm.controls.eventDate.value));
     }
@@ -183,8 +195,39 @@ export class ProjectDetailsStepComponent {
     const iso = `${view.getFullYear()}-${pad2(view.getMonth() + 1)}-${pad2(day)}`;
     this.store.projectDetailsForm.controls.eventDate.setValue(iso);
     this.eventDateText.set(formatIsoDateToHeIl(iso));
-    this.store.projectDetailsForm.controls.eventDate.markAsTouched();
+    this.markDateTouched();
     this.calendarOpen.set(false);
+  }
+
+  private syncTypedDate(masked: string): void {
+    this.eventDateText.set(masked);
+    const control = this.store.projectDetailsForm.controls.eventDate;
+    const parsed = parseHeIlDateToIso(masked);
+    if (parsed === '') {
+      control.setValue('');
+      return;
+    }
+    control.setValue(parsed ?? masked);
+  }
+
+  private markDateTouched(): void {
+    this.store.projectDetailsForm.controls.eventDate.markAsTouched();
+    this.dateFieldTouched.set(true);
+  }
+
+  private openNativePicker(): void {
+    const input = this.nativeDate()?.nativeElement;
+    if (!input) return;
+    try {
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+        return;
+      }
+    } catch {
+      // Some browsers reject showPicker(); fall through to a direct click.
+    }
+    input.focus();
+    input.click();
   }
 
   @HostListener('document:keydown.escape')

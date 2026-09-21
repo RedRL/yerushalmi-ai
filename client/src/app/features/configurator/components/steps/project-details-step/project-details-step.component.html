@@ -27,18 +27,6 @@
 
     <div class="field">
       <label class="field__label" for="eventDate">למתי צריך את הפרויקט</label>
-      @if (isMobileViewport()) {
-        <input
-          id="eventDate"
-          class="field__control project-details-step__date-native"
-          type="date"
-          autocomplete="off"
-          [min]="minEventDate()"
-          [value]="store.projectDetailsForm.controls.eventDate.value"
-          (input)="onNativeEventDateInput($event)"
-          (blur)="onNativeEventDateBlur()"
-        />
-      } @else {
       <div class="project-details-step__date-controls">
         <input
           id="eventDate"
@@ -48,6 +36,8 @@
           autocomplete="off"
           placeholder="dd/mm/yyyy"
           maxlength="10"
+          [class.ng-invalid]="!!eventDateError()"
+          [class.ng-touched]="dateFieldTouched()"
           [value]="eventDateText()"
           (input)="onEventDateInput($event)"
           (blur)="onEventDateBlur()"
@@ -63,7 +53,18 @@
             <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
           </svg>
         </button>
-        @if (calendarOpen()) {
+        <input
+          #nativeDate
+          class="project-details-step__date-native"
+          type="date"
+          tabindex="-1"
+          aria-hidden="true"
+          [min]="minEventDate()"
+          [value]="nativeDateValue()"
+          (input)="onNativeEventDateInput($event)"
+          (change)="onNativeEventDateInput($event)"
+        />
+        @if (!isMobileViewport() && calendarOpen()) {
           <div class="project-details-step__calendar" role="dialog" aria-label="בחירת תאריך">
             <div class="project-details-step__calendar-head">
               <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" aria-label="חודש קודם">‹</button>
@@ -98,7 +99,12 @@
           </div>
         }
       </div>
-      }
+      <span
+        class="field__error project-details-step__date-error"
+        [class.field__error--hidden]="!eventDateError()"
+        [attr.aria-hidden]="eventDateError() ? null : 'true'"
+        aria-live="polite"
+      >{{ eventDateError() || '\u00a0' }}</span>
     </div>
   </div>
 

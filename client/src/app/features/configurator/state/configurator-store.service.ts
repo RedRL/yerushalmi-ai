@@ -22,7 +22,7 @@ import { generateInquiryReferenceId } from '../../../shared/utils/inquiry-refere
 import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-file-store.util';
 import { compressImageForUpload } from '../../../shared/utils/compress-image.util';
 import { toHebrewUserError } from '../../../shared/utils/network-error.util';
-import { isIsoDateBeforeToday } from '../../../shared/utils/he-date.util';
+import { isIsoDateBeforeToday, parseHeIlDateToIso } from '../../../shared/utils/he-date.util';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import {
@@ -145,11 +145,12 @@ export class ConfiguratorStoreService {
     personName: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.personName)]),
     occasion: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.occasion)]),
     eventDate: this.fb.control('', [
-      Validators.pattern(/^\d{4}-\d{2}-\d{2}$/),
       (control) => {
         const value = String(control.value ?? '').trim();
         if (!value) return null;
-        return isIsoDateBeforeToday(value) ? { pastDate: true } : null;
+        const parsed = parseHeIlDateToIso(value);
+        if (!parsed) return { invalidDate: true };
+        return isIsoDateBeforeToday(parsed) ? { pastDate: true } : null;
       },
     ]),
     age: this.fb.control('', Validators.maxLength(FIELD_LIMITS.age)),
@@ -590,6 +591,9 @@ export class ConfiguratorStoreService {
     }
     if (form.controls.eventDate.hasError('pastDate')) {
       return 'תאריך האירוע לא יכול להיות לפני היום';
+    }
+    if (form.controls.eventDate.hasError('invalidDate')) {
+      return 'נא להזין תאריך תקין';
     }
 
     if (missing.length === 1) {

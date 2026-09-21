@@ -345,13 +345,3 @@
   }
 }
 
-@include reduced-motion {
-  .video-card--gallery {
-    animation: none;
-  }
-
-  .video-card__eq.is-playing i {
-    animation: none;
-    height: 58%;
-  }
-}

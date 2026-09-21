@@ -1,30 +1,14 @@
 @use 'breakpoints' as bp;
 
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  display: block;
   min-height: 0;
-  height: 100%;
-
-  @include bp.respond-down('lg') {
-    display: block;
-    height: auto;
-    flex: 0 0 auto;
-  }
 }
 
 .optional-details-step {
   display: flex;
   flex-direction: column;
-  flex: 1;
   min-height: 0;
-  height: 100%;
-
-  @include bp.respond-down('lg') {
-    height: auto;
-    flex: 0 0 auto;
-  }
 }
 
 .step__title-optional {
@@ -34,7 +18,6 @@
 }
 
 .optional-details-step .step__section {
-  flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr;
@@ -45,7 +28,6 @@
 
   @include bp.respond-up('md') {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: auto auto minmax(5rem, 1fr);
   }
 
   @include bp.respond-down('lg') {
@@ -62,14 +44,9 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-
-  @include bp.respond-up('md') {
-    height: 100%;
-  }
 }
 
 .optional-details-step__notes {
-  flex: 1;
   min-height: 5rem;
   resize: none;
   touch-action: pan-y;

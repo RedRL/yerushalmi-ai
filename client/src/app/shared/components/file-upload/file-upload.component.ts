@@ -55,7 +55,8 @@ export class FileUploadComponent implements OnDestroy {
   readonly accept = input('');
   readonly acceptDescriptionHe = input('');
   readonly maxFiles = input(10);
-  readonly maxSizeMb = input(50);
+  /** 0 = no file-size limit. */
+  readonly maxSizeMb = input(0);
   readonly files = input<UploadedFileReference[]>([]);
 
   readonly filesSelected = output<File[]>();
@@ -566,7 +567,7 @@ export class FileUploadComponent implements OnDestroy {
       return;
     }
 
-    const maxBytes = this.maxSizeMb() * 1024 * 1024;
+    const maxBytes = this.maxSizeMb() > 0 ? this.maxSizeMb() * 1024 * 1024 : Number.POSITIVE_INFINITY;
     const validFiles: File[] = [];
     const accept = this.accept();
     const acceptLabel = this.acceptDescriptionHe() || 'קבצים מהסוג המותר';

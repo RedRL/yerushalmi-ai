@@ -13,7 +13,6 @@ import { PriceSummaryComponent } from '../../shared/components/price-summary/pri
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 
 import { PersistentScrollbarDirective } from '../../shared/directives/persistent-scrollbar.directive';
-import { scrollToConfiguratorProgress } from '../../shared/utils/scroll-to.util';
 
 
 
@@ -155,18 +154,22 @@ export class ConfiguratorComponent {
   private nextHintTimer: ReturnType<typeof setTimeout> | null = null;
   private nextHintFadeTimer: ReturnType<typeof setTimeout> | null = null;
   private tooltipReturnHost: HTMLElement | null = null;
+  private lastStepIndex = 0;
 
   constructor(readonly store: ConfiguratorStoreService) {
+    this.lastStepIndex = store.currentStepIndex();
+
     effect(() => {
-      this.store.currentStepIndex();
+      const index = this.store.currentStepIndex();
       this.dismissMobileNextHint(true);
+      if (index === this.lastStepIndex) return;
+      this.lastStepIndex = index;
       this.resetBodyScroll();
     });
 
     effect(() => {
       if (!this.store.submitResult()) return;
       this.resetBodyScroll();
-      queueMicrotask(() => scrollToConfiguratorProgress());
     });
 
     effect(() => {

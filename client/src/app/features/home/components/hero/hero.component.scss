@@ -100,7 +100,6 @@
   overflow: hidden;
   isolation: isolate;
   z-index: 2;
-  will-change: transform;
   background: var(--color-bg-base);
 
   @include bp.respond-up('md') {
@@ -149,18 +148,12 @@
 
 .hero__video-wrap {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: -18% -22%;
   z-index: 1;
-  width: max(100%, 177.78vh);
-  height: max(100%, 56.25vw);
-  transform: translate(-50%, -50%) scale(1.32);
-  transform-origin: center center;
   overflow: hidden;
 
   @include bp.respond-down('md') {
-    width: max(100%, 150vh);
-    transform: translate(-50%, -50%) scale(1.15);
+    inset: -12% -18%;
   }
 }
 
@@ -204,6 +197,7 @@
   text-align: center;
   margin-top: clamp(var(--space-5), 5vh, var(--space-7));
   animation: hero-content-in 1s var(--ease-out) both;
+  will-change: transform;
 
   @include bp.respond-down('md') {
     margin-top: var(--space-2);
@@ -377,7 +371,7 @@
 
 @include reduced-motion {
   .hero__banner,
-  .hero__stage {
+  .hero__content {
     transform: none !important;
     opacity: 1 !important;
     will-change: auto;
@@ -385,10 +379,6 @@
 
   .hero__scroll-dot {
     animation: none;
-  }
-
-  .hero__video-wrap {
-    display: none;
   }
 
   .hero__content,

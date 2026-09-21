@@ -1,5 +1,9 @@
 @use 'mixins' as *;
 
+:host {
+  display: block;
+}
+
 .product-step__options {
   display: flex;
   flex-direction: column;
@@ -14,6 +18,8 @@
   gap: var(--space-3);
   padding: var(--space-4);
   min-height: 4.75rem;
+  scroll-margin: 0;
+  overflow-anchor: none;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-subtle);
   background: var(--color-bg-glass);

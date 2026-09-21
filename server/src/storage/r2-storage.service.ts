@@ -24,7 +24,7 @@ import type {
   StorageService,
 } from './storage.types';
 
-const PRESIGN_EXPIRY_SECONDS = 15 * 60;
+const PRESIGN_EXPIRY_SECONDS = 6 * 60 * 60;
 
 export class R2StorageService implements StorageService {
   public readonly providerName = 'r2';

@@ -22,12 +22,16 @@
 html {
   scroll-behavior: smooth;
   overflow-y: scroll;
+  overflow-anchor: none;
   scrollbar-gutter: stable;
   @include scrollbars.app-scrollbar;
 
-  &.scroll-restoring {
+  &.scroll-restoring,
+  &.is-js-scrolling {
     scroll-behavior: auto !important;
+  }
 
+  &.scroll-restoring {
     body {
       visibility: hidden;
     }
@@ -38,20 +42,6 @@ body {
   @include scrollbars.app-scrollbar;
 }
 
-@include reduced-motion {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-}
 
 html,
 body {
@@ -246,6 +236,7 @@ body.scroll-locked {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
+    align-content: start;
     column-gap: var(--space-2);
     row-gap: var(--space-1);
 
@@ -255,9 +246,21 @@ body.scroll-locked {
       max-width: 100%;
     }
 
-    > .field__error {
+    > .field__control {
       order: 2;
-      flex: 0 1 auto;
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    > :not(.field__label):not(.field__error):not(.field__control) {
+      order: 3;
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    > .field__error {
+      order: 4;
+      flex: 1 1 100%;
       min-height: 0;
       max-width: 100%;
       white-space: normal;
@@ -265,18 +268,6 @@ body.scroll-locked {
 
     > .field__error:empty {
       display: none;
-    }
-
-    > .field__control {
-      order: 3;
-      flex: 1 1 100%;
-      width: 100%;
-    }
-
-    > :not(.field__label):not(.field__error):not(.field__control) {
-      order: 4;
-      flex: 1 1 100%;
-      width: 100%;
     }
   }
 
@@ -347,6 +338,7 @@ select.field__control {
 .field-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-items: start;
   gap: var(--space-5);
 
   @include bp.respond-up('sm') {
@@ -505,7 +497,7 @@ select.field__control {
   .header__mobile-nav
 ) {
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   @include scrollbars.scroll-area-rtl-props;
 }
 
