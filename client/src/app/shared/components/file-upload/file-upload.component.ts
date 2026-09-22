@@ -15,11 +15,12 @@ import {
 } from '@angular/core';
 import type { UploadedFileKind, UploadedFileReference } from '../../models/upload.model';
 import { isAcceptedFileType } from '../../utils/file-type.util';
-import { cloneUploadFiles } from '../../utils/upload-file-store.util';
+import { cloneUploadFile, cloneUploadFiles } from '../../utils/upload-file-store.util';
 import {
   resolveUploadedFileLightboxUrl,
   resolveUploadedFileTileUrl,
 } from '../../utils/image-thumbnail.util';
+import { yieldToMain } from '../../utils/yield-to-main.util';
 
 interface RelativeRect {
   top: number;
@@ -54,13 +55,16 @@ export class FileUploadComponent implements OnDestroy {
   readonly kind = input.required<UploadedFileKind>();
   readonly accept = input('');
   readonly acceptDescriptionHe = input('');
-  readonly maxFiles = input(10);
+  /** 0 = no file-count limit. */
+  readonly maxFiles = input(0);
   /** 0 = no file-size limit. */
   readonly maxSizeMb = input(0);
   readonly files = input<UploadedFileReference[]>([]);
+  readonly extraErrors = input<string[]>([]);
 
   readonly filesSelected = output<File[]>();
   readonly removeFile = output<string>();
+  readonly selectionStarted = output<void>();
 
   readonly promptNoun = computed(() => {
     if (this.kind() === 'video') return 'סרטונים';
@@ -68,8 +72,19 @@ export class FileUploadComponent implements OnDestroy {
     return 'תמונות';
   });
 
+  readonly allErrors = computed(() => [...this.extraErrors(), ...this.errorMessages()]);
+
   readonly isDragging = signal(false);
-  readonly errorMessage = signal<string | null>(null);
+  readonly isImporting = signal(false);
+  readonly errorMessages = signal<string[]>([]);
+
+  clearError(): void {
+    this.errorMessages.set([]);
+  }
+
+  private addError(message: string): void {
+    this.errorMessages.update((current) => (current.includes(message) ? current : [...current, message]));
+  }
   readonly previewedFileId = signal<string | null>(null);
   readonly isOpeningPreview = signal(false);
   readonly isClosingPreview = signal(false);
@@ -87,6 +102,7 @@ export class FileUploadComponent implements OnDestroy {
   private readonly injector = inject(Injector);
   private readonly hostRef = inject(ElementRef<HTMLElement>);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+  private readonly gallery = viewChild<ElementRef<HTMLElement>>('gallery');
   private readonly lightboxRoot = viewChild<ElementRef<HTMLElement>>('lightboxRoot');
   private readonly lightboxDialog = viewChild<ElementRef<HTMLElement>>('lightboxDialog');
   private readonly lightboxImage = viewChild<ElementRef<HTMLImageElement>>('lightboxImage');
@@ -95,6 +111,8 @@ export class FileUploadComponent implements OnDestroy {
   private previewOriginElement: HTMLElement | null = null;
   private backdropAnimation: Animation | null = null;
   private flightTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private pinnedScrolls: { el: HTMLElement; top: number }[] = [];
+  private pinnedWindowY = 0;
 
   ngOnDestroy(): void {
     this.abortFlight();
@@ -110,7 +128,10 @@ export class FileUploadComponent implements OnDestroy {
   }
 
   canPreview(file: UploadedFileReference): boolean {
-    return Boolean(this.tileUrl(file) || this.lightboxUrl(file));
+    if (file.type === 'video') {
+      return Boolean(this.lightboxUrl(file));
+    }
+    return Boolean(file.lightboxPreviewUrl || file.thumbnailDataUrl);
   }
 
   openPreview(file: UploadedFileReference, event: Event): void {
@@ -118,6 +139,10 @@ export class FileUploadComponent implements OnDestroy {
 
     const origin = (event.currentTarget as HTMLElement | null)?.closest('.file-upload__preview');
     this.previewOriginElement = origin instanceof HTMLElement ? origin : null;
+    this.pinScrollPositions();
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.blur();
+    }
 
     const useMotion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.isOpeningPreview.set(useMotion);
@@ -125,6 +150,7 @@ export class FileUploadComponent implements OnDestroy {
 
     afterNextRender(() => {
       this.attachLightboxToPanel();
+      this.restorePinnedScrolls();
 
       if (!useMotion || file.type === 'video') {
         this.completeOpen();
@@ -161,9 +187,12 @@ export class FileUploadComponent implements OnDestroy {
 
     lightbox.style.opacity = '0';
     image.style.opacity = '0';
+    this.restorePinnedScrolls();
 
     await this.ensureImageReady(image);
+    this.restorePinnedScrolls();
     await this.waitForFrames(2);
+    this.restorePinnedScrolls();
 
     const lightboxRect = lightbox.getBoundingClientRect();
     const fromRel = this.toLightboxRelativeRect(thumb.getBoundingClientRect(), lightboxRect);
@@ -176,6 +205,7 @@ export class FileUploadComponent implements OnDestroy {
   }
 
   private startCloseAnimation(): void {
+    this.restorePinnedScrolls();
     const lightbox = this.lightboxRoot()?.nativeElement;
     const image = this.lightboxImage()?.nativeElement;
     const thumb = this.getPreviewThumbElement();
@@ -203,6 +233,32 @@ export class FileUploadComponent implements OnDestroy {
       },
       { hideLightboxImage: image },
     );
+  }
+
+  private pinScrollPositions(): void {
+    this.pinnedScrolls = [];
+    this.pinnedWindowY = window.scrollY;
+    const add = (el: HTMLElement | null | undefined): void => {
+      if (!el || this.pinnedScrolls.some((item) => item.el === el)) return;
+      this.pinnedScrolls.push({ el, top: el.scrollTop });
+    };
+
+    add(this.gallery()?.nativeElement);
+    const body = this.hostRef.nativeElement.closest('.configurator__body');
+    if (body instanceof HTMLElement) add(body);
+    const panel = this.hostRef.nativeElement.closest('.configurator__panel');
+    if (panel instanceof HTMLElement) add(panel);
+  }
+
+  private restorePinnedScrolls(): void {
+    if (window.scrollY !== this.pinnedWindowY) {
+      window.scrollTo({ top: this.pinnedWindowY, left: 0, behavior: 'instant' });
+    }
+    for (const item of this.pinnedScrolls) {
+      if (item.el.scrollTop !== item.top) {
+        item.el.scrollTop = item.top;
+      }
+    }
   }
 
   private getPreviewThumbElement(): HTMLElement | null {
@@ -329,7 +385,8 @@ export class FileUploadComponent implements OnDestroy {
     }
 
     this.isOpeningPreview.set(false);
-    this.lightboxDialog()?.nativeElement.focus();
+    this.lightboxDialog()?.nativeElement.focus({ preventScroll: true });
+    this.restorePinnedScrolls();
   }
 
   private buildFlightTransition(durationMs: number): string {
@@ -436,6 +493,14 @@ export class FileUploadComponent implements OnDestroy {
     this.previewOriginElement = null;
     this.previewedFileId.set(null);
     this.detachLightboxFromPanel();
+    this.restorePinnedScrolls();
+    requestAnimationFrame(() => {
+      this.restorePinnedScrolls();
+      requestAnimationFrame(() => {
+        this.restorePinnedScrolls();
+        this.pinnedScrolls = [];
+      });
+    });
   }
 
   private playLightboxVideo(): void {
@@ -537,6 +602,7 @@ export class FileUploadComponent implements OnDestroy {
 
     const files = event.dataTransfer?.files;
     if (files?.length) {
+      this.beginSelection();
       void cloneUploadFiles(Array.from(files)).then((durable) => this.validateAndEmit(durable));
     }
   }
@@ -553,18 +619,40 @@ export class FileUploadComponent implements OnDestroy {
     const picked = input.files ? Array.from(input.files) : [];
     if (picked.length === 0) return;
 
-    // Clone while the input still owns the FileList. Clearing first empties files on iOS.
-    const durable = await cloneUploadFiles(picked);
-    input.value = '';
-    this.validateAndEmit(durable);
+    this.isImporting.set(true);
+    this.beginSelection();
+    try {
+      // Clone while the input still owns the FileList. Clearing first empties files on iOS.
+      for (const file of picked) {
+        const durable = await cloneUploadFile(file);
+        this.validateAndEmit([durable]);
+        await yieldToMain();
+      }
+    } finally {
+      input.value = '';
+      this.isImporting.set(false);
+    }
+  }
+
+  private beginSelection(): void {
+    this.errorMessages.set([]);
+    this.selectionStarted.emit();
   }
 
   private validateAndEmit(candidateFiles: File[]): void {
-    this.errorMessage.set(null);
-
-    const remainingSlots = this.maxFiles() - this.files().length;
+    const cap = this.maxFiles();
+    const remainingSlots = cap > 0 ? Math.max(0, cap - this.files().length) : Number.POSITIVE_INFINITY;
     if (remainingSlots <= 0) {
+      this.addError(
+        cap > 0
+          ? `לא ניתן להוסיף עוד ${this.promptNoun()}. המקסימום הוא ${cap}.`
+          : `לא ניתן להוסיף עוד ${this.promptNoun()}.`,
+      );
       return;
+    }
+
+    if (cap > 0 && candidateFiles.length > remainingSlots) {
+      this.addError(`ניתן להוסיף עוד ${remainingSlots} ${this.promptNoun()} בלבד (מקסימום ${cap}).`);
     }
 
     const maxBytes = this.maxSizeMb() > 0 ? this.maxSizeMb() * 1024 * 1024 : Number.POSITIVE_INFINITY;
@@ -575,17 +663,17 @@ export class FileUploadComponent implements OnDestroy {
     for (const file of candidateFiles.slice(0, remainingSlots)) {
       if (!isAcceptedFileType(file, accept)) {
         const typeLabel = this.kind() === 'image' ? 'תמונה נתמכת' : this.kind() === 'video' ? 'סרטון נתמך' : 'קובץ נתמך';
-        this.errorMessage.set(`"${file.name}" אינו ${typeLabel}. ניתן להעלות ${acceptLabel}.`);
+        this.addError(`"${file.name}" אינו ${typeLabel}. ניתן להעלות ${acceptLabel}.`);
         continue;
       }
 
       if (file.size <= 0) {
-        this.errorMessage.set(`לא ניתן לקרוא את הקובץ "${file.name}". נסו לבחור אותו שוב.`);
+        this.addError(`לא ניתן לקרוא את הקובץ "${file.name}". נסו לבחור אותו שוב.`);
         continue;
       }
 
       if (file.size > maxBytes) {
-        this.errorMessage.set(`הקובץ "${file.name}" חורג מהגודל המקסימלי המותר (${this.maxSizeMb()}MB).`);
+        this.addError(`הקובץ "${file.name}" חורג מהגודל המקסימלי המותר (${this.maxSizeMb()}MB).`);
         continue;
       }
       validFiles.push(file);

@@ -63,6 +63,37 @@ function applySnapshot(windowX: number, windowY: number, scrollers: ScrollSnapsh
 }
 
 /**
+ * Freezes only the window scroll so a layout swap cannot jump the page.
+ * Does not lock inner overflow containers.
+ */
+export function holdWindowScroll(durationMs = 450): void {
+  const windowX = window.scrollX;
+  const windowY = window.scrollY;
+  const started = performance.now();
+
+  const restore = (): void => {
+    if (window.scrollX !== windowX || window.scrollY !== windowY) {
+      window.scrollTo({ left: windowX, top: windowY, behavior: 'instant' });
+    }
+  };
+
+  const onScroll = (): void => restore();
+  window.addEventListener('scroll', onScroll, true);
+
+  const tick = (now: number): void => {
+    restore();
+    if (now - started < durationMs) {
+      requestAnimationFrame(tick);
+      return;
+    }
+    window.removeEventListener('scroll', onScroll, true);
+  };
+
+  restore();
+  requestAnimationFrame(tick);
+}
+
+/**
  * Freezes the window and overflow ancestors at the current position
  * so layout changes or focus cannot jump the page.
  */

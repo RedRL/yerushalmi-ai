@@ -2,36 +2,61 @@
   <h3 class="step__title">תמונות וסרטונים לקליפ</h3>
 
   <div class="upload-step__tabs" role="tablist" aria-label="בחירת סוג העלאה">
-    <button
-      type="button"
-      role="tab"
-      class="upload-step__tab"
-      [class.upload-step__tab--active]="activeTab() === 'image'"
-      [attr.aria-selected]="activeTab() === 'image'"
-      (click)="setActiveTab('image')"
-    >
-      תמונות
-    </button>
-    <button
-      type="button"
-      role="tab"
-      class="upload-step__tab"
-      [class.upload-step__tab--active]="activeTab() === 'video'"
-      [attr.aria-selected]="activeTab() === 'video'"
-      (click)="setActiveTab('video')"
-    >
-      סרטונים
-    </button>
-    <button
-      type="button"
-      class="upload-step__info-button"
-      aria-label="מידע על העלאת קבצים"
-      [attr.aria-expanded]="mobileHelpOpen()"
-      (click)="toggleMobileHelp($event)"
-    >i</button>
-    @if (mobileHelpOpen()) {
-      <div class="upload-step__help" role="tooltip">
-        @if (activeTab() === 'image') {
+    <div class="upload-step__tab-group">
+      <button
+        type="button"
+        role="tab"
+        class="upload-step__tab"
+        [class.upload-step__tab--active]="activeTab() === 'image'"
+        [attr.aria-selected]="activeTab() === 'image'"
+        (click)="setActiveTab('image')"
+      >
+        תמונות
+      </button>
+      <button
+        type="button"
+        class="upload-step__info-button"
+        aria-label="מידע על העלאת תמונות"
+        [class.upload-step__info-button--active]="helpTab() === 'image'"
+        [attr.aria-expanded]="helpTab() === 'image'"
+        (click)="toggleHelp('image', $event)"
+        (mouseenter)="showHelp('image')"
+        (mouseleave)="scheduleHideHelp()"
+      >i</button>
+    </div>
+
+    <div class="upload-step__tab-group">
+      <button
+        type="button"
+        role="tab"
+        class="upload-step__tab"
+        [class.upload-step__tab--active]="activeTab() === 'video'"
+        [attr.aria-selected]="activeTab() === 'video'"
+        (click)="setActiveTab('video')"
+      >
+        סרטונים
+      </button>
+      <button
+        type="button"
+        class="upload-step__info-button"
+        aria-label="מידע על העלאת סרטונים"
+        [class.upload-step__info-button--active]="helpTab() === 'video'"
+        [attr.aria-expanded]="helpTab() === 'video'"
+        (click)="toggleHelp('video', $event)"
+        (mouseenter)="showHelp('video')"
+        (mouseleave)="scheduleHideHelp()"
+      >i</button>
+    </div>
+
+    @if (helpTab(); as tab) {
+      <div
+        class="upload-step__help"
+        role="tooltip"
+        (click)="$event.stopPropagation()"
+        (mouseenter)="keepHelp()"
+        (mouseleave)="scheduleHideHelp()"
+      >
+        @if (tab === 'image') {
           <p>{{ imageCountGuidanceHe() }}</p>
         } @else {
           <p>{{ videoCountGuidanceHe() }}</p>
@@ -41,46 +66,32 @@
     }
   </div>
 
-  @if (activeTab() === 'image') {
-    <div class="upload-step__pane">
-      <div class="step__description upload-step__pane-help">
-        <p>
-          {{ imageCountGuidanceHe() }}
-        </p>
-        <p>
-          {{ orderGuidanceHe }}
-        </p>
-      </div>
-      <app-file-upload
-        kind="image"
-        accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
+  <div class="upload-step__pane" [hidden]="activeTab() !== 'image'">
+    <app-file-upload
+      kind="image"
+      accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
         acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
-        [maxFiles]="maxImageFiles"
+        [maxFiles]="store.maximumAllowedImages()"
         [files]="imageFiles()"
-        (filesSelected)="onImagesSelected($event)"
-        (removeFile)="onRemoveFile($event)"
-      />
-    </div>
-  } @else {
-    <div class="upload-step__pane">
-      <div class="step__description upload-step__pane-help">
-        <p>{{ videoCountGuidanceHe() }}</p>
-        <p>{{ orderGuidanceHe }}</p>
-      </div>
-      @if (videoError()) {
-        <p class="step__description upload-step__error" role="alert">{{ videoError() }}</p>
-      }
-      <app-file-upload
-        kind="video"
-        accept="video/mp4,video/quicktime,video/webm,.mp4,.m4v,.mov,.webm,.3gp"
-        acceptDescriptionHe="MP4, MOV או WEBM"
-        [maxFiles]="maxVideoFiles"
-        [files]="videoFiles()"
-        (filesSelected)="onVideosSelected($event)"
-        (removeFile)="onRemoveFile($event)"
-      />
-    </div>
-  }
+      (filesSelected)="onImagesSelected($event)"
+      (selectionStarted)="clearErrors()"
+      (removeFile)="onRemoveFile($event)"
+    />
+  </div>
+
+  <div class="upload-step__pane" [hidden]="activeTab() !== 'video'">
+    <app-file-upload
+      kind="video"
+      accept="video/mp4,video/quicktime,video/webm,.mp4,.m4v,.mov,.webm,.3gp"
+      acceptDescriptionHe="MP4, MOV או WEBM"
+      [maxFiles]="store.maximumAllowedVideos()"
+      [files]="videoFiles()"
+      [extraErrors]="videoErrors()"
+      (filesSelected)="onVideosSelected($event)"
+      (selectionStarted)="clearErrors()"
+      (removeFile)="onRemoveFile($event)"
+    />
+  </div>
 
   <div class="upload-step__summary" aria-live="polite">
     {{ imageFiles().length }} תמונות · {{ videoFiles().length }} סרטונים

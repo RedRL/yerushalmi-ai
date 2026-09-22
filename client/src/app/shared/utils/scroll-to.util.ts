@@ -25,6 +25,15 @@ const NAV_SCROLL_OFFSETS_MOBILE: Readonly<Record<string, number>> = {
   contact: 24,
 };
 
+/** Below 1024px — "בניית הפרויקט" / "התחילו ליצור" land higher on the page. */
+const CONFIGURATOR_BELOW_DESKTOP_OFFSET = 84;
+
+/** 1024–1199 — same links, milder lift than phone so they don't overshoot. */
+const CONFIGURATOR_TABLET_OFFSET = 12;
+
+/** At 1000px and below — "דוגמאות" lands higher on the page. */
+const PORTFOLIO_BELOW_1000_OFFSET = 36;
+
 const SCROLL_DURATION_MS = 720;
 const JS_SCROLL_CLASS = 'is-js-scrolling';
 
@@ -35,6 +44,16 @@ function isMobileNavViewport(): boolean {
 }
 
 function getNavScrollOffset(sectionId: string): number {
+  const width = window.innerWidth;
+
+  if (sectionId === 'configurator' && width < 1200) {
+    return width >= 1024 ? CONFIGURATOR_TABLET_OFFSET : CONFIGURATOR_BELOW_DESKTOP_OFFSET;
+  }
+
+  if (sectionId === 'portfolio' && width <= 1000) {
+    return PORTFOLIO_BELOW_1000_OFFSET;
+  }
+
   const offsets = isMobileNavViewport() ? NAV_SCROLL_OFFSETS_MOBILE : NAV_SCROLL_OFFSETS;
   return offsets[sectionId] ?? NAV_SCROLL_OFFSET_DEFAULT;
 }
@@ -49,6 +68,7 @@ function maxScrollY(): number {
 
 function setScrollY(y: number): void {
   const top = Math.max(0, y);
+  window.scrollTo({ top, left: 0, behavior: 'instant' });
   document.documentElement.scrollTop = top;
   document.body.scrollTop = top;
 }

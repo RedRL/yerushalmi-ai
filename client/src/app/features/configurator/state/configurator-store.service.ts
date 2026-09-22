@@ -12,6 +12,7 @@ import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLeng
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
 import type { InquiryPayload } from '../../../shared/models/inquiry.model';
 import { generateClientId } from '../../../shared/utils/id-generator.util';
+import { holdWindowScroll } from '../../../shared/utils/hold-scroll.util';
 import {
   buildInquiryFolderId,
   extractInquiryFolderId,
@@ -850,16 +851,21 @@ export class ConfiguratorStoreService {
   }
 
   updateUploadedFile(id: string, patch: Partial<UploadedFileReference>): void {
-    this.uploadedFiles.update((files) => files.map((file) => (file.id === id ? { ...file, ...patch } : file)));
+    this.uploadedFiles.update((files) =>
+      files.map((file) => {
+        if (file.id !== id) return file;
+        if ('previewUrl' in patch) this.revokeReplacedBlobUrl(file.previewUrl, patch.previewUrl);
+        if ('lightboxPreviewUrl' in patch) this.revokeReplacedBlobUrl(file.lightboxPreviewUrl, patch.lightboxPreviewUrl);
+        return { ...file, ...patch };
+      }),
+    );
     this.persistState();
   }
 
   removeUploadedFile(id: string): void {
     this.uploadedFiles.update((files) => {
       const target = files.find((file) => file.id === id);
-      if (target?.previewUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(target.previewUrl);
-      }
+      if (target) this.revokeUploadedFileUrls(target);
       return files.filter((file) => file.id !== id);
     });
     void deleteUploadFile(id);
@@ -919,6 +925,7 @@ export class ConfiguratorStoreService {
   }
 
   private navigateToStep(index: number): void {
+    holdWindowScroll();
     this.currentStepIndex.set(index);
     this.clearStepErrors(this.visibleSteps()[index]?.id);
     this.persistState();
@@ -1419,11 +1426,23 @@ export class ConfiguratorStoreService {
   }
 
   private revokeUploadedFilePreviewUrls(): void {
-    this.uploadedFiles().forEach((file) => {
-      if (file.previewUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(file.previewUrl);
-      }
-    });
+    this.uploadedFiles().forEach((file) => this.revokeUploadedFileUrls(file));
+  }
+
+  private revokeUploadedFileUrls(file: UploadedFileReference): void {
+    this.revokeBlobUrl(file.previewUrl);
+    this.revokeBlobUrl(file.lightboxPreviewUrl);
+  }
+
+  private revokeReplacedBlobUrl(current?: string, next?: string): void {
+    if (!current || current === next) return;
+    this.revokeBlobUrl(current);
+  }
+
+  private revokeBlobUrl(url?: string): void {
+    if (url?.startsWith('blob:')) {
+      URL.revokeObjectURL(url);
+    }
   }
 
   generateFileId(): string {

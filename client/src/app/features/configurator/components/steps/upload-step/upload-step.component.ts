@@ -1,12 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from '@angular/core';
-import {
-  MAX_UPLOADED_IMAGES_PER_INQUIRY,
-  MAX_UPLOADED_VIDEOS_PER_INQUIRY,
-  MAX_VIDEO_DURATION_SECONDS,
-} from '../../../../../core/config/upload-requirements.config';
+import { ChangeDetectionStrategy, Component, computed, effect, HostListener, inject, OnDestroy, signal, viewChildren } from '@angular/core';
+import { MAX_VIDEO_DURATION_SECONDS } from '../../../../../core/config/upload-requirements.config';
 import { FileUploadComponent } from '../../../../../shared/components/file-upload/file-upload.component';
 import type { UploadedFileKind, UploadedFileReference } from '../../../../../shared/models/upload.model';
-import { createImageThumbnailDataUrl, createVideoThumbnailDataUrl } from '../../../../../shared/utils/image-thumbnail.util';
+import { createImagePreviewSet, createVideoThumbnailDataUrl } from '../../../../../shared/utils/image-thumbnail.util';
 import { saveUploadFile } from '../../../../../shared/utils/upload-file-store.util';
 import { readVideoDurationSeconds } from '../../../../../shared/utils/video-duration.util';
 import { yieldToMain } from '../../../../../shared/utils/yield-to-main.util';
@@ -19,14 +15,24 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
   templateUrl: './upload-step.component.html',
   styleUrl: './upload-step.component.scss',
 })
-export class UploadStepComponent {
+export class UploadStepComponent implements OnDestroy {
   readonly store = inject(ConfiguratorStoreService);
-  /** Technical server cap only — per-video max is enforced via the Next button, not upload blocking. */
-  readonly maxImageFiles = MAX_UPLOADED_IMAGES_PER_INQUIRY;
-  readonly maxVideoFiles = MAX_UPLOADED_VIDEOS_PER_INQUIRY;
-  readonly videoError = signal<string | null>(null);
-  readonly mobileHelpOpen = signal(false);
+  readonly videoErrors = signal<string[]>([]);
+  readonly helpTab = signal<'image' | 'video' | null>(null);
   readonly activeTab = signal<'image' | 'video'>('image');
+  private readonly uploads = viewChildren(FileUploadComponent);
+  private readonly previewJobs = new Set<string>();
+  private helpHideTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    effect(() => {
+      for (const file of this.store.uploadedFiles()) {
+        if (file.file && !file.thumbnailDataUrl) {
+          void this.ensureFilePreview(file.id);
+        }
+      }
+    });
+  }
 
   readonly imageFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'image'));
   readonly videoFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'video'));
@@ -52,27 +58,24 @@ export class UploadStepComponent {
   }
 
   async onVideosSelected(files: File[]): Promise<void> {
-    this.videoError.set(null);
-
-    const added: { id: string; file: File }[] = [];
-    for (const file of files) {
+    const added = files.map((file) => this.queueMediaFile(file, 'video'));
+    for (const item of added) {
       let durationSeconds: number;
       try {
-        durationSeconds = await readVideoDurationSeconds(file);
+        durationSeconds = await readVideoDurationSeconds(item.file);
       } catch {
-        this.videoError.set(`לא ניתן לקרוא את הסרטון "${file.name}". ודאו שמדובר בקובץ וידאו תקין.`);
+        this.addVideoError(`לא ניתן לקרוא את הסרטון "${item.file.name}". ודאו שמדובר בקובץ וידאו תקין.`);
+        this.store.removeUploadedFile(item.id);
         continue;
       }
 
       if (durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
-        this.videoError.set(`"${file.name}" ארוך מדי. אפשר להעלות סרטונים באורך עד חצי דקה.`);
+        this.addVideoError(`"${item.file.name}" ארוך מדי. אפשר להעלות סרטונים באורך עד חצי דקה.`);
+        this.store.removeUploadedFile(item.id);
         continue;
       }
 
-      added.push(this.queueMediaFile(file, 'video', durationSeconds));
-    }
-
-    for (const item of added) {
+      this.store.updateUploadedFile(item.id, { durationSeconds });
       await this.persistSelectedFile(item.id, item.file, 'video');
       await yieldToMain();
     }
@@ -84,18 +87,75 @@ export class UploadStepComponent {
 
   setActiveTab(kind: 'image' | 'video'): void {
     this.activeTab.set(kind);
-    this.mobileHelpOpen.set(false);
+    this.closeHelp();
+    this.clearErrors();
   }
 
-  toggleMobileHelp(event: Event): void {
+  usesHoverHelp(): boolean {
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  }
+
+  toggleHelp(kind: 'image' | 'video', event: Event): void {
     event.stopPropagation();
-    this.mobileHelpOpen.update((open) => !open);
+    if (this.usesHoverHelp()) return;
+    if (this.helpTab() === kind) {
+      this.closeHelp();
+      return;
+    }
+    this.openHelp(kind);
+  }
+
+  showHelp(kind: 'image' | 'video'): void {
+    if (!this.usesHoverHelp()) return;
+    this.openHelp(kind);
+  }
+
+  scheduleHideHelp(): void {
+    if (!this.usesHoverHelp()) return;
+    this.clearHelpHideTimeout();
+    this.helpHideTimeout = setTimeout(() => this.closeHelp(), 120);
+  }
+
+  keepHelp(): void {
+    if (!this.usesHoverHelp()) return;
+    this.clearHelpHideTimeout();
   }
 
   @HostListener('document:click')
   onDocumentClick(): void {
-    if (this.mobileHelpOpen()) {
-      this.mobileHelpOpen.set(false);
+    if (this.usesHoverHelp()) return;
+    this.closeHelp();
+  }
+
+  ngOnDestroy(): void {
+    this.clearHelpHideTimeout();
+  }
+
+  clearErrors(): void {
+    this.videoErrors.set([]);
+    for (const upload of this.uploads()) {
+      upload.clearError();
+    }
+  }
+
+  private addVideoError(message: string): void {
+    this.videoErrors.update((current) => (current.includes(message) ? current : [...current, message]));
+  }
+
+  private openHelp(kind: 'image' | 'video'): void {
+    this.clearHelpHideTimeout();
+    this.helpTab.set(kind);
+  }
+
+  private closeHelp(): void {
+    this.clearHelpHideTimeout();
+    this.helpTab.set(null);
+  }
+
+  private clearHelpHideTimeout(): void {
+    if (this.helpHideTimeout) {
+      clearTimeout(this.helpHideTimeout);
+      this.helpHideTimeout = null;
     }
   }
 
@@ -123,24 +183,40 @@ export class UploadStepComponent {
   }
 
   private async persistSelectedFile(id: string, file: File, type: UploadedFileKind): Promise<void> {
+    await this.ensureFilePreview(id);
     try {
       await saveUploadFile(id, file, type);
     } catch {
       // Keep the in-memory File so same-session submit can still upload.
     }
+  }
 
+  private async ensureFilePreview(id: string): Promise<void> {
+    if (this.previewJobs.has(id)) return;
+
+    const reference = this.store.uploadedFiles().find((file) => file.id === id);
+    if (!reference?.file || reference.thumbnailDataUrl) return;
+
+    this.previewJobs.add(id);
     try {
-      const thumbnailDataUrl =
-        type === 'image'
-          ? await createImageThumbnailDataUrl(file)
-          : type === 'video'
-            ? await createVideoThumbnailDataUrl(file)
-            : null;
-      if (thumbnailDataUrl) {
+      if (reference.type === 'image') {
+        const previews = await createImagePreviewSet(reference.file);
+        this.store.updateUploadedFile(id, {
+          thumbnailDataUrl: previews.thumbnailDataUrl,
+          lightboxPreviewUrl: previews.lightboxPreviewUrl,
+          previewUrl: undefined,
+        });
+        return;
+      }
+
+      if (reference.type === 'video') {
+        const thumbnailDataUrl = await createVideoThumbnailDataUrl(reference.file);
         this.store.updateUploadedFile(id, { thumbnailDataUrl });
       }
     } catch {
-      // Keep the in-session blob preview.
+      // Tile spinner stays until a later retry or the user removes the file.
+    } finally {
+      this.previewJobs.delete(id);
     }
   }
 }

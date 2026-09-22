@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAIN_PRODUCT_OPTIONS } from '../../../../../core/config/pricing.config';
-import { holdScrollPositions } from '../../../../../shared/utils/hold-scroll.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 import type { MainProductId } from '../../../../../shared/models/pricing.model';
 
@@ -15,13 +14,7 @@ export class ProductStepComponent {
   readonly store = inject(ConfiguratorStoreService);
   readonly options = MAIN_PRODUCT_OPTIONS;
 
-  lockScroll(event: Event): void {
-    const origin = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
-    holdScrollPositions(origin);
-  }
-
-  select(id: MainProductId, event: Event): void {
-    this.lockScroll(event);
+  select(id: MainProductId): void {
     this.store.selectMainProduct(id);
   }
 }

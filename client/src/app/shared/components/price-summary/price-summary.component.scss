@@ -1,4 +1,5 @@
 @use 'mixins' as *;
+@use 'scrollbars' as scrollbars;
 
 :host {
   display: flex;
@@ -14,15 +15,15 @@
   flex: 1;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overscroll-behavior: contain;
+  @include scrollbars.scroll-area-rtl;
 }
 
 .price-summary__content {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
   min-width: 0;
 }
 

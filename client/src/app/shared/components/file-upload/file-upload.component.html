@@ -21,7 +21,7 @@
       tabindex="-1"
     />
 
-    <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
       <path
         d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
         stroke="currentColor"
@@ -33,17 +33,29 @@
     </svg>
 
     <p class="file-upload__prompt">
-      <span class="file-upload__prompt-drag">גררו {{ promptNoun() }} לכאן או </span><span class="file-upload__prompt-click">לחצו לבחירת {{ promptNoun() }}</span>
+      @if (isImporting()) {
+        <span class="file-upload__importing">
+          <span class="file-upload__tile-spinner" aria-hidden="true"></span>
+          מעבד קבצים...
+        </span>
+      } @else {
+        <span class="file-upload__prompt-drag">גררו {{ promptNoun() }} לכאן או </span><span class="file-upload__prompt-click">לחצו לבחירת {{ promptNoun() }}</span>
+      }
     </p>
   </div>
 
-  @if (errorMessage()) {
-    <p class="file-upload__error" role="alert">{{ errorMessage() }}</p>
-  }
-
-  @if (files().length > 0) {
+  @if (files().length > 0 || allErrors().length > 0) {
     <div class="file-upload__files">
-      <div class="file-upload__gallery" (dragstart)="onGalleryDragStart($event)">
+      <div #gallery class="file-upload__gallery" (dragstart)="onGalleryDragStart($event)">
+        @if (allErrors().length > 0) {
+          <div class="file-upload__errors">
+            @for (error of allErrors(); track error) {
+              <p class="file-upload__error" role="alert">{{ error }}</p>
+            }
+          </div>
+        }
+
+        @if (files().length > 0) {
         <ul class="file-upload__grid">
           @for (file of files(); track file.id) {
             <li class="file-upload__tile" [class.file-upload__tile--error]="file.status === 'error'">
@@ -75,23 +87,24 @@
                       draggable="false"
                     />
                   }
-                } @else if (canPreview(file) && file.type === 'video') {
+                } @else if (canPreview(file)) {
                   <button
                     type="button"
-                    class="file-upload__thumb-button file-upload__thumb-button--video"
+                    class="file-upload__thumb-button"
+                    [class.file-upload__thumb-button--video]="file.type === 'video'"
                     (click)="openPreview(file, $event)"
-                    [attr.aria-label]="'ניגון סרטון ' + file.name"
+                    [attr.aria-label]="(file.type === 'video' ? 'ניגון סרטון ' : 'הצגת תמונה ') + file.name"
                   >
-                    <span class="file-upload__icon" aria-hidden="true">🎬</span>
-                    <span class="file-upload__play" aria-hidden="true"></span>
+                    <span class="file-upload__tile-loading" aria-hidden="true">
+                      <span class="file-upload__tile-spinner"></span>
+                    </span>
+                    @if (file.type === 'video') {
+                      <span class="file-upload__play" aria-hidden="true"></span>
+                    }
                   </button>
                 } @else {
-                  <span class="file-upload__icon" aria-hidden="true">
-                    @switch (kind()) {
-                      @case ('audio') { 🎵 }
-                      @case ('image') { 🖼️ }
-                      @default { 🎬 }
-                    }
+                  <span class="file-upload__tile-loading" role="status" aria-label="טוען תצוגה מקדימה">
+                    <span class="file-upload__tile-spinner"></span>
                   </span>
                 }
 
@@ -127,9 +140,13 @@
             </li>
           }
         </ul>
+        }
+
       </div>
 
-      <p class="file-upload__summary">{{ files().length }} {{ promptNoun() }}</p>
+      @if (files().length > 0) {
+        <p class="file-upload__summary">{{ files().length }} {{ promptNoun() }}</p>
+      }
     </div>
   }
 
@@ -190,6 +207,7 @@
                 [src]="fullUrl"
                 [alt]="file.name"
                 class="file-upload-lightbox__image"
+                decoding="async"
                 draggable="false"
               />
             }

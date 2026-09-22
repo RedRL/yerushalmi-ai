@@ -28,7 +28,7 @@ export interface PersistedConfiguratorState {
   };
   projectDetailsForm: Record<string, string>;
   contactForm: Record<string, string | boolean>;
-  uploadedFiles: Omit<UploadedFileReference, 'previewUrl' | 'file' | 'thumbnailDataUrl'>[];
+  uploadedFiles: Omit<UploadedFileReference, 'previewUrl' | 'file' | 'thumbnailDataUrl' | 'lightboxPreviewUrl'>[];
 }
 
 export function loadConfiguratorState(): PersistedConfiguratorState | null {

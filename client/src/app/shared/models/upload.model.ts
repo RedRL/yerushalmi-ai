@@ -16,6 +16,8 @@ export interface UploadedFileReference {
   previewUrl?: string;
   /** In-session JPEG thumbnail for gallery tiles. Not written to localStorage. */
   thumbnailDataUrl?: string;
+  /** In-session medium JPEG blob URL for the lightbox. Not written to localStorage. */
+  lightboxPreviewUrl?: string;
   /** In-memory file handle for the current session (not persisted). */
   file?: File;
   errorMessageHe?: string;

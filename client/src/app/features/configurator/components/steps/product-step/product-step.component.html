@@ -10,9 +10,7 @@
         role="radio"
         [attr.aria-checked]="store.mainProduct() === option.id"
         [class.product-step__option--selected]="store.mainProduct() === option.id"
-        (pointerdown)="lockScroll($event)"
-        (mousedown)="$event.preventDefault()"
-        (click)="select(option.id, $event)"
+        (click)="select(option.id)"
       >
         <span class="product-step__radio" aria-hidden="true"></span>
         <span class="product-step__text">
