@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { NAV_LINKS, SITE_CONFIG } from '../../../core/config/site.config';
+import { beginScrollRestoration } from '../../utils/scroll-restoration.util';
 import { scrollToPageTop, scrollToSectionFromNav } from '../../utils/scroll-to.util';
 
 const MOBILE_MENU_CLOSE_MS = 180;
@@ -13,6 +15,7 @@ const MOBILE_MENU_CLOSE_MS = 180;
 export class HeaderComponent {
   private readonly hostRef = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private closeMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly brandName = SITE_CONFIG.brandName;
@@ -85,6 +88,17 @@ export class HeaderComponent {
 
   navigateTo(sectionId: string): void {
     this.closeMobileMenu();
+
+    const path = this.router.url.split('?')[0].split('#')[0];
+    if (path !== '/clips') {
+      if (sectionId !== 'top') {
+        beginScrollRestoration();
+      }
+      void this.router.navigate(['/clips'], {
+        state: { sectionId: sectionId === 'top' ? null : sectionId },
+      });
+      return;
+    }
 
     if (sectionId === 'top') {
       scrollToPageTop();

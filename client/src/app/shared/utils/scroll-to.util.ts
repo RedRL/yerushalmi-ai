@@ -8,7 +8,7 @@ const NAV_SCROLL_OFFSET_DEFAULT = 24;
 const NAV_SCROLL_OFFSETS: Readonly<Record<string, number>> = {
   'how-it-works': 112,
   transparency: -20,
-  'hero-stage': 115,
+  'hero-stage': 55,
   portfolio: 16,
   pricing: 0,
   configurator: -18,
@@ -17,9 +17,10 @@ const NAV_SCROLL_OFFSETS: Readonly<Record<string, number>> = {
 
 /** Mobile menu nav — tuned separately from desktop header links. */
 const NAV_SCROLL_OFFSETS_MOBILE: Readonly<Record<string, number>> = {
+  'hero-stage': -24,
   'how-it-works': 42,
   portfolio: 12,
-  transparency: 8,
+  transparency: 28,
   pricing: 28,
   configurator: 28,
   contact: 24,
@@ -129,6 +130,16 @@ export function scrollToSection(elementId: string, offset = DEFAULT_SCROLL_OFFSE
 /** Header and primary nav — section-specific scroll landing positions. */
 export function scrollToSectionFromNav(sectionId: string): void {
   scrollToSection(sectionId, getNavScrollOffset(sectionId));
+}
+
+/** Instant jump used when arriving from another page, such as the terms page. */
+export function jumpToSectionFromNav(sectionId: string): void {
+  stopAnimatedScroll();
+  const target = document.getElementById(sectionId);
+  if (!target) return;
+
+  const top = target.getBoundingClientRect().top + window.scrollY - getNavScrollOffset(sectionId);
+  setScrollY(top);
 }
 
 export function scrollToConfigurator(): void {

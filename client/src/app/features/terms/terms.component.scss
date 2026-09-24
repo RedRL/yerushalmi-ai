@@ -41,6 +41,7 @@
   color: var(--color-text-secondary);
   line-height: var(--line-height-body);
   max-width: 720px;
+  padding-inline-start: var(--space-5);
 }
 
 .terms__content {
@@ -65,9 +66,13 @@
     line-height: var(--line-height-body);
   }
 
+  p,
+  ul {
+    padding-inline-start: var(--space-5);
+  }
+
   ul {
     margin: 0;
-    padding-inline-start: var(--space-5);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -103,12 +108,6 @@
     section {
       padding-inline: 0;
       margin-inline: 0;
-    }
-
-    ul {
-      padding-inline-start: 0;
-      margin-inline-start: 0;
-      list-style-position: inside;
     }
   }
 }

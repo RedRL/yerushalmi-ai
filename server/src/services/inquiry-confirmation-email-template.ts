@@ -150,7 +150,7 @@ export function buildInquiryConfirmationEmail(params: {
           </tr>
           <tr>
             <td style="padding:20px 32px 28px;border-top:1px solid #eef1f8;text-align:center;background:#fafbfd;">
-              <a href="https://yerushalmi.ai" style="font-size:14px;font-weight:bold;color:#6366f1;text-decoration:none;">YERUSHALMI.AI</a>
+              <a href="https://yerushalmi.ai/clips" style="font-size:14px;font-weight:bold;color:#6366f1;text-decoration:none;">YERUSHALMI.AI</a>
             </td>
           </tr>
         </table>

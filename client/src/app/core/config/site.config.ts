@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
   titleHe: 'YERUSHALMI.AI | קליפים מוזיקליים ושירים בהתאמה אישית',
   descriptionHe:
     'קליפים מוזיקליים אישיים, שירים מקוריים וסרטוני AI שנוצרים מתמונות, סיפורים ורגעים מיוחדים — לאירועים, למשפחה, לחברות ולארגונים.',
-  canonicalUrl: 'https://yerushalmi.ai/',
+  canonicalUrl: 'https://yerushalmi.ai/clips',
 } as const;
 
 export const NAV_LINKS: readonly NavLink[] = [
@@ -24,8 +24,8 @@ export const NAV_LINKS: readonly NavLink[] = [
 ];
 
 export const WHATSAPP_CONFIG = {
-  localPhone: '0546602230',
-  internationalPhone: '972546602230',
+  localPhone: '026480886',
+  internationalPhone: '97226480886',
   defaultMessageHe: 'היי, אשמח לקבל פרטים על יצירת קליפ או שיר אישי דרך YERUSHALMI.AI',
   get url(): string {
     return `https://wa.me/${this.internationalPhone}?text=${encodeURIComponent(this.defaultMessageHe)}`;

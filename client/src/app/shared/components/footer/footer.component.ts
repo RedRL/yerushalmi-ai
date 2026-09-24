@@ -21,9 +21,9 @@ export class FooterComponent {
   readonly currentYear = new Date().getFullYear();
 
   onTermsClick(event: Event): void {
-    if (this.router.url.split('?')[0] !== '/terms') return;
+    if (this.router.url.split('?')[0].split('#')[0] !== '/clips/terms') return;
 
     event.preventDefault();
-    resetPageScrollPosition('/terms');
+    resetPageScrollPosition('/clips/terms');
   }
 }
