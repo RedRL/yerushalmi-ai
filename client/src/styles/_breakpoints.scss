@@ -36,3 +36,10 @@ $breakpoints: (
     @warn "Unknown breakpoint `#{$name}`.";
   }
 }
+
+/** Short landscape — fold / small laptop / phone landscape (e.g. 800×600, 1100×670). */
+@mixin short-wide {
+  @media (max-height: 800px) and (orientation: landscape) {
+    @content;
+  }
+}

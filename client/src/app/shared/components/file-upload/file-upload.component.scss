@@ -7,11 +7,13 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  height: 100%;
   width: 100%;
+  overflow: hidden;
 
-  @include bp.respond-down('lg') {
-    height: 100%;
-    overflow: hidden;
+  @include bp.short-wide {
+    height: auto;
+    overflow: visible;
   }
 }
 
@@ -21,9 +23,11 @@
   flex: 1;
   min-height: 0;
   gap: var(--space-4);
+  overflow: hidden;
 
-  @include bp.respond-down('lg') {
-    overflow: hidden;
+  @include bp.short-wide {
+    overflow: visible;
+    flex: 0 0 auto;
   }
 }
 
@@ -109,6 +113,11 @@
   flex: 1 1 auto;
   min-height: 0;
   gap: var(--space-2);
+
+  @include bp.short-wide {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
 }
 
 .file-upload__gallery {
@@ -123,6 +132,12 @@
   overscroll-behavior: contain;
   padding-inline-end: var(--space-1);
 
+  @include bp.short-wide {
+    height: auto;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
   @include bp.respond-down('lg') {
     overflow-x: hidden;
     overflow-y: auto;
@@ -130,6 +145,12 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     scrollbar-gutter: auto;
+  }
+
+  @include bp.short-wide {
+    height: auto;
+    flex: 0 0 auto;
+    overflow: visible;
   }
 }
 

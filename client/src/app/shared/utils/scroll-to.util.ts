@@ -35,6 +35,9 @@ const CONFIGURATOR_TABLET_OFFSET = 12;
 /** At 1000px and below — "דוגמאות" lands higher on the page. */
 const PORTFOLIO_BELOW_1000_OFFSET = 36;
 
+/** Short landscape (e.g. 1500×760, 800×600) — "בניית הפרויקט" lands higher. */
+const CONFIGURATOR_SHORT_LANDSCAPE_OFFSET = 72;
+
 const SCROLL_DURATION_MS = 720;
 const JS_SCROLL_CLASS = 'is-js-scrolling';
 
@@ -44,8 +47,21 @@ function isMobileNavViewport(): boolean {
   return window.matchMedia('(max-width: 1023px)').matches;
 }
 
+function isShortLandscape(): boolean {
+  return window.innerHeight <= 840 && window.innerWidth > window.innerHeight;
+}
+
 function getNavScrollOffset(sectionId: string): number {
   const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  if (sectionId === 'configurator' && width >= 1024 && height >= 841) {
+    return -10;
+  }
+
+  if (sectionId === 'configurator' && isShortLandscape()) {
+    return CONFIGURATOR_SHORT_LANDSCAPE_OFFSET;
+  }
 
   if (sectionId === 'configurator' && width < 1200) {
     return width >= 1024 ? CONFIGURATOR_TABLET_OFFSET : CONFIGURATOR_BELOW_DESKTOP_OFFSET;

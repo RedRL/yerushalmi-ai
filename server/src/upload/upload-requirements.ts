@@ -1,12 +1,12 @@
 import type { VideoLengthId } from '../pricing/pricing.types';
 
 /** Minimum photos required per minute of finished video (keep in sync with client upload-requirements.config.ts). */
-export const MIN_IMAGES_PER_VIDEO_MINUTE = 18;
+export const MIN_IMAGES_PER_VIDEO_MINUTE = 15;
 
-export const RECOMMENDED_MAX_IMAGES_PER_VIDEO_MINUTE = 22;
+export const RECOMMENDED_MAX_IMAGES_PER_VIDEO_MINUTE = 20;
 
 /** Hard maximum photos allowed per minute of finished video. */
-export const MAX_IMAGES_PER_VIDEO_MINUTE = 25;
+export const MAX_IMAGES_PER_VIDEO_MINUTE = 24;
 
 /** Maximum customer-supplied clips allowed per minute of finished video. */
 export const MAX_VIDEOS_PER_VIDEO_MINUTE = 3;
@@ -34,7 +34,7 @@ export function getMaximumImageCountForVideoLength(lengthId: VideoLengthId): num
   return Math.ceil(videoLengthIdToMinutes(lengthId) * MAX_IMAGES_PER_VIDEO_MINUTE);
 }
 
-/** Hard cap on photos per inquiry — max allowed at longest video length (113 at 4.5 min). */
+/** Hard cap on photos per inquiry — max allowed at longest video length (108 at 4.5 min). */
 export const MAX_UPLOADED_IMAGES_PER_INQUIRY = getMaximumImageCountForVideoLength(
   MAX_SUPPORTED_VIDEO_LENGTH_ID,
 );
