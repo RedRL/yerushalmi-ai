@@ -9,14 +9,14 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   display: block;
   width: 100%;
   max-width: 100%;
-  --configurator-panel-height: calc(100dvh - var(--header-height) - 9rem);
+  --configurator-panel-height: calc(var(--configurator-stable-vh, 100svh) - var(--header-height) - 9rem);
 
-  @media (max-height: 840px) {
-    --configurator-panel-height: calc(100dvh - var(--header-height) - 0.5rem);
+  &.configurator-host--short {
+    --configurator-panel-height: calc(var(--configurator-stable-vh, 100svh) - var(--header-height) - 0.5rem);
   }
 
-  @media (max-height: 720px) {
-    --configurator-panel-height: calc(100dvh - var(--header-height));
+  &.configurator-host--shorter {
+    --configurator-panel-height: calc(var(--configurator-stable-vh, 100svh) - var(--header-height));
   }
 }
 
@@ -32,9 +32,9 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   overflow-anchor: none;
 
   @include bp.respond-down('lg') {
-    height: calc(100svh - var(--header-height));
-    min-height: calc(100svh - var(--header-height));
-    max-height: calc(100svh - var(--header-height));
+    height: calc(var(--configurator-stable-vh, 100svh) - var(--header-height));
+    min-height: calc(var(--configurator-stable-vh, 100svh) - var(--header-height));
+    max-height: calc(var(--configurator-stable-vh, 100svh) - var(--header-height));
     padding-top: var(--space-3);
     padding-bottom: var(--space-3);
     box-sizing: border-box;
@@ -504,6 +504,18 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
     padding-inline: var(--space-2);
     box-sizing: border-box;
     overflow-x: clip;
+  }
+
+  .configurator__nav-next-wrap--blocked:hover .configurator__nav-tooltip,
+  .configurator__submit-wrap--blocked:hover .configurator__nav-tooltip {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 4px);
+  }
+
+  .configurator__nav-tooltip--visible {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
   .configurator__layout,

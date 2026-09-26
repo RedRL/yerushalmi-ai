@@ -18,7 +18,6 @@ export const FIELD_LIMITS = {
   excludedTopics: 60,
   customStyle: 30,
   existingSongName: 50,
-  existingSongArtist: 40,
   existingSongLink: 200,
   contactName: 40,
   contactPhone: 20,

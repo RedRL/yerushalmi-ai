@@ -6,13 +6,13 @@ const NAV_SCROLL_OFFSET_DEFAULT = 24;
 
 /** Per-section nav offsets on desktop — higher value lands higher on the page. */
 const NAV_SCROLL_OFFSETS: Readonly<Record<string, number>> = {
-  'how-it-works': 112,
+  'how-it-works': 60,
   transparency: -20,
   'hero-stage': 55,
-  portfolio: 16,
-  pricing: 0,
+  portfolio: -4,
+  pricing: -20,
   configurator: -18,
-  contact: -20,
+  contact: -40,
 };
 
 /** Mobile menu nav — tuned separately from desktop header links. */

@@ -57,7 +57,10 @@
   gap: var(--space-4);
   aspect-ratio: auto;
   padding: var(--space-4);
-  background:
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  background-color: var(--color-bg-elevated);
+  background-image:
     radial-gradient(circle at 22% 20%, rgba(155, 109, 255, 0.32), transparent 46%),
     radial-gradient(circle at 82% 78%, rgba(79, 124, 255, 0.22), transparent 42%),
     linear-gradient(180deg, rgba(10, 14, 32, 0.2), rgba(6, 8, 20, 0.72));
@@ -106,6 +109,10 @@
   height: 100%;
   transform: translateY(0);
   animation: card-float 4s ease-in-out infinite;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--color-bg-elevated);
+  isolation: isolate;
 
   .video-card__media {
     aspect-ratio: 16 / 10;

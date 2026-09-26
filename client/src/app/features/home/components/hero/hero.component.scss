@@ -1,12 +1,18 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
 
+:host {
+  display: block;
+}
+
 .hero {
+  --hero-banner-fade: 0px;
+
   display: flex;
   flex-direction: column;
   background: var(--color-bg-base);
   margin-top: calc(-1 * var(--header-height));
-  overflow: hidden;
+  overflow: visible;
   max-width: 100%;
 }
 
@@ -21,34 +27,29 @@
   padding-top: 0;
   background: var(--color-bg-base);
   z-index: 0;
+  transform-origin: center top;
   will-change: transform, opacity;
   overflow: hidden;
 
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, var(--color-bg-base) 0%, transparent var(--hero-banner-fade)),
+      linear-gradient(to bottom, var(--color-bg-base) 0%, transparent calc(var(--hero-banner-fade) * 0.35)),
+      linear-gradient(to left, var(--color-bg-base) 0%, transparent calc(var(--hero-banner-fade) * 0.45)),
+      linear-gradient(to right, var(--color-bg-base) 0%, transparent calc(var(--hero-banner-fade) * 0.45));
+  }
+
   @include bp.respond-down('md') {
-    position: relative;
     width: 100%;
     max-width: 100%;
     padding-top: clamp(var(--space-1), 2vh, var(--space-3));
     padding-inline: 0;
     background: #000;
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset-inline: 0;
-      bottom: 0;
-      height: clamp(7rem, 42vw, 16rem);
-      background: linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(0, 0, 0, 0.18) 28%,
-        rgba(0, 0, 0, 0.55) 58%,
-        rgba(0, 0, 0, 0.88) 82%,
-        var(--color-bg-base) 100%
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
   }
 
   .hero__scroll-indicator {
@@ -64,6 +65,18 @@
   justify-content: center;
   width: 100%;
   max-width: 100%;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 calc(100% - var(--hero-banner-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 calc(100% - var(--hero-banner-fade)),
+    transparent 100%
+  );
 }
 
 .hero__banner-picture {
@@ -103,9 +116,8 @@
   background: var(--color-bg-base);
 
   @include bp.respond-up('md') {
-    width: 100vw;
-    max-width: 100vw;
-    margin-inline: calc(50% - 50vw);
+    width: 100%;
+    max-width: 100%;
   }
 
   @include bp.respond-down('md') {
@@ -370,6 +382,10 @@
 }
 
 @include reduced-motion {
+  .hero {
+    --hero-banner-fade: 0px !important;
+  }
+
   .hero__banner,
   .hero__content {
     transform: none !important;

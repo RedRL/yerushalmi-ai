@@ -7,26 +7,53 @@
 main {
   display: flex;
   flex-direction: column;
+  background: var(--color-bg-base);
+}
+
+main > * {
+  display: block;
+}
+
+main > app-hero {
+  position: relative;
+  z-index: 0;
+}
+
+main > :not(app-hero) {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  background-color: var(--color-bg-base);
 }
 
 main > app-portfolio {
-  background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.04) 40%, transparent);
+  background:
+    linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.04) 40%, transparent),
+    var(--color-bg-base);
 }
 
 main > app-process-section {
-  background: linear-gradient(180deg, transparent, rgba(20, 19, 42, 0.45) 50%, transparent);
+  background:
+    linear-gradient(180deg, transparent, rgba(20, 19, 42, 0.45) 50%, transparent),
+    var(--color-bg-base);
 }
 
 main > app-creation-process-section {
-  background: linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.06) 45%, transparent);
+  background:
+    linear-gradient(180deg, transparent, rgba(139, 92, 246, 0.06) 45%, transparent),
+    var(--color-bg-base);
 }
 
 main > app-pricing-section {
-  background: linear-gradient(180deg, rgba(79, 124, 255, 0.05), transparent 80%);
+  background:
+    linear-gradient(180deg, rgba(79, 124, 255, 0.05), transparent 80%),
+    var(--color-bg-base);
 }
 
 main > app-configurator {
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.04) 0%, rgba(99, 102, 241, 0.03) 55%, transparent 100%);
+  background:
+    linear-gradient(180deg, rgba(99, 102, 241, 0.04) 0%, rgba(99, 102, 241, 0.03) 55%, transparent 100%),
+    var(--color-bg-base);
   padding-bottom: var(--space-9);
 
   @include bp.respond-down('lg') {

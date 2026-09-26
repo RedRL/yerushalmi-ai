@@ -1,5 +1,4 @@
 @use 'mixins' as *;
-@use 'breakpoints' as bp;
 
 .footer {
   border-top: 1px solid var(--color-border-subtle);
@@ -60,7 +59,7 @@
 }
 
 .footer__whatsapp {
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -80,10 +79,6 @@
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 28px rgba(37, 211, 102, 0.45);
-  }
-
-  @include bp.respond-down('lg') {
-    display: inline-flex;
   }
 }
 

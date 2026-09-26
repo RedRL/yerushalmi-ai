@@ -82,7 +82,6 @@ export function buildInquiryEmailHtml(
           ${listRow('מילים חשובות', payload.song.importantWords)}
           ${listRow('נושאים להימנע מהם', payload.song.excludedTopics)}
           ${row('שם שיר קיים', payload.song.existingSongName)}
-          ${row('אמן', payload.song.existingSongArtist)}
           ${row('קישור לשיר', payload.song.existingSongLink)}
         </table>
         ${multilineBlock('הערות נוספות לשיר', payload.song.additionalNotes)}`,

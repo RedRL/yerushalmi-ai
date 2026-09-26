@@ -54,11 +54,13 @@ export class HeroComponent implements AfterViewInit {
   readonly heroVideoEmbedUrl = this.buildVideoEmbedUrl();
 
   private readonly bannerShift = signal(0);
+  private readonly bannerScale = signal(1);
   private readonly stageLift = signal(0);
   private readonly bannerOpacity = signal(1);
+  readonly bannerFadePx = signal(0);
 
   readonly bannerStyle = computed(() => ({
-    transform: `translate3d(0, ${this.bannerShift()}px, 0)`,
+    transform: `translate3d(0, ${this.bannerShift()}px, 0) scale(${this.bannerScale()})`,
     opacity: this.bannerOpacity(),
   }));
 
@@ -161,22 +163,23 @@ export class HeroComponent implements AfterViewInit {
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       this.bannerShift.set(0);
+      this.bannerScale.set(1);
       this.stageLift.set(0);
       this.bannerOpacity.set(1);
+      this.bannerFadePx.set(0);
       return;
     }
 
     const scrollY = window.scrollY;
     const bannerHeight = banner.offsetHeight;
+    const progress = Math.min(Math.max(scrollY / Math.max(bannerHeight * 0.9, 1), 0), 1);
+    const fade = Math.round(progress * Math.min(bannerHeight * 0.72, 520));
 
-    this.bannerShift.set(Math.round(scrollY * 0.1));
-    this.stageLift.set(-Math.round(Math.min(scrollY * 0.35, bannerHeight * 0.5)));
-
-    // Fully transparent well before the hero stage finishes scrolling past.
-    const stageBottomScroll = scrollY + stage.getBoundingClientRect().bottom;
-    const fadeEnd = stageBottomScroll * 0.45;
-    const fadeProgress = Math.min(scrollY / Math.max(fadeEnd, 1), 1);
-    this.bannerOpacity.set(Math.max(1 - fadeProgress ** 0.35, 0));
+    this.bannerShift.set(Math.round(scrollY * 0.28));
+    this.bannerScale.set(1 - progress * 0.1);
+    this.stageLift.set(-Math.round(Math.min(scrollY * 0.18, bannerHeight * 0.28)));
+    this.bannerOpacity.set(Math.max(1 - progress * 0.28, 0.72));
+    this.bannerFadePx.set(fade);
   }
 
   private buildVideoEmbedUrl(): SafeResourceUrl {

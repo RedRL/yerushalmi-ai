@@ -9,7 +9,8 @@
   overflow: hidden;
   background:
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(79, 124, 255, 0.12), transparent 60%),
-    linear-gradient(180deg, transparent, rgba(12, 18, 40, 0.35) 50%, transparent);
+    linear-gradient(180deg, transparent, rgba(12, 18, 40, 0.35) 50%, transparent),
+    var(--color-bg-base);
 }
 
 .portfolio__intro {

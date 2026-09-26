@@ -508,6 +508,11 @@ select.field__control {
   transform: translate(-50%, 0);
 }
 
+.configurator__nav-tooltip--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
 .configurator__nav-tooltip {
   position: absolute;
   bottom: calc(100% + 0.5rem);

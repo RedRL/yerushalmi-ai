@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
 
 
 
@@ -142,12 +143,18 @@ import { ConfiguratorStoreService } from './state/configurator-store.service';
 
 
 
-export class ConfiguratorComponent {
+export class ConfiguratorComponent implements AfterViewInit {
 
   private static readonly MOBILE_HINT_FADE_MS = 200;
+  /** Price sidebar appears at xl (1280). Below that, center the next-button hint. */
+  private static readonly NO_PRICE_SIDEBAR_MAX_WIDTH = 1279;
+  private static readonly VIEWPORT_LOCK_WIDTH_DELTA = 60;
+  private static readonly VIEWPORT_LOCK_HEIGHT_DELTA = 120;
 
   readonly nextHintVisible = signal(false);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly configuratorBody = viewChild<ElementRef<HTMLElement>>('configuratorBody');
   private readonly navNextWrap = viewChild<ElementRef<HTMLElement>>('navNextWrap');
   private readonly navTooltip = viewChild<ElementRef<HTMLElement>>('navTooltip');
@@ -155,6 +162,8 @@ export class ConfiguratorComponent {
   private nextHintFadeTimer: ReturnType<typeof setTimeout> | null = null;
   private tooltipReturnHost: HTMLElement | null = null;
   private lastStepIndex = 0;
+  private lockedViewportWidth = 0;
+  private lockedViewportHeight = 0;
 
   constructor(readonly store: ConfiguratorStoreService) {
     this.lastStepIndex = store.currentStepIndex();
@@ -180,6 +189,22 @@ export class ConfiguratorComponent {
 
     this.destroyRef.onDestroy(() => {
       this.dismissMobileNextHint(true);
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.syncStableViewportHeight();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const onResize = () => this.syncStableViewportHeight();
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('orientationchange', onResize);
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
     });
   }
 
@@ -264,9 +289,24 @@ export class ConfiguratorComponent {
     if (!blocked) return;
 
     this.store.markCurrentStepTouched();
-    if (window.matchMedia('(max-width: 1023px)').matches) {
+    if (this.isCenteredHintViewport()) {
       this.showMobileNextHint();
     }
+  }
+
+  onNextHintEnter(): void {
+    if (!this.isCenteredHintViewport() || !this.isHoverDevice()) return;
+    const blocked = this.isFinalStep
+      ? !this.store.isSubmissionValid()
+      : !this.store.isCurrentStepValid();
+    if (!blocked) return;
+    this.store.markCurrentStepTouched();
+    this.showMobileNextHint();
+  }
+
+  onNextHintLeave(): void {
+    if (!this.isCenteredHintViewport() || !this.isHoverDevice()) return;
+    this.hideMobileNextHint();
   }
 
   private showMobileNextHint(): void {
@@ -328,7 +368,7 @@ export class ConfiguratorComponent {
   }
 
   private applyMobileTooltipPosition(): boolean {
-    if (!window.matchMedia('(max-width: 1023px)').matches) {
+    if (!this.isCenteredHintViewport()) {
       return false;
     }
 
@@ -384,6 +424,32 @@ export class ConfiguratorComponent {
     }
 
     this.tooltipReturnHost = null;
+  }
+
+  private isCenteredHintViewport(): boolean {
+    return window.matchMedia(`(max-width: ${ConfiguratorComponent.NO_PRICE_SIDEBAR_MAX_WIDTH}px)`).matches;
+  }
+
+  private isHoverDevice(): boolean {
+    return window.matchMedia('(hover: hover)').matches;
+  }
+
+  private syncStableViewportHeight(): void {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const widthChanged = Math.abs(width - this.lockedViewportWidth) > ConfiguratorComponent.VIEWPORT_LOCK_WIDTH_DELTA;
+    const heightChangedALot =
+      Math.abs(height - this.lockedViewportHeight) > ConfiguratorComponent.VIEWPORT_LOCK_HEIGHT_DELTA;
+    if (this.lockedViewportHeight && !widthChanged && !heightChangedALot) {
+      return;
+    }
+
+    this.lockedViewportWidth = width;
+    this.lockedViewportHeight = height;
+    const host = this.host.nativeElement;
+    host.style.setProperty('--configurator-stable-vh', `${height}px`);
+    host.classList.toggle('configurator-host--short', height <= 840);
+    host.classList.toggle('configurator-host--shorter', height <= 720);
   }
 
   onNextButtonClick(event: Event): void {

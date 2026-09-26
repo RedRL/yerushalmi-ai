@@ -19,7 +19,6 @@ export interface InquirySongPayload {
   excludedTopics?: string[];
   additionalNotes?: string;
   existingSongName?: string;
-  existingSongArtist?: string;
   existingSongLink?: string;
 }
 

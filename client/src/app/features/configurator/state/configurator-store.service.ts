@@ -52,8 +52,24 @@ function joinSongStyles(styles: string[]): string {
   return styles.join(', ');
 }
 
+function normalizeExistingSongLink(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^(www\.|youtu\.be\/|youtube\.com\/|open\.spotify\.com\/)/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+}
+
 function isValidExistingSongLink(value: string): boolean {
-  return /^https?:\/\/\S+/i.test(value.trim());
+  const normalized = normalizeExistingSongLink(value);
+  try {
+    const parsed = new URL(normalized);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return /^https?:\/\/\S+/i.test(normalized);
+  }
 }
 
 function undefinedIfEmpty(value: string): string | undefined {
@@ -128,7 +144,6 @@ export class ConfiguratorStoreService {
     excludedTopics: this.fb.control('', Validators.maxLength(FIELD_LIMITS.excludedTopics)),
     additionalNotes: this.fb.control('', Validators.maxLength(FIELD_LIMITS.songAdditionalNotes)),
     existingSongName: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongName)),
-    existingSongArtist: this.fb.control('', Validators.maxLength(FIELD_LIMITS.existingSongArtist)),
     existingSongLink: this.fb.control('', [
       Validators.maxLength(FIELD_LIMITS.existingSongLink),
       Validators.pattern(/^\s*$|^https?:\/\/\S+/i),
@@ -1014,9 +1029,12 @@ export class ConfiguratorStoreService {
         importantWords: splitToList(song.importantWords),
         excludedTopics: splitToList(song.excludedTopics),
         additionalNotes: undefinedIfEmpty(song.additionalNotes),
-        existingSongName: undefinedIfEmpty(song.existingSongName),
-        existingSongArtist: undefinedIfEmpty(song.existingSongArtist),
-        existingSongLink: undefinedIfEmpty(song.existingSongLink),
+        ...(this.requiresExistingSongRights()
+          ? {
+              existingSongName: undefinedIfEmpty(song.existingSongName),
+              existingSongLink: undefinedIfEmpty(normalizeExistingSongLink(song.existingSongLink)),
+            }
+          : {}),
       };
     }
 
@@ -1280,7 +1298,6 @@ export class ConfiguratorStoreService {
       excludedTopics: '',
       additionalNotes: '',
       existingSongName: '',
-      existingSongArtist: '',
       existingSongLink: '',
     });
     this.videoForm.reset({ source: DEFAULT_VIDEO_SOURCE, length: DEFAULT_LENGTH_ID, format: DEFAULT_VIDEO_FORMAT, subtitles: 'none' });

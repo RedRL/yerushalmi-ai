@@ -146,6 +146,8 @@
               [class.configurator__submit-wrap--hint-visible]="nextHintVisible()"
               [class.configurator__submit-wrap--invalid]="!store.isSubmissionValid()"
               (click)="onNextWrapClick()"
+              (mouseenter)="onNextHintEnter()"
+              (mouseleave)="onNextHintLeave()"
             >
               <button
                 type="button"
@@ -181,6 +183,8 @@
               [class.configurator__nav-next-wrap--blocked]="!store.isCurrentStepValid()"
               [class.configurator__nav-next-wrap--hint-visible]="nextHintVisible()"
               (click)="onNextWrapClick()"
+              (mouseenter)="onNextHintEnter()"
+              (mouseleave)="onNextHintLeave()"
             >
               <button
                 type="button"

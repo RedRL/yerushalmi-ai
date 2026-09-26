@@ -44,6 +44,16 @@ export const contactSchema = z.object({
   message: z.string().trim().max(2000).optional(),
 });
 
+function normalizeOptionalHttpUrl(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^(www\.|youtu\.be\/|youtube\.com\/|open\.spotify\.com\/)/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+}
+
 export const vocalistSchema = z.enum(['male', 'female', 'both']);
 
 export const songConfigSchema = z.object({
@@ -57,8 +67,12 @@ export const songConfigSchema = z.object({
   excludedTopics: z.array(z.string().trim().max(200)).max(30).optional().default([]),
   additionalNotes: z.string().trim().max(2000).optional(),
   existingSongName: z.string().trim().max(200).optional(),
-  existingSongArtist: z.string().trim().max(200).optional(),
-  existingSongLink: z.string().trim().url('קישור לא תקין').optional().or(z.literal('')),
+  existingSongLink: z
+    .string()
+    .trim()
+    .transform(normalizeOptionalHttpUrl)
+    .pipe(z.string().url('קישור לא תקין').or(z.literal('')))
+    .optional(),
 });
 
 export const videoConfigSchema = z.object({

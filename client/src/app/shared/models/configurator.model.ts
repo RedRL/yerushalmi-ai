@@ -12,7 +12,6 @@ export interface SongConfiguration {
   excludedTopics?: string;
   additionalNotes?: string;
   existingSongName?: string;
-  existingSongArtist?: string;
   existingSongLink?: string;
 }
 
