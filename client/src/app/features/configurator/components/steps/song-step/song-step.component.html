@@ -3,7 +3,7 @@
     @case ('styles') {
       <app-wizard-screen
         kicker="השיר"
-        title="איזה סגנון מתנגן לכם בראש?"
+        heading="איזה סגנון מתנגן לכם בראש?"
         description="אפשר לבחור שילוב של כמה סגנונות. לחיצה משמיעה דוגמה קצרה, מומלץ להפעיל רמקולים."
         [showActions]="false"
         [index]="screenIndex()"
@@ -41,7 +41,7 @@
     @case ('vocalist') {
       <app-wizard-screen
         kicker="השיר"
-        title="איזה קול ישיר?"
+        heading="איזה קול ישיר?"
         description="לחיצה על קול משמיעה דוגמה קצרה. מומלץ להפעיל רמקולים."
         [showActions]="false"
         [index]="screenIndex()"
@@ -70,7 +70,7 @@
     @case ('length') {
       <app-wizard-screen
         kicker="השיר"
-        [title]="lengthTitle()"
+        [heading]="lengthTitle()"
         description="גררו את המד עד שהאורך מרגיש נכון."
         [showActions]="false"
         [index]="screenIndex()"
@@ -86,7 +86,7 @@
     @case ('optional') {
       <app-wizard-screen
         kicker="השיר"
-        title="עוד על השיר"
+        heading="עוד על השיר"
         description="רשות. אפשר להמשיך גם בלי למלא."
         [showActions]="false"
         [index]="screenIndex()"
@@ -120,7 +120,7 @@
     @case ('existingSongName') {
       <app-wizard-screen
         kicker="השיר"
-        title="איך קוראים לשיר?"
+        heading="איך קוראים לשיר?"
         description="השיר שסביבו נבנה את הקליפ."
         [showActions]="false"
         [index]="screenIndex()"
@@ -137,7 +137,7 @@
     @case ('existingSongLink') {
       <app-wizard-screen
         kicker="השיר"
-        title="איפה אפשר לשמוע אותו?"
+        heading="איפה אפשר לשמוע אותו?"
         description="קישור מיוטיוב, ספוטיפיי או כל מקום אחר."
         [showActions]="false"
         [index]="screenIndex()"

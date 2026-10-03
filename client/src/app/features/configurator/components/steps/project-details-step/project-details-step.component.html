@@ -3,7 +3,7 @@
     @case ('personName') {
       <app-wizard-screen
         kicker="הסיפור"
-        [title]="personNameLabel()"
+        [heading]="personNameLabel()"
         description="השם שסביבו נבנה את הפרויקט."
         [showActions]="false"
         [index]="screenIndex()"
@@ -20,7 +20,7 @@
     @case ('occasion') {
       <app-wizard-screen
         kicker="הסיפור"
-        title="איזה אירוע חוגגים?"
+        heading="איזה אירוע חוגגים?"
         description="יום הולדת, חתונה, יום נישואין, או כל רגע אחר."
         [showActions]="false"
         [index]="screenIndex()"
@@ -37,7 +37,7 @@
     @case ('story') {
       <app-wizard-screen
         kicker="הסיפור"
-        title="מה חשוב שנדע?"
+        heading="מה חשוב שנדע?"
         description="כתבו בחופשיות, כאילו אתם מספרים לחבר. לפחות כמה משפטים."
         [showActions]="false"
         [index]="screenIndex()"
@@ -65,7 +65,7 @@
     @case ('eventDate') {
       <app-wizard-screen
         kicker="הסיפור"
-        title="למתי צריך את הפרויקט?"
+        heading="למתי צריך את הפרויקט?"
         description="רשות. רק כדי לדעת מתי האירוע, בלי להשפיע על זמן ההכנה."
         [showActions]="false"
         [index]="screenIndex()"

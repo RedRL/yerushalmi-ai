@@ -4,7 +4,7 @@
       <app-wizard-screen
         [showActions]="false"
         kicker="הסרטון"
-        title="כמה ארוך הסרטון?"
+        heading="כמה ארוך הסרטון?"
         [description]="store.requiresExistingSongRights() ? 'מומלץ לבחור אורך שמתאים לשיר שבחרתם. כל חצי דקה נוספת היא עוד ₪120.' : 'כל חצי דקה נוספת היא עוד ₪120.'"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -22,7 +22,7 @@
       <app-wizard-screen
         [showActions]="false"
         kicker="הסרטון"
-        title="איך הסרטון יישב במסך?"
+        heading="איך הסרטון יישב במסך?"
         [description]="store.includesNewSong() ? 'הפריים מתעדכן לפי הבחירה.' : 'הפריים מתעדכן לפי הבחירה. הפורמט לא משנה את המחיר.'"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -51,7 +51,7 @@
       <app-wizard-screen
         [showActions]="false"
         kicker="הסרטון"
-        title="כתוביות על הפריים"
+        heading="כתוביות על הפריים"
         description="כך זה נראה על תמונת המסך."
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -81,7 +81,7 @@
       <app-wizard-screen
         [showActions]="false"
         kicker="הסרטון"
-        title="מה קורה בקצוות?"
+        heading="מה קורה בקצוות?"
         description="בלי מילוי נשארים פסים שחורים. עם מילוי הצדדים הריקים מתמלאים בהמשך של התמונה."
         [index]="screenIndex()"
         [total]="screenTotal()"

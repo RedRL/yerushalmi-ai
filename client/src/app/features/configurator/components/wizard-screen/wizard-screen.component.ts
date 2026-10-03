@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 })
 export class WizardScreenComponent {
   readonly kicker = input('');
-  readonly title = input.required<string>();
+  readonly heading = input.required<string>();
   readonly description = input('');
   readonly index = input(0);
   readonly total = input(1);
