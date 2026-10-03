@@ -14,6 +14,7 @@ export interface ProductPricingSnapshot {
 
 export interface PersistedConfiguratorState {
   currentStepIndex: number;
+  subStepIndex?: number;
   mainProduct: MainProductId | null;
   addons: AddonId[];
   inquiryFolderId?: string;

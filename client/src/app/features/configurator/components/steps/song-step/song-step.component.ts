@@ -1,114 +1,113 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  ElementRef,
-  HostListener,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import { getSongLengthOptions, SONG_STYLE_OPTIONS, VOCALIST_OPTIONS } from '../../../../../core/config/pricing.config';
 import type { SongLengthId, VocalistId } from '../../../../../shared/models/pricing.model';
+import { STYLE_TONES, VOICE_TONES } from '../../../experience/experience.config';
+import { StylePreviewPlayer } from '../../../experience/style-preview-player.service';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
+import { LengthSliderComponent } from '../../length-slider/length-slider.component';
+import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
 
 @Component({
   selector: 'app-song-step',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, WizardScreenComponent, LengthSliderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './song-step.component.html',
   styleUrl: './song-step.component.scss',
 })
 export class SongStepComponent {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly hostRef = inject(ElementRef<HTMLElement>);
-
   readonly store = inject(ConfiguratorStoreService);
+  readonly player = inject(StylePreviewPlayer);
   readonly styleOptions = SONG_STYLE_OPTIONS;
   readonly vocalistOptions = VOCALIST_OPTIONS;
+  readonly styleTones = STYLE_TONES;
+  readonly voiceTones = VOICE_TONES;
   readonly limits = FIELD_LIMITS;
-  readonly lengthMenuOpen = signal(false);
-  private readonly lengthUiRevision = signal(0);
+
+  readonly optionalFields = [
+    {
+      id: 'mood',
+      title: 'איזה מצב רוח?',
+      placeholder: 'שמח, מרגש, קצבי...',
+      control: 'mood',
+      max: FIELD_LIMITS.mood,
+    },
+    {
+      id: 'namesToInclude',
+      title: 'שמות שחשוב שיופיעו',
+      placeholder: 'הפרידו בפסיקים',
+      control: 'namesToInclude',
+      max: FIELD_LIMITS.namesToInclude,
+    },
+    {
+      id: 'importantWords',
+      title: 'מילים שחייבות להיכנס',
+      placeholder: 'הפרידו בפסיקים',
+      control: 'importantWords',
+      max: FIELD_LIMITS.importantWords,
+    },
+    {
+      id: 'excludedTopics',
+      title: 'מה לא להכניס לשיר?',
+      placeholder: 'הפרידו בפסיקים',
+      control: 'excludedTopics',
+      max: FIELD_LIMITS.excludedTopics,
+    },
+    {
+      id: 'additionalNotes',
+      title: 'עוד משהו על השיר?',
+      placeholder: 'הערה קצרה',
+      control: 'additionalNotes',
+      max: FIELD_LIMITS.songAdditionalNotes,
+    },
+  ] as const;
 
   readonly lengthOptions = computed(() => getSongLengthOptions(this.store.mainProduct()));
 
-  readonly lengthFieldLabel = computed(() =>
-    this.store.isFullExperience() ? 'אורך משוער (שיר וסרטון)' : 'אורך משוער',
+  readonly lengthTitle = computed(() =>
+    this.store.isFullExperience() ? 'כמה ארוכים השיר והסרטון?' : 'כמה ארוך השיר?',
   );
 
-  readonly selectedLengthId = computed((): SongLengthId | '' => {
-    this.lengthUiRevision();
-    this.lengthOptions();
-    return this.store.songForm.controls.length.value ?? '';
-  });
-
-  readonly selectedLengthLabel = computed(() => {
-    const id = this.selectedLengthId();
-    const options = this.lengthOptions();
-    return options.find((option) => option.id === id)?.labelHe ?? options[0]?.labelHe ?? '';
-  });
-
   constructor() {
-    const media = window.matchMedia('(max-width: 1023px)');
-    const syncMobile = (): void => this.isMobileViewport.set(media.matches);
-    syncMobile();
-    media.addEventListener('change', syncMobile);
-    this.destroyRef.onDestroy(() => media.removeEventListener('change', syncMobile));
+    effect(() => {
+      this.store.activeScreen().field;
+      this.player.stop();
+    });
+    inject(DestroyRef).onDestroy(() => this.player.stop());
   }
 
-  private readonly isMobileViewport = signal(false);
-
-  lengthOptionLabel(option: { id: SongLengthId; labelHe: string; price: number }): string {
-    if (this.isMobileViewport() && option.price > 0) {
-      return `${option.labelHe} · ₪${option.price}`;
-    }
-    return option.labelHe;
+  screenIndex(): number {
+    return this.store.subStepPosition();
   }
 
-  selectVocalist(id: VocalistId): void {
-    this.store.selectVocalist(id);
+  screenTotal(): number {
+    return this.store.currentScreens().length;
   }
 
-  toggleLengthMenu(event: Event): void {
-    event.stopPropagation();
-    if (this.lengthMenuOpen()) {
-      this.closeLengthMenu();
+  linkReady(): boolean {
+    return this.store.acceptsExistingSongLink(this.store.songForm.controls.existingSongLink.value);
+  }
+
+  pickStyle(style: string): void {
+    const alreadySelected = this.store.isSongStyleSelected(style);
+    this.store.toggleSongStyle(style);
+    if (alreadySelected) {
+      if (this.player.playingId() === `style:${style}`) this.player.stop();
       return;
     }
-
-    this.lengthMenuOpen.set(true);
+    this.player.playStyle(style);
   }
 
-  selectLength(id: SongLengthId, event: Event): void {
-    event.stopPropagation();
-    this.store.songForm.controls.length.setValue(id);
+  pickVoice(id: VocalistId): void {
+    const alreadySelected = this.store.songForm.controls.vocalist.value === id;
+    this.store.selectVocalist(id);
+    if (alreadySelected) return;
+    this.player.playVoice(id);
+  }
+
+  setLength(id: string): void {
+    this.store.songForm.controls.length.setValue(id as SongLengthId);
     this.store.songForm.controls.length.markAsTouched();
-    this.lengthUiRevision.update((value) => value + 1);
-    this.closeLengthMenu();
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.lengthMenuOpen()) return;
-    const target = event.target;
-    const root = this.hostRef.nativeElement.querySelector('.length-select');
-    if (target instanceof Node && root?.contains(target)) return;
-    this.closeLengthMenu();
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.closeLengthMenu();
-  }
-
-  @HostListener('window:resize')
-  onResize(): void {
-    this.closeLengthMenu();
-  }
-
-  private closeLengthMenu(): void {
-    this.lengthMenuOpen.set(false);
   }
 }

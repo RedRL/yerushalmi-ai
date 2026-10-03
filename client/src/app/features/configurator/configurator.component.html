@@ -130,9 +130,10 @@
             </div>
           </div>
 
+          @if (showBack || showFooterNext || isFinalStep) {
           <div class="configurator__nav">
 
-          @if (!isFirstStep) {
+          @if (showBack) {
             <button type="button" class="configurator__nav-back" (click)="goBack()">
               הקודם
             </button>
@@ -176,11 +177,11 @@
             </span>
           }
 
-          @if (!isFinalStep) {
+          @if (showFooterNext) {
             <span
               #navNextWrap
               class="configurator__nav-next-wrap"
-              [class.configurator__nav-next-wrap--blocked]="!store.isCurrentStepValid()"
+              [class.configurator__nav-next-wrap--blocked]="!store.canContinueForward()"
               [class.configurator__nav-next-wrap--hint-visible]="nextHintVisible()"
               (click)="onNextWrapClick()"
               (mouseenter)="onNextHintEnter()"
@@ -189,14 +190,14 @@
               <button
                 type="button"
                 class="configurator__nav-next"
-                [disabled]="!store.isCurrentStepValid()"
-                [attr.aria-describedby]="!store.isCurrentStepValid() && nextHintVisible() ? 'configurator-next-hint' : null"
+                [disabled]="!store.canContinueForward()"
+                [attr.aria-describedby]="!store.canContinueForward() && nextHintVisible() ? 'configurator-next-hint' : null"
                 (click)="onNextButtonClick($event)"
               >
                 הבא
               </button>
 
-              @if (!store.isCurrentStepValid() && store.currentStepValidationMessage(); as hint) {
+              @if (!store.canContinueForward() && store.forwardValidationMessage(); as hint) {
                 <span
                   #navTooltip
                   id="configurator-next-hint"
@@ -209,6 +210,7 @@
           }
 
         </div>
+          }
 
         </div>
 

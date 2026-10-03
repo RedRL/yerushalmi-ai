@@ -162,17 +162,21 @@ export class ConfiguratorComponent implements AfterViewInit {
   private nextHintFadeTimer: ReturnType<typeof setTimeout> | null = null;
   private tooltipReturnHost: HTMLElement | null = null;
   private lastStepIndex = 0;
+  private lastSubStepIndex = 0;
   private lockedViewportWidth = 0;
   private lockedViewportHeight = 0;
 
   constructor(readonly store: ConfiguratorStoreService) {
     this.lastStepIndex = store.currentStepIndex();
+    this.lastSubStepIndex = store.subStepIndex();
 
     effect(() => {
       const index = this.store.currentStepIndex();
+      const subStep = this.store.subStepIndex();
       this.dismissMobileNextHint(true);
-      if (index === this.lastStepIndex) return;
+      if (index === this.lastStepIndex && subStep === this.lastSubStepIndex) return;
       this.lastStepIndex = index;
+      this.lastSubStepIndex = subStep;
       this.resetBodyScroll();
     });
 
@@ -182,6 +186,7 @@ export class ConfiguratorComponent implements AfterViewInit {
     });
 
     effect(() => {
+      this.store.canContinueForward();
       this.store.isCurrentStepValid();
       this.store.isSubmissionValid();
       this.dismissMobileNextHint(true);
@@ -241,14 +246,12 @@ export class ConfiguratorComponent implements AfterViewInit {
 
 
 
-  get isFirstStep(): boolean {
+  get showBack(): boolean {
+    return this.store.currentStepIndex() > 0 || this.store.subStepIndex() > 0;
+  }
 
-
-
-    return this.store.currentStepIndex() === 0;
-
-
-
+  get showFooterNext(): boolean {
+    return !this.isFinalStep && !this.store.managesOwnAdvance();
   }
 
 
@@ -279,13 +282,13 @@ export class ConfiguratorComponent implements AfterViewInit {
 
   goNext(): void {
     this.dismissMobileNextHint(true);
-    this.store.goNext();
+    this.store.continueForward();
   }
 
   onNextWrapClick(): void {
     const blocked = this.isFinalStep
       ? !this.store.isSubmissionValid()
-      : !this.store.isCurrentStepValid();
+      : !this.store.canContinueForward();
     if (!blocked) return;
 
     this.store.markCurrentStepTouched();
@@ -298,7 +301,7 @@ export class ConfiguratorComponent implements AfterViewInit {
     if (!this.isCenteredHintViewport() || !this.isHoverDevice()) return;
     const blocked = this.isFinalStep
       ? !this.store.isSubmissionValid()
-      : !this.store.isCurrentStepValid();
+      : !this.store.canContinueForward();
     if (!blocked) return;
     this.store.markCurrentStepTouched();
     this.showMobileNextHint();
@@ -453,7 +456,7 @@ export class ConfiguratorComponent implements AfterViewInit {
   }
 
   onNextButtonClick(event: Event): void {
-    if (this.store.isCurrentStepValid()) {
+    if (this.store.canContinueForward()) {
       event.stopPropagation();
       this.goNext();
     }

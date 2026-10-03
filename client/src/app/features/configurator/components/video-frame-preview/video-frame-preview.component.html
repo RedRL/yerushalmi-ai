@@ -1,0 +1,18 @@
+<div class="frame-preview" [class.frame-preview--compact]="compact()">
+  <div class="frame-preview__stage">
+    <div
+      class="frame-preview__frame"
+      [class.frame-preview__frame--fill]="filled()"
+      [style.--ratio]="ratio()"
+      [style.--frame-width]="frameWidth()"
+    >
+      <img class="frame-preview__photo" [src]="still()" alt="תמונת מסך לדוגמה של הסרטון" />
+      @if (showCaption()) {
+        <span class="frame-preview__caption">{{ sample }}</span>
+      }
+      @if (badge()) {
+        <span class="frame-preview__badge">{{ badge() }}</span>
+      }
+    </div>
+  </div>
+</div>

@@ -1,58 +1,37 @@
-@use 'breakpoints' as bp;
-
 :host {
-  display: block;
-  min-height: 0;
-}
-
-.optional-details-step {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  flex: 1 0 auto;
+  min-height: 100%;
 }
 
-.step__title-optional {
+.extras__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+}
+
+.extras__lead {
+  margin: var(--space-2) 0 var(--space-4);
   color: var(--color-text-muted);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
 }
 
-.optional-details-step .step__section {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  align-content: start;
-  row-gap: var(--space-6);
-  column-gap: var(--space-4);
-  margin-top: var(--space-2);
-
-  @include bp.respond-up('md') {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  @include bp.respond-down('lg') {
-    row-gap: var(--space-2);
-    margin-top: var(--space-1);
-  }
+.extras__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.optional-details-step .field {
+.extras__field {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-1);
 }
 
-.optional-details-step .field--full {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+.extras__notes {
+  margin-top: var(--space-4);
 }
 
 .optional-details-step__notes {
-  min-height: 5rem;
-  resize: none;
-  touch-action: pan-y;
-
-  @include bp.respond-down('lg') {
-    overflow: hidden;
-    field-sizing: content;
-  }
+  min-height: 6rem;
+  resize: vertical;
 }

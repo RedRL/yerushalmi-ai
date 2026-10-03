@@ -1,0 +1,37 @@
+<section class="wizard">
+  <header class="wizard__header">
+    @if (kicker()) {
+      <p class="wizard__kicker">{{ kicker() }}</p>
+    }
+    <h3 class="wizard__title">{{ title() }}</h3>
+    @if (description()) {
+      <p class="wizard__description">{{ description() }}</p>
+    }
+    @if (total() > 1) {
+      <div class="wizard__dots" aria-hidden="true">
+        @for (dot of dots(); track dot) {
+          <span
+            class="wizard__dot"
+            [class.wizard__dot--on]="dot === index()"
+            [class.wizard__dot--done]="dot < index()"
+          ></span>
+        }
+      </div>
+    }
+  </header>
+
+  <div class="wizard__body">
+    <ng-content />
+  </div>
+
+  @if (showActions()) {
+    <div class="wizard__actions">
+      @if (skippable()) {
+        <button type="button" class="wizard__skip" (click)="skipped.emit()">דלג</button>
+      }
+      <button type="button" class="wizard__continue" [disabled]="!canContinue()" (click)="continued.emit()">
+        {{ continueLabel() }}
+      </button>
+    </div>
+  }
+</section>

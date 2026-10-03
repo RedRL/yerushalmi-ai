@@ -1,23 +1,27 @@
-<div class="step">
-  <h3 class="step__title">בחירת סוג הפרויקט</h3>
-  <p class="step__description">בחרו את סוג הפרויקט שמתאים לכם — אפשר לשנות בהמשך.</p>
-
-  <div class="product-step__options" role="radiogroup" aria-label="סוג הפרויקט">
+<app-wizard-screen
+  kicker="הפרויקט"
+  title="בחרו"
+  [showActions]="false"
+>
+  <div class="pick-grid" role="radiogroup" aria-label="סוג הפרויקט">
     @for (option of options; track option.id) {
       <button
         type="button"
-        class="product-step__option"
+        class="pick-card"
         role="radio"
         [attr.aria-checked]="store.mainProduct() === option.id"
-        [class.product-step__option--selected]="store.mainProduct() === option.id"
+        [class.pick-card--selected]="store.mainProduct() === option.id || leavingId() === option.id"
+        [class.pick-card--go]="leavingId() === option.id"
         (click)="select(option.id)"
       >
-        <span class="product-step__radio" aria-hidden="true"></span>
-        <span class="product-step__text">
-          <span class="product-step__option-title">{{ option.titleHe }}</span>
-          <span class="product-step__option-description">{{ option.descriptionHe }}</span>
+        <img [src]="visuals[option.id].image" alt="" />
+        <span class="pick-card__shade"></span>
+        <span class="pick-card__label">
+          <strong>{{ option.titleHe }}</strong>
+          <small>{{ visuals[option.id].blurb }}</small>
+          <em>₪{{ price(option.id) }}</em>
         </span>
       </button>
     }
   </div>
-</div>
+</app-wizard-screen>

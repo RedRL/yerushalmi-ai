@@ -21,6 +21,7 @@ import {
   todayIsoHeIl,
 } from '../../../../../shared/utils/he-date.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
+import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
 
 const WEEKDAY_LABELS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'] as const;
 const MONTH_LABELS = [
@@ -40,7 +41,7 @@ const MONTH_LABELS = [
 
 @Component({
   selector: 'app-project-details-step',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, WizardScreenComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './project-details-step.component.html',
   styleUrl: './project-details-step.component.scss',
@@ -75,12 +76,13 @@ export class ProjectDetailsStepComponent {
         this.dateFieldTouched.set(true);
       }
     });
+
   }
 
   readonly personNameLabel = computed(() =>
     this.store.includesVideo()
-      ? 'שם האדם/האנשים שהקליפ עבורם *'
-      : 'שם האדם/האנשים שהשיר עבורם *',
+      ? 'שם האדם או האנשים שהקליפ עבורם'
+      : 'שם האדם או האנשים שהשיר עבורם',
   );
 
   readonly calendarTitle = computed(() => {
@@ -251,6 +253,14 @@ export class ProjectDetailsStepComponent {
     const element = event.currentTarget as HTMLElement;
     if (element.scrollHeight <= element.clientHeight) return;
     containScrollWheel(event, element);
+  }
+
+  screenIndex(): number {
+    return this.store.subStepPosition();
+  }
+
+  screenTotal(): number {
+    return this.store.currentScreens().length;
   }
 }
 

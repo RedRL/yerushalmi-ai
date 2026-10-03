@@ -1,194 +1,118 @@
-<div class="step video-step" [formGroup]="store.videoForm">
-
-  <h3 class="step__title">פרטי הסרטון</h3>
-
-  @if (store.includesNewSong()) {
-    <p class="step__description video-step__notice">
-      לפני יצירת הסרטון נעדכן אתכם על השיר שנוצר — לאישור ולהערות. כל פרויקט כולל סבב תיקונים אחד לשיר וסבב תיקונים אחד לסרטון.
-    </p>
-  }
-
-  @if (!hideVideoLength()) {
-
-    <div class="step__section">
-
-      <div class="video-step__section-heading">
-
-        <span class="step__section-title">אורך הסרטון</span>
-
-        @if (showSongLengthHint()) {
-
-          <span class="field__hint video-step__inline-hint">מומלץ לבחור אורך שמתאים לשיר שבחרתם.</span>
-
-        }
-        <span class="field__hint video-step__inline-hint video-step__mobile-price-hint">תוספת של כל חצי דקה היא עוד ₪120.</span>
-
-      </div>
-
-      <div class="option-card-grid length-option-grid" role="radiogroup" aria-label="אורך הסרטון">
-
-        @for (option of lengthOptions; track option.id) {
-
+<div class="flow-step">
+  @switch (store.activeScreen().field) {
+    @case ('length') {
+      <app-wizard-screen
+        [showActions]="false"
+        kicker="הסרטון"
+        title="כמה ארוך הסרטון?"
+        [description]="store.requiresExistingSongRights() ? 'מומלץ לבחור אורך שמתאים לשיר שבחרתם. כל חצי דקה נוספת היא עוד ₪120.' : 'כל חצי דקה נוספת היא עוד ₪120.'"
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+        (continued)="advance()"
+      >
+        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" [badge]="lengthLabel()" />
+        <app-length-slider
+          [options]="lengthOptions"
+          [value]="store.videoForm.controls.length.value"
+          (selected)="selectLength($event)"
+        />
+      </app-wizard-screen>
+    }
+    @case ('format') {
+      <app-wizard-screen
+        [showActions]="false"
+        kicker="הסרטון"
+        title="איך הסרטון יישב במסך?"
+        [description]="store.includesNewSong() ? 'הפריים מתעדכן לפי הבחירה.' : 'הפריים מתעדכן לפי הבחירה. הפורמט לא משנה את המחיר.'"
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+        (continued)="advance()"
+      >
+        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" />
+        <div class="choice-row" role="radiogroup" aria-label="פורמט יציאה">
+          @for (option of formatOptions; track option.id) {
+            <button
+              type="button"
+              class="choice-chip"
+              role="radio"
+              [attr.aria-checked]="format() === option.id"
+              [class.choice-chip--on]="format() === option.id"
+              (click)="selectFormat(option.id)"
+            >
+              <span class="choice-chip__ratio" [style.aspect-ratio]="option.previewAspectRatio"></span>
+              <span>{{ formatCaptions[option.id] }}</span>
+              <small>{{ option.labelHe }}</small>
+            </button>
+          }
+        </div>
+      </app-wizard-screen>
+    }
+    @case ('subtitles') {
+      <app-wizard-screen
+        [showActions]="false"
+        kicker="הסרטון"
+        title="כתוביות על הפריים"
+        description="כך זה נראה על תמונת המסך."
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+        (continued)="advance()"
+      >
+        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" />
+        <div class="choice-pair" role="radiogroup" aria-label="כתוביות">
+          @for (option of subtitlesOptions; track option.id) {
+            <button
+              type="button"
+              class="choice-chip"
+              role="radio"
+              [attr.aria-checked]="subtitles() === option.id"
+              [class.choice-chip--on]="subtitles() === option.id"
+              (click)="selectSubtitles(option.id)"
+            >
+              <span>{{ option.labelHe }}</span>
+              @if (option.price > 0) {
+                <small>₪{{ option.price }}</small>
+              }
+            </button>
+          }
+        </div>
+      </app-wizard-screen>
+    }
+    @case ('fill') {
+      <app-wizard-screen
+        [showActions]="false"
+        kicker="הסרטון"
+        title="מה קורה בקצוות?"
+        description="בלי מילוי נשארים פסים שחורים. עם מילוי הצדדים הריקים מתמלאים בהמשך של התמונה."
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+        (continued)="advance()"
+      >
+        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" />
+        <div class="choice-pair" role="radiogroup" aria-label="מילוי אוטומטי של התמונות">
           <button
-
             type="button"
-
-            class="option-card"
-
+            class="choice-chip"
             role="radio"
-
-            [attr.aria-checked]="store.videoForm.controls.length.value === option.id"
-
-            [class.option-card--selected]="store.videoForm.controls.length.value === option.id"
-
-            (click)="selectLength(option.id)"
-
+            [attr.aria-checked]="!filled()"
+            [class.choice-chip--on]="!filled()"
+            (click)="selectImageFill(false)"
           >
-
-            <span class="option-card__title">{{ option.labelHe }}</span>
-
+            <span>ללא מילוי</span>
+            <small>פסים שחורים</small>
           </button>
-
-        }
-
-      </div>
-
-    </div>
-
+          <button
+            type="button"
+            class="choice-chip"
+            role="radio"
+            [attr.aria-checked]="filled()"
+            [class.choice-chip--on]="filled()"
+            (click)="selectImageFill(true)"
+          >
+            <span>עם מילוי</span>
+            <small>השלמה לפורמט · ₪50</small>
+          </button>
+        </div>
+      </app-wizard-screen>
+    }
   }
-
-
-
-  <div class="step__section">
-
-    <div class="video-step__section-heading">
-
-      <span class="step__section-title">פורמט יציאה</span>
-
-      <span class="field__hint video-step__inline-hint">הבחירה לא משפיעה על העלות.</span>
-
-    </div>
-
-    <div class="option-card-grid format-option-grid" role="radiogroup" aria-label="פורמט יציאה">
-
-      @for (option of formatOptions; track option.id) {
-
-        <button
-
-          type="button"
-
-          class="option-card format-option-card"
-
-          role="radio"
-
-          [attr.aria-checked]="store.videoForm.controls.format.value === option.id"
-
-          [class.option-card--selected]="store.videoForm.controls.format.value === option.id"
-
-          (click)="selectFormat(option.id)"
-
-        >
-
-          <span class="format-option-card__preview-stage" aria-hidden="true">
-
-            <span
-
-              class="format-option-card__preview"
-
-              [class.format-option-card__preview--landscape]="option.previewOrientation === 'landscape'"
-
-              [class.format-option-card__preview--portrait]="option.previewOrientation === 'portrait'"
-
-              [class.format-option-card__preview--square]="option.previewOrientation === 'square'"
-
-              [style.aspect-ratio]="option.previewAspectRatio"
-
-            ></span>
-
-          </span>
-
-          <span class="option-card__title">{{ option.labelHe }}</span>
-
-        </button>
-
-      }
-
-    </div>
-
-  </div>
-
-
-
-  <div class="step__section video-step__section--spaced">
-
-    <span class="step__section-title">כתוביות</span>
-
-    <div class="option-card-grid subtitles-option-grid" role="radiogroup" aria-label="כתוביות">
-
-      @for (option of subtitlesOptions; track option.id) {
-
-        <button
-
-          type="button"
-
-          class="option-card"
-
-          role="radio"
-
-          [attr.aria-checked]="store.videoForm.controls.subtitles.value === option.id"
-
-          [class.option-card--selected]="store.videoForm.controls.subtitles.value === option.id"
-
-          (click)="selectSubtitles(option.id)"
-
-        >
-
-          <span class="option-card__title">
-            {{ option.labelHe }}
-            @if (option.price > 0) {
-              <span class="video-step__mobile-price"> · ₪{{ option.price }}</span>
-            }
-          </span>
-
-        </button>
-
-      }
-
-    </div>
-
-  </div>
-
-
-
-  <div class="step__section video-step__section--spaced">
-    <div class="video-step__section-heading">
-      <span class="step__section-title">מילוי אוטומטי של התמונות לפורמט היציאה</span>
-      <span class="field__hint video-step__inline-hint">מילוי באמצעות AI מונע שוליים שחורים ומתאים את התמונה לפורמט הנבחר.</span>
-    </div>
-    <div class="option-card-grid subtitles-option-grid" role="radiogroup" aria-label="מילוי אוטומטי של התמונות">
-      <button
-        type="button"
-        class="option-card"
-        role="radio"
-        [attr.aria-checked]="!store.isAddonSelected('ai_image_fill')"
-        [class.option-card--selected]="!store.isAddonSelected('ai_image_fill')"
-        (click)="selectImageFill(false)"
-      >
-        <span class="option-card__title">ללא מילוי</span>
-      </button>
-      <button
-        type="button"
-        class="option-card"
-        role="radio"
-        [attr.aria-checked]="store.isAddonSelected('ai_image_fill')"
-        [class.option-card--selected]="store.isAddonSelected('ai_image_fill')"
-        (click)="selectImageFill(true)"
-      >
-        <span class="option-card__title">עם מילוי<span class="video-step__mobile-price"> · ₪50</span></span>
-      </button>
-    </div>
-  </div>
-
 </div>
-
-

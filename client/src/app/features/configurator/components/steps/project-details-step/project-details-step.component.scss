@@ -1,6 +1,13 @@
 @use 'mixins' as *;
 @use 'breakpoints' as bp;
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  min-height: 100%;
+}
+
 .project-details-step__date-controls {
   position: relative;
   overflow: visible;
@@ -241,5 +248,70 @@
       border-color: var(--color-error);
       box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
     }
+  }
+}
+
+.story-stack__head {
+  margin-bottom: var(--space-4);
+}
+
+.story-stack__title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+}
+
+.story-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  animation: story-in 0.35s ease;
+}
+
+.story-row__line {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+
+  > .field__control,
+  > .project-details-step__date-controls {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.story-row__line--story {
+  align-items: flex-end;
+}
+
+.field-arrow {
+  flex: 0 0 3.15rem;
+  display: grid;
+  place-items: center;
+  margin-inline-start: -6px;
+  border: 0;
+  color: #fff;
+  background: linear-gradient(160deg, #8eb0ff, #4f7cff 55%, #7c5cff);
+  cursor: pointer;
+  clip-path: polygon(0 50%, 14px 0, 100% 0, 100% 100%, 14px 100%);
+
+  svg {
+    margin-inline-start: 6px;
+  }
+}
+
+.field-arrow--wait {
+  opacity: 0.45;
+}
+
+@keyframes story-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

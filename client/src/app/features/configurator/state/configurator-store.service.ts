@@ -26,6 +26,7 @@ import { toHebrewUserError } from '../../../shared/utils/network-error.util';
 import { isIsoDateBeforeToday, parseHeIlDateToIso } from '../../../shared/utils/he-date.util';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
+import { screensForStep } from './configurator-flow';
 import {
   clearConfiguratorState,
   loadConfiguratorState,
@@ -514,6 +515,47 @@ export class ConfiguratorStoreService {
 
   readonly currentStep = computed(() => this.visibleSteps()[this.currentStepIndex()]);
 
+  readonly subStepIndex = signal(0);
+
+  readonly currentScreens = computed(() => screensForStep(this.currentStep()?.id, this.mainProduct()));
+
+  readonly subStepPosition = computed(() => {
+    const total = this.currentScreens().length;
+    if (total <= 0) return 0;
+    return Math.min(this.subStepIndex(), total - 1);
+  });
+
+  readonly activeScreen = computed(() => {
+    const screens = this.currentScreens();
+    return screens[this.subStepPosition()] ?? screens[0] ?? { skippable: false };
+  });
+
+  readonly managesOwnAdvance = computed(() => {
+    const id = this.currentStep()?.id;
+    return id === 'product';
+  });
+
+  readonly canContinueForward = computed(() => {
+    const step = this.currentStep()?.id;
+    if (!step) return false;
+    if (step === 'song') return this.isActiveSongScreenReady();
+    if (step === 'details') return this.isActiveDetailsScreenReady();
+    if (step === 'video') return true;
+    if (step === 'extras') return this.isActiveExtrasScreenReady();
+    return this.isStepValid(step);
+  });
+
+  readonly forwardValidationMessage = computed(() => {
+    if (this.canContinueForward()) return null;
+    const step = this.currentStep()?.id;
+    if (step === 'song') return this.getSongStepValidationMessage();
+    if (step === 'details') return this.getActiveDetailsMessage();
+    if (step === 'extras') return this.getActiveExtrasMessage();
+    const current = this.currentStep();
+    if (!current || this.isStepValid(current.id)) return 'נא להשלים את השלב הנוכחי כדי להמשיך';
+    return this.getStepValidationMessage(current.id);
+  });
+
   readonly isCurrentStepValid = computed(() => {
     const step = this.currentStep();
     if (!step) return false;
@@ -558,10 +600,6 @@ export class ConfiguratorStoreService {
     this.formRevision();
     const value = this.songValue();
 
-    if (this.songForm.controls.additionalNotes.invalid) {
-      return 'הערות השיר ארוכות מדי — קצרו את הטקסט כדי להמשיך';
-    }
-
     if (this.requiresExistingSongRights()) {
       if (value.existingSongName.trim().length === 0) {
         return 'נא להזין את שם השיר כדי להמשיך';
@@ -572,20 +610,36 @@ export class ConfiguratorStoreService {
     }
 
     if (this.includesNewSong()) {
-      if (!value.length) {
-        return 'נא לבחור אורך משוער כדי להמשיך';
-      }
       const styles = parseSongStyles(value.style);
       if (styles.length === 0) {
         return 'נא לבחור לפחות סגנון שיר אחד כדי להמשיך';
+      }
+      if (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0) {
+        return 'נא לפרט את הסגנון המוזיקלי כדי להמשיך';
       }
       const vocalist = value.vocalist;
       if (vocalist !== 'male' && vocalist !== 'female' && vocalist !== 'both') {
         return 'נא לבחור זמר, זמרת או שילוב של שניהם';
       }
-      if (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0) {
-        return 'נא לפרט את הסגנון המוזיקלי כדי להמשיך';
+      if (!value.length) {
+        return 'נא לבחור אורך משוער כדי להמשיך';
       }
+    }
+
+    if (this.songForm.controls.mood.invalid) {
+      return 'מצב הרוח ארוך מדי — קצרו את הטקסט כדי להמשיך';
+    }
+    if (this.songForm.controls.namesToInclude.invalid) {
+      return 'רשימת השמות ארוכה מדי — קצרו את הטקסט כדי להמשיך';
+    }
+    if (this.songForm.controls.importantWords.invalid) {
+      return 'רשימת המילים ארוכה מדי — קצרו את הטקסט כדי להמשיך';
+    }
+    if (this.songForm.controls.excludedTopics.invalid) {
+      return 'רשימת הנושאים ארוכה מדי — קצרו את הטקסט כדי להמשיך';
+    }
+    if (this.songForm.controls.additionalNotes.invalid) {
+      return 'הערות השיר ארוכות מדי — קצרו את הטקסט כדי להמשיך';
     }
 
     return 'נא להשלים את פרטי השיר כדי להמשיך';
@@ -717,7 +771,7 @@ export class ConfiguratorStoreService {
 
   beginWithPackage(id: MainProductId): void {
     this.selectMainProduct(id);
-    this.navigateToStep(1);
+    this.navigateToStep(0, 0);
   }
 
   isAddonSelected(id: AddonId): boolean {
@@ -887,6 +941,99 @@ export class ConfiguratorStoreService {
     this.persistState();
   }
 
+  acceptsExistingSongLink(value: string): boolean {
+    return isValidExistingSongLink(value);
+  }
+
+  advanceSubStep(): void {
+    this.continueForward();
+  }
+
+  continueForward(): void {
+    if (!this.canContinueForward()) {
+      this.markCurrentStepTouched();
+      this.focusBlockingScreen();
+      return;
+    }
+    const screens = this.currentScreens();
+    const index = this.subStepPosition();
+    if (index < screens.length - 1) {
+      this.subStepIndex.set(index + 1);
+      this.persistState();
+      return;
+    }
+    this.goNext();
+  }
+
+  private isActiveSongScreenReady(): boolean {
+    const field = this.activeScreen().field;
+    const value = this.songValue();
+    if (field === 'optional') {
+      return (
+        this.songForm.controls.mood.valid &&
+        this.songForm.controls.namesToInclude.valid &&
+        this.songForm.controls.importantWords.valid &&
+        this.songForm.controls.excludedTopics.valid &&
+        this.songForm.controls.additionalNotes.valid
+      );
+    }
+    if (field === 'existingSongName') return value.existingSongName.trim().length > 0;
+    if (field === 'existingSongLink') return isValidExistingSongLink(value.existingSongLink);
+    if (field === 'styles') {
+      const styles = parseSongStyles(value.style);
+      if (styles.length === 0) return false;
+      if (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0) return false;
+      return true;
+    }
+    if (field === 'vocalist') {
+      const vocalist = value.vocalist;
+      return vocalist === 'male' || vocalist === 'female' || vocalist === 'both';
+    }
+    if (field === 'length') return Boolean(value.length);
+    return false;
+  }
+
+  private isActiveDetailsScreenReady(): boolean {
+    const field = this.activeScreen().field;
+    const form = this.projectDetailsForm;
+    this.formRevision();
+    if (field === 'personName') return form.controls.personName.valid;
+    if (field === 'occasion') return form.controls.occasion.valid;
+    if (field === 'story') return form.controls.story.valid;
+    if (field === 'eventDate') return form.controls.eventDate.valid;
+    return false;
+  }
+
+  private isActiveExtrasScreenReady(): boolean {
+    const field = this.activeScreen().field;
+    const form = this.projectDetailsForm;
+    this.formRevision();
+    if (field === 'who') {
+      return form.controls.age.valid && form.controls.relationship.valid && form.controls.occupation.valid;
+    }
+    if (field === 'how') return form.controls.characterTraits.valid && form.controls.hobbies.valid;
+    if (field === 'notes') return form.controls.additionalNotes.valid;
+    return true;
+  }
+
+  private getActiveDetailsMessage(): string {
+    const field = this.activeScreen().field;
+    const form = this.projectDetailsForm;
+    this.formRevision();
+    if (field === 'personName') return 'נא למלא שם כדי להמשיך';
+    if (field === 'occasion') return 'נא למלא את סוג האירוע';
+    if (field === 'story') return 'מה חשוב שנדע על הפרויקט? (לפחות 10 תווים)';
+    if (field === 'eventDate') {
+      if (form.controls.eventDate.hasError('pastDate')) return 'תאריך האירוע לא יכול להיות לפני היום';
+      return 'נא להזין תאריך תקין';
+    }
+    return this.getDetailsStepValidationMessage();
+  }
+
+  private getActiveExtrasMessage(): string {
+    return 'הטקסט ארוך מדי — קצרו אותו כדי להמשיך';
+  }
+
   goNext(): void {
     if (!this.isCurrentStepValid()) {
       this.markCurrentStepTouched();
@@ -894,26 +1041,23 @@ export class ConfiguratorStoreService {
     }
     const total = this.visibleSteps().length;
     const nextIndex = Math.min(this.currentStepIndex() + 1, total - 1);
-    this.navigateToStep(nextIndex);
+    this.navigateToStep(nextIndex, 0);
   }
 
   markCurrentStepTouched(): void {
     const stepId = this.currentStep()?.id;
     switch (stepId) {
       case 'details':
+        this.markActiveDetailsTouched();
+        break;
       case 'extras':
-        this.projectDetailsForm.markAllAsTouched();
+        this.markActiveExtrasTouched();
         break;
       case 'contact':
         this.contactForm.markAllAsTouched();
         break;
       case 'song':
-        this.songForm.controls.style.markAsTouched();
-        this.songForm.controls.vocalist.markAsTouched();
-        this.songForm.controls.length.markAsTouched();
-        if (this.isOtherStyleOnly()) {
-          this.songForm.controls.customStyle.markAsTouched();
-        }
+        this.markActiveSongTouched();
         break;
       default:
         break;
@@ -922,13 +1066,22 @@ export class ConfiguratorStoreService {
   }
 
   goBack(): void {
-    const nextIndex = Math.max(this.currentStepIndex() - 1, 0);
-    this.navigateToStep(nextIndex);
+    if (this.subStepIndex() > 0) {
+      this.subStepIndex.update((value) => value - 1);
+      this.persistState();
+      return;
+    }
+    const prevIndex = this.currentStepIndex() - 1;
+    if (prevIndex < 0) return;
+    const prevStep = this.visibleSteps()[prevIndex];
+    const last = Math.max(0, screensForStep(prevStep?.id, this.mainProduct()).length - 1);
+    this.navigateToStep(prevIndex, last);
   }
 
   goToStep(index: number): void {
+    if (index === this.currentStepIndex()) return;
     if (index <= this.currentStepIndex()) {
-      this.navigateToStep(index);
+      this.navigateToStep(index, 0);
       return;
     }
 
@@ -936,14 +1089,88 @@ export class ConfiguratorStoreService {
       const step = this.visibleSteps()[i];
       if (!step || !this.isStepValid(step.id)) return;
     }
-    this.navigateToStep(index);
+    this.navigateToStep(index, 0);
   }
 
-  private navigateToStep(index: number): void {
+  private navigateToStep(index: number, subStep = 0): void {
     holdWindowScroll();
     this.currentStepIndex.set(index);
+    this.subStepIndex.set(subStep);
     this.clearStepErrors(this.visibleSteps()[index]?.id);
     this.persistState();
+  }
+
+  private markActiveDetailsTouched(): void {
+    const field = this.activeScreen().field;
+    const form = this.projectDetailsForm;
+    if (field === 'personName') form.controls.personName.markAsTouched();
+    else if (field === 'occasion') form.controls.occasion.markAsTouched();
+    else if (field === 'story') form.controls.story.markAsTouched();
+    else if (field === 'eventDate') form.controls.eventDate.markAsTouched();
+  }
+
+  private markActiveExtrasTouched(): void {
+    const field = this.activeScreen().field;
+    const form = this.projectDetailsForm;
+    if (field === 'who') {
+      form.controls.age.markAsTouched();
+      form.controls.relationship.markAsTouched();
+      form.controls.occupation.markAsTouched();
+    } else if (field === 'how') {
+      form.controls.characterTraits.markAsTouched();
+      form.controls.hobbies.markAsTouched();
+    } else if (field === 'notes') {
+      form.controls.additionalNotes.markAsTouched();
+    }
+  }
+
+  private markActiveSongTouched(): void {
+    const field = this.activeScreen().field;
+    if (field === 'existingSongName') {
+      this.songForm.controls.existingSongName.markAsTouched();
+      return;
+    }
+    if (field === 'existingSongLink') {
+      this.songForm.controls.existingSongLink.markAsTouched();
+      return;
+    }
+    if (field === 'styles') {
+      this.songForm.controls.style.markAsTouched();
+      if (this.isOtherStyleOnly()) this.songForm.controls.customStyle.markAsTouched();
+      return;
+    }
+    if (field === 'vocalist') this.songForm.controls.vocalist.markAsTouched();
+    if (field === 'length') this.songForm.controls.length.markAsTouched();
+  }
+
+  private focusBlockingScreen(): void {
+    const stepId = this.currentStep()?.id;
+    if (stepId === 'details') {
+      const form = this.projectDetailsForm;
+      if (form.controls.personName.invalid) this.subStepIndex.set(0);
+      else if (form.controls.occasion.invalid) this.subStepIndex.set(1);
+      else if (form.controls.story.invalid) this.subStepIndex.set(2);
+      else if (form.controls.eventDate.invalid) this.subStepIndex.set(3);
+      return;
+    }
+    if (stepId === 'song' && this.requiresExistingSongRights()) {
+      const value = this.songValue();
+      this.subStepIndex.set(value.existingSongName.trim().length === 0 ? 0 : 1);
+      return;
+    }
+    if (stepId === 'song' && this.includesNewSong()) {
+      const value = this.songValue();
+      const styles = parseSongStyles(value.style);
+      const vocalist = value.vocalist;
+      const stylesMissing =
+        styles.length === 0 ||
+        (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0);
+      const voiceMissing = vocalist !== 'male' && vocalist !== 'female' && vocalist !== 'both';
+      if (stylesMissing) this.subStepIndex.set(0);
+      else if (voiceMissing) this.subStepIndex.set(1);
+      else if (!value.length) this.subStepIndex.set(2);
+      else this.subStepIndex.set(3);
+    }
   }
 
   private clearStepErrors(stepId: ConfiguratorStepId | undefined): void {
@@ -1280,6 +1507,7 @@ export class ConfiguratorStoreService {
 
   reset(): void {
     this.currentStepIndex.set(0);
+    this.subStepIndex.set(0);
     this.mainProduct.set(null);
     this.addons.set([]);
     this.productPricingByProduct.set({});
@@ -1336,6 +1564,7 @@ export class ConfiguratorStoreService {
 
     const state: PersistedConfiguratorState = {
       currentStepIndex: this.currentStepIndex(),
+      subStepIndex: this.subStepIndex(),
       mainProduct: this.mainProduct(),
       addons: this.addons(),
       productPricingByProduct: this.productPricingByProduct(),
@@ -1394,6 +1623,9 @@ export class ConfiguratorStoreService {
     this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
     this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });
     this.formRevision.update((value) => value + 1);
+    const screenCount = screensForStep(this.currentStep()?.id, this.mainProduct()).length;
+    const savedSubStep = saved.subStepIndex ?? 0;
+    this.subStepIndex.set(screenCount > 0 ? Math.min(Math.max(0, savedSubStep), screenCount - 1) : 0);
   }
 
   private async restoreUploadedFilesFromStore(

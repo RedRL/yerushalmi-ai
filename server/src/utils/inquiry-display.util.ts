@@ -26,9 +26,19 @@ export function resolveSongLengthLabel(
   return prices[lengthId as SongLengthId]?.labelHe ?? lengthId;
 }
 
+const VIDEO_FORMAT_CAPTIONS: Partial<Record<VideoFormatId, string>> = {
+  landscape: 'לרוחב',
+  classic: 'קלאסי',
+  square: 'ריבוע',
+  portrait: 'סטורי',
+  portrait_3_4: 'פורטרט',
+};
+
 export function resolveVideoFormatLabel(formatId: string | undefined): string | undefined {
   if (!formatId) return undefined;
-  return VIDEO_FORMAT_PRICES[formatId as VideoFormatId]?.labelHe ?? formatId;
+  const ratio = VIDEO_FORMAT_PRICES[formatId as VideoFormatId]?.labelHe ?? formatId;
+  const caption = VIDEO_FORMAT_CAPTIONS[formatId as VideoFormatId];
+  return caption ? `${ratio} (${caption})` : ratio;
 }
 
 export function resolveVideoSourceLabel(sourceId: string | undefined): string | undefined {

@@ -25,6 +25,7 @@
       </div>
     </div>
   } @else {
+    <p class="wizard__kicker">פרטי קשר</p>
     <h3 class="step__title">כמעט סיימנו - איך נחזור אליכם?</h3>
 
     <form [formGroup]="store.contactForm" (ngSubmit)="submit()">
@@ -56,7 +57,7 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="mediaRightsConsent">
-                אני מאשר/ת שיש לי הרשאה להשתמש ולשלוח את התמונות והמידע שסיפקתי. *
+                אנחנו מאשרים שיש לנו הרשאה להשתמש ולשלוח את התמונות והמידע שסיפקנו. *
               </label>
             </div>
           </div>
@@ -66,7 +67,7 @@
           <input id="contactPermissionConsent" type="checkbox" formControlName="contactPermissionConsent" />
           <div class="consent-checkbox__content">
             <div class="field__label-row">
-              <label for="contactPermissionConsent">אני מאשר/ת שיחזרו אליי בנוגע לבקשה. *</label>
+              <label for="contactPermissionConsent">אנחנו מאשרים שיחזרו אלינו בנוגע לבקשה. *</label>
             </div>
           </div>
         </div>
@@ -76,7 +77,7 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="termsConsent">
-                אני מאשר/ת שקראתי והסכמתי ל<a href="/clips/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a>. *
+                אנחנו מאשרים שקראנו והסכמנו ל<a href="/clips/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a>. *
               </label>
             </div>
           </div>

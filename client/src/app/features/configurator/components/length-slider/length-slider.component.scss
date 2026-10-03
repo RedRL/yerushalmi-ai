@@ -1,0 +1,58 @@
+.length-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244, 114, 182, 0.16), transparent 42%),
+    var(--color-bg-glass);
+}
+
+.length-slider__value {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+}
+
+.length-slider__price {
+  margin: 0;
+  color: var(--color-accent-purple-light);
+  font-size: var(--font-size-small);
+}
+
+.length-slider__range {
+  width: 100%;
+  margin-top: var(--space-2);
+  accent-color: #9b6dff;
+  cursor: pointer;
+}
+
+.length-slider__ticks {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-tiny);
+}
+
+.length-slider__ticks span {
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: center;
+}
+
+.length-slider__ticks span:first-child {
+  text-align: right;
+}
+
+.length-slider__ticks span:last-child {
+  text-align: left;
+}
+
+.length-slider__tick--on {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}

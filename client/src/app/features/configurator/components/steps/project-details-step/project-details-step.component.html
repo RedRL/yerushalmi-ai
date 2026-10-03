@@ -1,129 +1,150 @@
-<div class="step" [formGroup]="store.projectDetailsForm">
-  <h3 class="step__title">ספרו לנו על האדם והסיפור</h3>
-  <p class="step__description">ככל שתשתפו יותר פרטים, נוכל ליצור שיר וקליפ אישיים ומדויקים יותר.</p>
-
-  <div class="field-grid step__section">
-    <div class="field">
-      <label class="field__label" for="personName">{{ personNameLabel() }}</label>
-      <input
-        id="personName"
-        class="field__control"
-        formControlName="personName"
-        placeholder="שם מלא, או כמה שמות"
-        [maxlength]="limits.personName"
-      />
-    </div>
-
-    <div class="field">
-      <label class="field__label" for="occasion">סוג האירוע *</label>
-      <input
-        id="occasion"
-        class="field__control"
-        formControlName="occasion"
-        placeholder="יום הולדת, חתונה, יום נישואין..."
-        [maxlength]="limits.occasion"
-      />
-    </div>
-
-    <div class="field">
-      <label class="field__label" for="eventDate">למתי צריך את הפרויקט</label>
-      <div class="project-details-step__date-controls">
+<div class="flow-step" [formGroup]="store.projectDetailsForm">
+  @switch (store.activeScreen().field) {
+    @case ('personName') {
+      <app-wizard-screen
+        kicker="הסיפור"
+        [title]="personNameLabel()"
+        description="השם שסביבו נבנה את הפרויקט."
+        [showActions]="false"
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+      >
         <input
-          id="eventDate"
-          class="field__control project-details-step__date-text"
-          type="text"
-          inputmode="numeric"
-          autocomplete="off"
-          placeholder="dd/mm/yyyy"
-          maxlength="10"
-          [class.ng-invalid]="!!eventDateError()"
-          [class.ng-touched]="dateFieldTouched()"
-          [value]="eventDateText()"
-          (input)="onEventDateInput($event)"
-          (blur)="onEventDateBlur()"
+          class="field__control wizard-input"
+          formControlName="personName"
+          placeholder="שם מלא, או כמה שמות"
+          [maxlength]="limits.personName"
         />
-        <button
-          type="button"
-          class="project-details-step__date-icon"
-          aria-label="פתיחת לוח שנה"
-          (click)="toggleCalendar()"
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18">
-            <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
-            <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-          </svg>
-        </button>
+      </app-wizard-screen>
+    }
+    @case ('occasion') {
+      <app-wizard-screen
+        kicker="הסיפור"
+        title="איזה אירוע חוגגים?"
+        description="יום הולדת, חתונה, יום נישואין, או כל רגע אחר."
+        [showActions]="false"
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+      >
         <input
-          #nativeDate
-          class="project-details-step__date-native"
-          type="date"
-          tabindex="-1"
-          aria-hidden="true"
-          [min]="minEventDate()"
-          [value]="nativeDateValue()"
-          (input)="onNativeEventDateInput($event)"
-          (change)="onNativeEventDateInput($event)"
+          class="field__control wizard-input"
+          formControlName="occasion"
+          placeholder="יום הולדת, חתונה, יום נישואין..."
+          [maxlength]="limits.occasion"
         />
-        @if (!isMobileViewport() && calendarOpen()) {
-          <div class="project-details-step__calendar" role="dialog" aria-label="בחירת תאריך">
-            <div class="project-details-step__calendar-head">
-              <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" aria-label="חודש קודם">‹</button>
-              <span>{{ calendarTitle() }}</span>
-              <button type="button" (click)="shiftCalendarMonth(1)" aria-label="חודש הבא">›</button>
-            </div>
-            <button type="button" class="project-details-step__calendar-today" (click)="revealToday()">היום</button>
-            <div class="project-details-step__calendar-weekdays">
-              @for (day of weekdayLabels; track day) {
-                <span>{{ day }}</span>
-              }
-            </div>
-            <div class="project-details-step__calendar-grid">
-              @for (cell of calendarCells(); track $index) {
-                @if (cell) {
-                  <button
-                    type="button"
-                    class="project-details-step__calendar-day"
-                    [class.project-details-step__calendar-day--today]="cell === todayCalendarDay()"
-                    [class.project-details-step__calendar-day--selected]="cell === selectedCalendarDay()"
-                    [class.project-details-step__calendar-day--disabled]="isPastCalendarDay(cell)"
-                    [disabled]="isPastCalendarDay(cell)"
-                    (click)="selectCalendarDay(cell)"
-                  >
-                    {{ cell }}
-                  </button>
-                } @else {
-                  <span></span>
-                }
-              }
-            </div>
-          </div>
+      </app-wizard-screen>
+    }
+    @case ('story') {
+      <app-wizard-screen
+        kicker="הסיפור"
+        title="מה חשוב שנדע?"
+        description="כתבו בחופשיות, כאילו אתם מספרים לחבר. לפחות כמה משפטים."
+        [showActions]="false"
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+      >
+        <textarea
+          class="field__control wizard-input project-details-step__story"
+          formControlName="story"
+          rows="7"
+          [maxlength]="limits.story"
+          placeholder="כתבו כאן בחופשיות..."
+          aria-describedby="story-counter"
+          (wheel)="onStoryWheel($event)"
+        ></textarea>
+        <div class="project-details-step__counter-row">
+          <span id="story-counter" class="project-details-step__counter">
+            {{ store.projectDetailsForm.controls.story.value.length }} / {{ limits.story }}
+          </span>
+        </div>
+        @if (store.projectDetailsForm.controls.story.touched && store.projectDetailsForm.controls.story.invalid) {
+          <p class="field__error">לפחות 10 תווים, כדי שיהיה לנו ממה להתחיל</p>
         }
-      </div>
-      <span
-        class="field__error project-details-step__date-error"
-        [class.field__error--hidden]="!eventDateError()"
-        [attr.aria-hidden]="eventDateError() ? null : 'true'"
-        aria-live="polite"
-      >{{ eventDateError() || '\u00a0' }}</span>
-    </div>
-  </div>
-
-  <div class="field step__section project-details-step__story-field">
-    <label class="field__label" for="story">מה חשוב שנדע על הפרויקט? *</label>
-    <textarea
-      id="story"
-      class="field__control project-details-step__story"
-      formControlName="story"
-      rows="7"
-      [maxlength]="limits.story"
-      placeholder="כתבו כאן בחופשיות, כאילו אתם מספרים לחבר..."
-      aria-describedby="story-counter"
-      (wheel)="onStoryWheel($event)"
-    ></textarea>
-    <div class="project-details-step__counter-row">
-      <span id="story-counter" class="project-details-step__counter">
-        {{ store.projectDetailsForm.controls.story.value.length }} / {{ limits.story }}
-      </span>
-    </div>
-  </div>
+      </app-wizard-screen>
+    }
+    @case ('eventDate') {
+      <app-wizard-screen
+        kicker="הסיפור"
+        title="למתי צריך את הפרויקט?"
+        description="רשות. רק כדי לדעת מתי האירוע, בלי להשפיע על זמן ההכנה."
+        [showActions]="false"
+        [index]="screenIndex()"
+        [total]="screenTotal()"
+      >
+        <div class="project-details-step__date-controls">
+          <input
+            id="eventDate"
+            class="field__control wizard-input project-details-step__date-text"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="dd/mm/yyyy"
+            maxlength="10"
+            [class.ng-invalid]="!!eventDateError()"
+            [class.ng-touched]="dateFieldTouched()"
+            [value]="eventDateText()"
+            (input)="onEventDateInput($event)"
+            (blur)="onEventDateBlur()"
+          />
+          <button type="button" class="project-details-step__date-icon" aria-label="פתיחת לוח שנה" (click)="toggleCalendar()">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
+          <input
+            #nativeDate
+            class="project-details-step__date-native"
+            type="date"
+            tabindex="-1"
+            aria-hidden="true"
+            [min]="minEventDate()"
+            [value]="nativeDateValue()"
+            (input)="onNativeEventDateInput($event)"
+            (change)="onNativeEventDateInput($event)"
+          />
+          @if (!isMobileViewport() && calendarOpen()) {
+            <div class="project-details-step__calendar" role="dialog" aria-label="בחירת תאריך">
+              <div class="project-details-step__calendar-head">
+                <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" aria-label="חודש קודם">‹</button>
+                <span>{{ calendarTitle() }}</span>
+                <button type="button" (click)="shiftCalendarMonth(1)" aria-label="חודש הבא">›</button>
+              </div>
+              <button type="button" class="project-details-step__calendar-today" (click)="revealToday()">היום</button>
+              <div class="project-details-step__calendar-weekdays">
+                @for (day of weekdayLabels; track day) {
+                  <span>{{ day }}</span>
+                }
+              </div>
+              <div class="project-details-step__calendar-grid">
+                @for (cell of calendarCells(); track $index) {
+                  @if (cell) {
+                    <button
+                      type="button"
+                      class="project-details-step__calendar-day"
+                      [class.project-details-step__calendar-day--today]="cell === todayCalendarDay()"
+                      [class.project-details-step__calendar-day--selected]="cell === selectedCalendarDay()"
+                      [class.project-details-step__calendar-day--disabled]="isPastCalendarDay(cell)"
+                      [disabled]="isPastCalendarDay(cell)"
+                      (click)="selectCalendarDay(cell)"
+                    >
+                      {{ cell }}
+                    </button>
+                  } @else {
+                    <span></span>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <span
+          class="field__error project-details-step__date-error"
+          [class.field__error--hidden]="!eventDateError()"
+          [attr.aria-hidden]="eventDateError() ? null : 'true'"
+          aria-live="polite"
+        >{{ eventDateError() || '\u00a0' }}</span>
+      </app-wizard-screen>
+    }
+  }
 </div>
