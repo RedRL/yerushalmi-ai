@@ -35,6 +35,15 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
     youtubeId: '4rhTEXQGJJU',
   },
   {
+    id: 'eliya',
+    titleHe: 'אליה כיטוב',
+    categoryId: 'birthday_photos',
+    tagsHe: ['היפ הופ'],
+    descriptionHe: 'קליפ עבור אליה כיטוב - המורה הכי שווה לריקוד!',
+    youtubeUrl: 'https://www.youtube.com/shorts/18MR3ql64NM',
+    youtubeId: '18MR3ql64NM',
+  },
+  {
     id: 'tal',
     titleHe: 'יום הולדת לטל',
     categoryId: 'birthday_photos',
@@ -44,19 +53,19 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
     youtubeUrl: 'https://youtu.be/8Ka3yjg3hEk',
     youtubeId: '8Ka3yjg3hEk',
   },
-  {
-    id: 'mom',
-    titleHe: 'יום הולדת לורד',
-    categoryId: 'birthday_photos',
-    tagsHe: ['פופ', "ג'אז"],
-    descriptionHe:
-      'קליפ דוגמה שמשלב הנפשת תמונות בטכנולוגיות ישנות יותר וסרטונים אמיתיים, באורך של כ־3 וחצי דקות.',
-    youtubeUrl: 'https://youtu.be/QE3Er29fk9U',
-    youtubeId: 'QE3Er29fk9U',
-  },
 ];
 
 export const PORTFOLIO_REACTIONS: readonly PortfolioVideo[] = [
+  {
+    id: 'eliya-reaction',
+    titleHe: 'אליה - סרטון תגובה',
+    categoryId: 'birthday_photos',
+    categoryLabelHe: 'תגובה',
+    tagsHe: [],
+    descriptionHe: 'אליה מגיבה לסרטון שלה.',
+    youtubeUrl: 'https://www.youtube.com/watch?v=P4lZH04Fb2s',
+    youtubeId: 'P4lZH04Fb2s',
+  },
   {
     id: 'tal-reaction',
     titleHe: 'טליה מגיבה לסרטון',

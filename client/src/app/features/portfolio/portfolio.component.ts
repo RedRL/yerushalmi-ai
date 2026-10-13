@@ -46,7 +46,7 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
   readonly reactions = PORTFOLIO_REACTIONS;
   readonly loopVideos = Array.from({ length: LOOP_SETS }, () => [...DISPLAY_VIDEOS]).flat();
   readonly selectedVideo = signal<PortfolioVideo | null>(null);
-  readonly centeredIndex = signal(this.middleSetIndexOf('tal'));
+  readonly centeredIndex = signal(this.middleSetIndexOf('eliya'));
 
   categoryOf(video: PortfolioVideo): PortfolioCategory {
     return this.categoryById.get(video.categoryId) ?? PORTFOLIO_CATEGORIES[0];
@@ -154,7 +154,7 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
 
   private scrollToMiddleSet(scroller: HTMLElement): void {
     const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
-    const target = items[this.middleSetIndexOf('tal')];
+    const target = items[this.middleSetIndexOf('eliya')];
     if (!target) return;
 
     scroller.style.scrollSnapType = 'none';
