@@ -116,6 +116,10 @@ export const DEFAULT_VIDEO_SOURCE: VideoSourceId = 'customer_photos';
 export const DEFAULT_VIDEO_FORMAT: VideoFormatId = 'landscape';
 
 export const LENGTH_HALF_STEP_PRICE = 120;
+/** Extra half-minute on the full experience only. Existing-song videos stay on LENGTH_HALF_STEP_PRICE. */
+export const FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE = 150;
+/** 3 minutes on the full experience is not two half-steps of 150. */
+export const FULL_EXPERIENCE_THREE_MINUTE_PRICE = 290;
 
 export const DEFAULT_LENGTH_ID: VideoLengthId = 'min_2_0';
 
@@ -140,13 +144,16 @@ const LENGTH_OPTION_DEFS: readonly {
   { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromBase: 5 },
 ];
 
-function buildLengthOptions(maxId: VideoLengthId): readonly PriceableOptionLike<VideoLengthId>[] {
+function buildLengthOptions(
+  maxId: VideoLengthId,
+  halfStepPrice = LENGTH_HALF_STEP_PRICE,
+): readonly PriceableOptionLike<VideoLengthId>[] {
   const maxIndex = LENGTH_OPTION_DEFS.findIndex((option) => option.id === maxId);
   if (maxIndex < 0) return [];
   return LENGTH_OPTION_DEFS.slice(0, maxIndex + 1).map((option) => ({
     id: option.id,
     labelHe: option.labelHe,
-    price: option.halfStepsFromBase * LENGTH_HALF_STEP_PRICE,
+    price: option.halfStepsFromBase * halfStepPrice,
   }));
 }
 
@@ -158,7 +165,12 @@ function buildFreeLengthOptions(maxId: VideoLengthId): readonly PriceableOptionL
 export const VIDEO_LENGTH_OPTIONS = buildLengthOptions('min_4_5');
 
 /** Full experience combined length: 2–3 minutes in half-minute steps. */
-export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions('min_3_0');
+export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions(
+  'min_3_0',
+  FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
+).map((option) =>
+  option.id === 'min_3_0' ? { ...option, price: FULL_EXPERIENCE_THREE_MINUTE_PRICE } : option,
+);
 
 /** Personal song only — 2–3 minutes, no surcharge. */
 export const SONG_LENGTH_OPTIONS = buildFreeLengthOptions('min_3_0');
@@ -235,7 +247,7 @@ export const ADDON_OPTIONS: readonly AddonOption[] = [
   {
     id: 'ai_image_fill',
     labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה',
-    price: 50,
+    price: 80,
     videoOnly: true,
   },
 ];

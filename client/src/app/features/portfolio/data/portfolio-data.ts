@@ -39,10 +39,10 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
     titleHe: 'יום הולדת לטל',
     categoryId: 'birthday_photos',
     tagsHe: ['היפ הופ', 'גוספל'],
-    descriptionHe: 'קליפ דוגמה עם טכנולוגיות מתקדמות יותר, באורך של כ־3 דקות.',
+    descriptionHe: 'קליפ עבור יום ההולדת של טליה, באורך של כ-3 דקות.',
     requiredWordsHe: ['כוסית על'],
-    youtubeUrl: 'https://youtu.be/ch_ACN8mS_w',
-    youtubeId: 'ch_ACN8mS_w',
+    youtubeUrl: 'https://youtu.be/8Ka3yjg3hEk',
+    youtubeId: '8Ka3yjg3hEk',
   },
   {
     id: 'mom',

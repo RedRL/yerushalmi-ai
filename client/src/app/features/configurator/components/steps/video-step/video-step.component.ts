@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
+  findAddon,
+  FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
   SUBTITLES_OPTIONS,
   VIDEO_FORMAT_OPTIONS,
   VIDEO_LENGTH_OPTIONS,
@@ -24,6 +26,14 @@ export class VideoStepComponent {
   readonly formatOptions = VIDEO_FORMAT_OPTIONS;
   readonly subtitlesOptions = SUBTITLES_OPTIONS;
   readonly formatCaptions = FORMAT_CAPTIONS;
+  readonly imageFillPrice = findAddon('ai_image_fill')?.price ?? 0;
+
+  lengthDescription(): string {
+    if (this.store.requiresExistingSongRights()) {
+      return 'מומלץ לבחור אורך שמתאים לשיר שבחרתם.';
+    }
+    return `כל חצי דקה נוספת היא עוד ₪${FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE}.`;
+  }
 
   screenIndex(): number {
     return this.store.subStepPosition();

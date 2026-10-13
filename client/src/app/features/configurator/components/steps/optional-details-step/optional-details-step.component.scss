@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -32,6 +34,12 @@
 }
 
 .optional-details-step__notes {
-  min-height: 6rem;
-  resize: vertical;
+  min-height: 200px;
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+
+  @include bp.respond-down('lg') {
+    min-height: 8rem;
+  }
 }

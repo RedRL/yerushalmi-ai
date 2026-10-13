@@ -5,7 +5,7 @@
         [showActions]="false"
         kicker="הסרטון"
         heading="כמה ארוך הסרטון?"
-        [description]="store.requiresExistingSongRights() ? 'מומלץ לבחור אורך שמתאים לשיר שבחרתם. כל חצי דקה נוספת היא עוד ₪120.' : 'כל חצי דקה נוספת היא עוד ₪120.'"
+        [description]="lengthDescription()"
         [index]="screenIndex()"
         [total]="screenTotal()"
         (continued)="advance()"
@@ -109,7 +109,7 @@
             (click)="selectImageFill(true)"
           >
             <span>עם מילוי</span>
-            <small>השלמה לפורמט · ₪50</small>
+            <small>השלמה לפורמט · ₪{{ imageFillPrice }}</small>
           </button>
         </div>
       </app-wizard-screen>

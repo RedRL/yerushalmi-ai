@@ -61,6 +61,10 @@ export const VIDEO_SOURCE_PRICES: Record<VideoSourceId, { labelHe: string; price
 };
 
 export const LENGTH_HALF_STEP_PRICE = 120;
+/** Extra half-minute on the full experience only. Existing-song videos stay on LENGTH_HALF_STEP_PRICE. */
+export const FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE = 150;
+/** 3 minutes on the full experience is not two half-steps of 150. */
+export const FULL_EXPERIENCE_THREE_MINUTE_PRICE = 290;
 
 const LENGTH_PRICE_DEFS: readonly {
   id: VideoLengthId;
@@ -75,13 +79,16 @@ const LENGTH_PRICE_DEFS: readonly {
   { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromBase: 5 },
 ];
 
-function buildLengthPrices(maxId: VideoLengthId): Record<VideoLengthId, { labelHe: string; price: number }> {
+function buildLengthPrices(
+  maxId: VideoLengthId,
+  halfStepPrice = LENGTH_HALF_STEP_PRICE,
+): Record<VideoLengthId, { labelHe: string; price: number }> {
   const maxIndex = LENGTH_PRICE_DEFS.findIndex((option) => option.id === maxId);
   return LENGTH_PRICE_DEFS.slice(0, maxIndex + 1).reduce(
     (acc, option) => {
       acc[option.id] = {
         labelHe: option.labelHe,
-        price: option.halfStepsFromBase * LENGTH_HALF_STEP_PRICE,
+        price: option.halfStepsFromBase * halfStepPrice,
       };
       return acc;
     },
@@ -97,10 +104,10 @@ function buildFreeLengthPrices(maxId: VideoLengthId): Record<SongLengthId, { lab
 
 export const SONG_LENGTH_PRICES = buildFreeLengthPrices('min_3_0');
 
-export const SONG_LENGTH_FULL_EXPERIENCE_PRICES = buildLengthPrices('min_3_0') as Record<
-  SongLengthId,
-  { labelHe: string; price: number }
->;
+export const SONG_LENGTH_FULL_EXPERIENCE_PRICES = {
+  ...buildLengthPrices('min_3_0', FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE),
+  min_3_0: { labelHe: 'כ-3 דקות', price: FULL_EXPERIENCE_THREE_MINUTE_PRICE },
+} as Record<SongLengthId, { labelHe: string; price: number }>;
 
 export function usesCombinedSongVideoLength(mainProduct: MainProductId): boolean {
   return mainProduct === 'video_new_song';
@@ -131,7 +138,7 @@ export const ADDON_CONFIG: Record<AddonId, { labelHe: string; price: number }> =
   extra_version: { labelHe: 'גרסה נוספת', price: 200 }, // TODO(pricing): placeholder
   separate_audio_file: { labelHe: 'מסירת קובץ אודיו נפרד', price: 50 }, // TODO(pricing): placeholder
   extra_revision_round: { labelHe: 'סבב תיקונים נוסף', price: 150 }, // TODO(pricing): placeholder
-  ai_image_fill: { labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה', price: 50 },
+  ai_image_fill: { labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה', price: 80 },
 };
 
 /** Reserved for future use - VAT is not applied to estimates in Milestone 1. */

@@ -28,6 +28,7 @@
         </div>
         @if (store.isSongStyleSelected('אחר')) {
           <input
+            #customStyleInput
             class="field__control wizard-input"
             formControlName="customStyle"
             placeholder="איזה סגנון? אפשר כמה, מופרדים בפסיקים"
@@ -71,7 +72,7 @@
       <app-wizard-screen
         kicker="השיר"
         [heading]="lengthTitle()"
-        description="גררו את המד עד שהאורך מרגיש נכון."
+        [description]="lengthDescription()"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"

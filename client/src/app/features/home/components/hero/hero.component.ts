@@ -21,7 +21,7 @@ import {
 } from '../../../../shared/utils/youtube-embed.util';
 
 /** יום הולדת לטל — background video for the hero stage. */
-const HERO_VIDEO_ID = 'ch_ACN8mS_w';
+const HERO_VIDEO_ID = '8Ka3yjg3hEk';
 const YT_PLAYING = 1;
 const YT_UNSTARTED = -1;
 

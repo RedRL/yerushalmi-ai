@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, HostListener, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
 
 
 
@@ -280,9 +280,60 @@ export class ConfiguratorComponent implements AfterViewInit {
 
 
 
+  @HostListener('focusin', ['$event'])
+  onWizardFieldFocus(event: FocusEvent): void {
+    if (!this.isMobileEntry()) return;
+    const target = event.target;
+    if (target instanceof HTMLTextAreaElement) {
+      target.enterKeyHint = 'enter';
+      return;
+    }
+    if (!this.isSingleLineField(target)) return;
+    target.enterKeyHint = this.isFinalStep ? 'done' : 'next';
+  }
+
+  @HostListener('keydown', ['$event'])
+  onWizardKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Enter' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey || event.isComposing) {
+      return;
+    }
+    if (event.target instanceof HTMLTextAreaElement) return;
+    if (!this.isMobileEntry() || this.store.submitResult()) return;
+    if (!this.isSingleLineField(event.target)) return;
+
+    event.preventDefault();
+
+    if (this.isFinalStep) {
+      if (this.store.isSubmissionValid() && !this.store.isSubmitting()) {
+        this.submitContact();
+        return;
+      }
+      this.store.contactForm.markAllAsTouched();
+      this.showMobileNextHint();
+      return;
+    }
+
+    if (!this.store.canContinueForward()) {
+      this.store.markCurrentStepTouched();
+      this.showMobileNextHint();
+      return;
+    }
+
+    this.goNext();
+  }
+
   goNext(): void {
     this.dismissMobileNextHint(true);
     this.store.continueForward();
+  }
+
+  private isMobileEntry(): boolean {
+    return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  }
+
+  private isSingleLineField(target: EventTarget | null): target is HTMLInputElement {
+    if (!(target instanceof HTMLInputElement)) return false;
+    return !['button', 'submit', 'checkbox', 'radio', 'file', 'range', 'color', 'hidden'].includes(target.type);
   }
 
   onNextWrapClick(): void {

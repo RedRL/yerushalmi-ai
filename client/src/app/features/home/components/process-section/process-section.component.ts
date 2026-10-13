@@ -12,7 +12,7 @@ const PROCESS_STEPS: readonly ProcessStep[] = [
 
   { step: 1, titleHe: 'בוחרים את סוג הפרויקט', descriptionHe: 'שיר, קליפ או שילוב מלא של שיר וקליפ.' },
 
-  { step: 2, titleHe: 'מתאימים את האפשרויות', descriptionHe: 'בוחרים סוג וידאו, כתוביות, פורמטים, אורך ותוספות.' },
+  { step: 2, titleHe: 'מתאימים את האפשרויות', descriptionHe: 'בוחרים סגנון מוזיקלי, סוג וידאו, כתוביות, אורך ותוספות.' },
 
   {
 

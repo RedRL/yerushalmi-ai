@@ -771,7 +771,7 @@ export class ConfiguratorStoreService {
 
   beginWithPackage(id: MainProductId): void {
     this.selectMainProduct(id);
-    this.navigateToStep(0, 0);
+    this.navigateToStep(1, 0);
   }
 
   isAddonSelected(id: AddonId): boolean {
@@ -780,6 +780,11 @@ export class ConfiguratorStoreService {
 
   selectVocalist(id: VocalistId): void {
     this.songForm.controls.vocalist.setValue(id);
+    this.songForm.controls.vocalist.markAsTouched();
+  }
+
+  clearVocalist(): void {
+    this.songForm.controls.vocalist.setValue('');
     this.songForm.controls.vocalist.markAsTouched();
   }
 

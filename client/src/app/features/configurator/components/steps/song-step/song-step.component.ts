@@ -1,7 +1,12 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
-import { getSongLengthOptions, SONG_STYLE_OPTIONS, VOCALIST_OPTIONS } from '../../../../../core/config/pricing.config';
+import {
+  FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
+  getSongLengthOptions,
+  SONG_STYLE_OPTIONS,
+  VOCALIST_OPTIONS,
+} from '../../../../../core/config/pricing.config';
 import type { SongLengthId, VocalistId } from '../../../../../shared/models/pricing.model';
 import { STYLE_TONES, VOICE_TONES } from '../../../experience/experience.config';
 import { StylePreviewPlayer } from '../../../experience/style-preview-player.service';
@@ -24,6 +29,7 @@ export class SongStepComponent {
   readonly styleTones = STYLE_TONES;
   readonly voiceTones = VOICE_TONES;
   readonly limits = FIELD_LIMITS;
+  private readonly customStyleInput = viewChild<ElementRef<HTMLInputElement>>('customStyleInput');
 
   readonly optionalFields = [
     {
@@ -69,6 +75,12 @@ export class SongStepComponent {
     this.store.isFullExperience() ? 'כמה ארוכים השיר והסרטון?' : 'כמה ארוך השיר?',
   );
 
+  readonly lengthDescription = computed(() =>
+    this.store.isFullExperience()
+      ? `גררו את המד עד שהאורך מרגיש נכון. כל חצי דקה נוספת היא עוד ₪${FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE}.`
+      : 'גררו את המד עד שהאורך מרגיש נכון.',
+  );
+
   constructor() {
     effect(() => {
       this.store.activeScreen().field;
@@ -97,12 +109,38 @@ export class SongStepComponent {
       return;
     }
     this.player.playStyle(style);
+    if (style === 'אחר') {
+      setTimeout(() => this.scrollCustomStyleIntoView());
+    }
+  }
+
+  private scrollCustomStyleIntoView(): void {
+    const input = this.customStyleInput()?.nativeElement;
+    if (!input) return;
+    const scroller = input.closest('.configurator__body');
+    if (!(scroller instanceof HTMLElement)) return;
+
+    const inputRect = input.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    const padding = 12;
+    if (inputRect.top >= scrollerRect.top + padding && inputRect.bottom <= scrollerRect.bottom - padding) {
+      return;
+    }
+
+    const delta = inputRect.bottom > scrollerRect.bottom - padding
+      ? inputRect.bottom - (scrollerRect.bottom - padding)
+      : inputRect.top - (scrollerRect.top + padding);
+    scroller.scrollTo({ top: scroller.scrollTop + delta, behavior: 'smooth' });
   }
 
   pickVoice(id: VocalistId): void {
     const alreadySelected = this.store.songForm.controls.vocalist.value === id;
+    if (alreadySelected) {
+      this.store.clearVocalist();
+      this.player.stop();
+      return;
+    }
     this.store.selectVocalist(id);
-    if (alreadySelected) return;
     this.player.playVoice(id);
   }
 
