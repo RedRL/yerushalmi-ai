@@ -175,3 +175,25 @@
     height: auto;
   }
 }
+
+@include bp.short-mobile {
+  :host {
+    height: auto;
+    overflow: visible;
+  }
+
+  .step {
+    height: auto;
+    overflow: visible;
+  }
+
+  .upload-step__pane {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .upload-step__pane > app-file-upload {
+    flex: 0 0 auto;
+    height: auto;
+  }
+}

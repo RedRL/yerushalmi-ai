@@ -289,7 +289,7 @@ export class ConfiguratorComponent implements AfterViewInit {
       return;
     }
     if (!this.isSingleLineField(target)) return;
-    target.enterKeyHint = this.isFinalStep ? 'done' : 'next';
+    target.enterKeyHint = this.findNextTextField(target) || !this.isFinalStep ? 'next' : 'done';
   }
 
   @HostListener('keydown', ['$event'])
@@ -300,6 +300,13 @@ export class ConfiguratorComponent implements AfterViewInit {
     if (event.target instanceof HTMLTextAreaElement) return;
     if (!this.isMobileEntry() || this.store.submitResult()) return;
     if (!this.isSingleLineField(event.target)) return;
+
+    const nextField = this.findNextTextField(event.target);
+    if (nextField) {
+      event.preventDefault();
+      nextField.focus();
+      return;
+    }
 
     event.preventDefault();
 
@@ -334,6 +341,32 @@ export class ConfiguratorComponent implements AfterViewInit {
   private isSingleLineField(target: EventTarget | null): target is HTMLInputElement {
     if (!(target instanceof HTMLInputElement)) return false;
     return !['button', 'submit', 'checkbox', 'radio', 'file', 'range', 'color', 'hidden'].includes(target.type);
+  }
+
+  /** Next text field on the current screen. Textareas count as a destination, not as an Enter source. */
+  private findNextTextField(current: HTMLInputElement): HTMLInputElement | HTMLTextAreaElement | null {
+    const scope =
+      current.closest('form, .flow-step, .step') ??
+      this.configuratorBody()?.nativeElement ??
+      this.host.nativeElement;
+    const fields = Array.from(scope.querySelectorAll('input, textarea')).filter(
+      (field): field is HTMLInputElement | HTMLTextAreaElement => this.isTextField(field),
+    );
+    const index = fields.indexOf(current);
+    if (index < 0 || index >= fields.length - 1) return null;
+    return fields[index + 1] ?? null;
+  }
+
+  private isTextField(target: EventTarget | null): target is HTMLInputElement | HTMLTextAreaElement {
+    if (target instanceof HTMLTextAreaElement) return this.isVisibleField(target);
+    if (!this.isSingleLineField(target)) return false;
+    return this.isVisibleField(target);
+  }
+
+  private isVisibleField(field: HTMLInputElement | HTMLTextAreaElement): boolean {
+    if (field.disabled || field.hidden || field.tabIndex < 0) return false;
+    if (field.getAttribute('aria-hidden') === 'true') return false;
+    return field.getClientRects().length > 0;
   }
 
   onNextWrapClick(): void {

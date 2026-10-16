@@ -1,0 +1,33 @@
+@if (address(); as address) {
+  <div class="email-dialog" (click)="onBackdropClick($event)">
+    <div
+      #panel
+      class="email-dialog__panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="email-dialog-title"
+      tabindex="-1"
+    >
+      <button type="button" class="email-dialog__close" (click)="close()" aria-label="סגירת החלון">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
+        </svg>
+      </button>
+
+      <h2 id="email-dialog-title" class="email-dialog__title">איך לשלוח את המייל?</h2>
+      <p class="email-dialog__address">{{ address }}</p>
+
+      <div class="email-dialog__options">
+        <a class="email-dialog__option email-dialog__option--gmail" [href]="gmailUrl()" target="_blank" rel="noopener noreferrer" (click)="close()">
+          ג'ימייל
+        </a>
+        <a class="email-dialog__option" [href]="mailtoUrl()" (click)="close()">
+          תוכנת המייל במחשב
+        </a>
+        <button type="button" class="email-dialog__option" (click)="copyAddress()">
+          {{ copied() ? 'הכתובת הועתקה' : 'העתקת הכתובת' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

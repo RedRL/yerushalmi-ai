@@ -17,6 +17,12 @@
     line-height: 1.4;
     font-weight: var(--font-weight-semibold);
   }
+
+  ::ng-deep .section-heading__subtitle {
+    @include bp.respond-up('lg') {
+      white-space: nowrap;
+    }
+  }
 }
 
 .pricing__grid {

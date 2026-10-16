@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CONTACT_EMAIL_CONFIG, SITE_CONFIG, WHATSAPP_CONFIG } from '../../../core/config/site.config';
+import { EmailComposeDirective } from '../../directives/email-compose.directive';
 import { resetPageScrollPosition } from '../../utils/scroll-restoration.util';
 
 @Component({
   selector: 'app-footer',
-  imports: [RouterLink],
+  imports: [RouterLink, EmailComposeDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',

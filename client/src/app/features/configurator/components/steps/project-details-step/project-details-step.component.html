@@ -21,7 +21,7 @@
       <app-wizard-screen
         kicker="הסיפור"
         heading="איזה אירוע חוגגים?"
-        description="יום הולדת, חתונה, יום נישואין, או כל רגע אחר."
+        description="יום הולדת, חתונה, יום נישואין — או סתם לאדם שאוהבים, בלי שום סיבה מיוחדת 😊."
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -29,7 +29,7 @@
         <input
           class="field__control wizard-input"
           formControlName="occasion"
-          placeholder="יום הולדת, חתונה, יום נישואין..."
+          placeholder="יום הולדת, חתונה, או סתם ככה"
           [maxlength]="limits.occasion"
         />
       </app-wizard-screen>

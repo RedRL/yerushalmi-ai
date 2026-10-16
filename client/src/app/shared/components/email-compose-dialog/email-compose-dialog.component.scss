@@ -1,0 +1,94 @@
+@use 'mixins' as *;
+
+.email-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  background: rgba(4, 8, 18, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.email-dialog__panel {
+  @include glass-surface;
+  position: relative;
+  width: min(100%, 26rem);
+  padding: var(--space-7) var(--space-6) var(--space-6);
+  border-radius: var(--radius-xl);
+  border-color: var(--color-border-accent);
+  background:
+    linear-gradient(160deg, rgba(79, 124, 255, 0.14), rgba(12, 18, 40, 0.92) 42%, rgba(244, 114, 182, 0.08)),
+    var(--color-bg-elevated);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.email-dialog__close {
+  @include button-reset;
+  position: absolute;
+  top: var(--space-3);
+  inset-inline-start: var(--space-3);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-glass-strong);
+  }
+}
+
+.email-dialog__title {
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-heading);
+  color: var(--color-text-primary);
+}
+
+.email-dialog__address {
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+}
+
+.email-dialog__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.email-dialog__option {
+  @include button-reset;
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+  background: rgba(8, 7, 20, 0.45);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--color-border-accent);
+    transform: translateY(-1px);
+  }
+}
+
+.email-dialog__option--gmail {
+  border: none;
+  background: var(--gradient-brand);
+  color: var(--color-text-on-accent);
+  box-shadow: var(--shadow-glow-purple);
+}

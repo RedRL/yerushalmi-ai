@@ -43,3 +43,10 @@ $breakpoints: (
     @content;
   }
 }
+
+/** Mobile configurator whose viewport is shorter than 870px. */
+@mixin short-mobile {
+  @media (max-width: ($breakpoint-lg - 1px)) and (max-height: 869px) {
+    @content;
+  }
+}

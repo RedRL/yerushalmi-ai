@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
-import { scrollToSectionFromNav } from '../../../../shared/utils/scroll-to.util';
 
 export type CreationMethod = 'manual' | 'ai' | 'hybrid';
 
@@ -34,7 +33,7 @@ const CREATION_STAGES: readonly CreationStage[] = [
     step: 3,
     titleHe: 'עריכת התמונות',
     descriptionHe:
-      'התמונות שאתם שולחים עוברות עריכה בכלי AI. אפשר גם לשלוח תמונות ישנות בשחור-לבן של יקיריכם — והן יקבלו צבע. יש גם אפשרות להפוך את כל התמונות לפורמט 16:9 למשל, כולל מילוי של התמונה באמצעות כלי AI. אם תרצו, תוכלו לקבל גם את התמונות הערוכות — ללא תוספת תשלום.',
+      'התמונות שאתם שולחים עוברות עריכה בכלי AI. אפשר גם לשלוח תמונות ישנות בשחור-לבן של יקיריכם — והן יקבלו צבע. יש גם אפשרות להתאים את כל התמונות לכל פורמט שייבחר, כולל מילוי של התמונה באמצעות כלי AI. אם תרצו, תוכלו לקבל גם את התמונות הערוכות — ללא תוספת תשלום.',
     method: 'ai',
     methodLabelHe: 'כלי AI',
   },
@@ -72,8 +71,4 @@ const CREATION_STAGES: readonly CreationStage[] = [
 })
 export class CreationProcessSectionComponent {
   readonly stages = CREATION_STAGES;
-
-  goToContact(): void {
-    scrollToSectionFromNav('contact');
-  }
 }

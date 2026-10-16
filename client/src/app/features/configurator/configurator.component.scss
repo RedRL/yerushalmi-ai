@@ -156,6 +156,13 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
       min-height: 0;
       overflow: visible;
     }
+
+    @include bp.short-mobile {
+      flex: 0 0 auto;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
   }
 
   &--summary {
@@ -195,6 +202,15 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   }
 
   @include bp.short-wide {
+    > app-upload-step {
+      flex: 0 0 auto;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+  }
+
+  @include bp.short-mobile {
     > app-upload-step {
       flex: 0 0 auto;
       height: auto;

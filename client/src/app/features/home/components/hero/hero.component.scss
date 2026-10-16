@@ -244,10 +244,6 @@
   animation: hero-fade-up 0.8s var(--ease-out) 0.5s both;
 }
 
-.hero__supporting {
-  animation: hero-fade-up 0.8s var(--ease-out) 0.65s both;
-}
-
 @keyframes hero-content-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -333,11 +329,6 @@
   }
 }
 
-.hero__supporting {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-body);
-}
-
 .hero__scroll-indicator {
   @include button-reset;
   position: absolute;
@@ -401,8 +392,7 @@
   .hero__kicker,
   .hero__headline,
   .hero__subtitle,
-  .hero__actions,
-  .hero__supporting {
+  .hero__actions {
     animation: none;
   }
 }

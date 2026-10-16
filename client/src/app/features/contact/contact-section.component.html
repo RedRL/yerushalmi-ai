@@ -11,7 +11,7 @@
         rel="noopener noreferrer"
       >בוואטסאפ</a>,<br />
       או לכתוב אלינו ל-
-      <a class="contact__channel-link" [href]="contactEmailUrl">{{ contactEmail }}</a>.
+      <a class="contact__channel-link" appEmailCompose [href]="contactEmailUrl">{{ contactEmail }}</a>.
     </p>
 
     @if (submitSuccess()) {

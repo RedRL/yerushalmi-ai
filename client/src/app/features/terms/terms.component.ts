@@ -3,11 +3,12 @@ import { Router, RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../shared/components/header/header.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { CONTACT_EMAIL_CONFIG, SITE_CONFIG } from '../../core/config/site.config';
+import { EmailComposeDirective } from '../../shared/directives/email-compose.directive';
 import { resetPageScrollPosition } from '../../shared/utils/scroll-restoration.util';
 
 @Component({
   selector: 'app-terms',
-  imports: [RouterLink, HeaderComponent, FooterComponent],
+  imports: [RouterLink, HeaderComponent, FooterComponent, EmailComposeDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './terms.component.html',
   styleUrl: './terms.component.scss',

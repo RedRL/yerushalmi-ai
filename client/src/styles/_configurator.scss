@@ -377,6 +377,20 @@ app-configurator .configurator {
       }
     }
   }
+
+  @include bp.short-mobile {
+    app-upload-step {
+      .file-upload__files {
+        flex: 0 0 auto;
+        overflow: visible;
+      }
+
+      .file-upload__gallery {
+        height: auto;
+        overflow: visible;
+      }
+    }
+  }
 }
 
 @include bp.respond-down('lg') {
@@ -752,6 +766,25 @@ app-configurator .configurator {
 }
 
 @include bp.short-wide {
+  app-configurator .configurator {
+    app-upload-step,
+    app-upload-step .step {
+      height: auto;
+      overflow: visible;
+      flex: 0 0 auto;
+    }
+
+    app-file-upload .file-upload,
+    app-file-upload .file-upload__files,
+    app-file-upload .file-upload__gallery {
+      flex: 0 0 auto;
+      height: auto;
+      overflow: visible;
+    }
+  }
+}
+
+@include bp.short-mobile {
   app-configurator .configurator {
     app-upload-step,
     app-upload-step .step {

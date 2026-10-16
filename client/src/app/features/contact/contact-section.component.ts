@@ -4,11 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { FIELD_LIMITS } from '../../core/config/field-limits.config';
 import { ContactApiService } from '../../core/services/contact-api.service';
 import { CONTACT_EMAIL_CONFIG, WHATSAPP_CONFIG } from '../../core/config/site.config';
+import { EmailComposeDirective } from '../../shared/directives/email-compose.directive';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 
 @Component({
   selector: 'app-contact-section',
-  imports: [ReactiveFormsModule, RevealOnScrollDirective],
+  imports: [ReactiveFormsModule, RevealOnScrollDirective, EmailComposeDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './contact-section.component.html',
   styleUrl: './contact-section.component.scss',

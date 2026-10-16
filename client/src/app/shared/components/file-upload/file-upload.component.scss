@@ -15,6 +15,11 @@
     height: auto;
     overflow: visible;
   }
+
+  @include bp.short-mobile {
+    height: auto;
+    overflow: visible;
+  }
 }
 
 .file-upload {
@@ -26,6 +31,11 @@
   overflow: hidden;
 
   @include bp.short-wide {
+    overflow: visible;
+    flex: 0 0 auto;
+  }
+
+  @include bp.short-mobile {
     overflow: visible;
     flex: 0 0 auto;
   }
@@ -118,6 +128,11 @@
     flex: 0 0 auto;
     overflow: visible;
   }
+
+  @include bp.short-mobile {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
 }
 
 .file-upload__gallery {
@@ -152,6 +167,12 @@
     flex: 0 0 auto;
     overflow: visible;
   }
+
+  @include bp.short-mobile {
+    height: auto;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
 }
 
 .file-upload__grid {
@@ -161,6 +182,11 @@
   list-style: none;
   padding: 0;
   margin: 0;
+
+  @include bp.respond-down('lg') {
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: var(--space-1);
+  }
 }
 
 .file-upload__tile {

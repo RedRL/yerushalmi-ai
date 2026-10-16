@@ -23,7 +23,7 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
     emoji: '🎵',
     titleHe: 'שיר אישי',
     descriptionHe:
-      'שיר מקורי שנכתב והופק במיוחד עבורכם, בהשראת הסיפור, האנשים והרגעים החשובים שלכם — לאירועים, למשפחה, לחברות ולארגונים.',
+      'שיר מקורי שנכתב והופק במיוחד עבורכם, בהשראת הסיפור, האנשים והרגעים החשובים שלכם.',
     featuresHe: [
       '✔ שיר מקורי בהתאמה אישית',
       '✔ סבב תיקונים אחד לשיר',
@@ -39,7 +39,7 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
     id: 'video_existing_song',
     emoji: '🎬',
     titleHe: 'קליפ לשיר לבחירתכם',
-    descriptionHe: 'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם — לאירועים, למשפחה, לחברות ולארגונים.',
+    descriptionHe: 'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
     featuresHe: [
       '✔ קליפ בהתאמה אישית',
       '✔ שימוש בשיר לבחירתכם',
@@ -56,7 +56,7 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
     id: 'video_new_song',
     emoji: '👑',
     titleHe: 'החוויה המלאה',
-    descriptionHe: 'מהרעיון הראשון ועד הסרטון המוגמר – כל החוויה במקום אחד. מתאים לאירועים, למשפחה, לחברות ולארגונים.',
+    descriptionHe: 'מהרעיון הראשון ועד הסרטון המוגמר – כל החוויה במקום אחד.',
     featuresHe: [
       '✔ שיר מקורי בהתאמה אישית',
       '✔ קליפ בהתאמה אישית',
