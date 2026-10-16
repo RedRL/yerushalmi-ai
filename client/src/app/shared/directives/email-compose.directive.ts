@@ -1,7 +1,7 @@
 import { Directive, HostListener, inject } from '@angular/core';
 import { EmailComposeDialogService } from '../components/email-compose-dialog/email-compose-dialog.service';
 
-/** Opens the compose chooser instead of handing the click straight to the system mail app. */
+/** Opens the compose chooser on a real desktop. Touch devices keep the mailto link. */
 @Directive({
   selector: 'a[appEmailCompose]',
 })
@@ -11,11 +11,17 @@ export class EmailComposeDirective {
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent): void {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!this.isDesktopPointer()) return;
 
     event.preventDefault();
     const href = (event.currentTarget as HTMLAnchorElement).getAttribute('href') ?? '';
     const address = decodeURIComponent(href.replace(/^mailto:/i, '').split('?')[0]).trim();
     if (!address) return;
     this.dialog.open(address);
+  }
+
+  /** Fine pointer with hover. Wide iPads and fold screens stay on the mail link. */
+  private isDesktopPointer(): boolean {
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   }
 }
