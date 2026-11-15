@@ -18,6 +18,86 @@
   gap: var(--space-4);
 }
 
+.contact-step__coupon {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.contact-step__coupon-label {
+  font-size: var(--font-size-tiny);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.contact-step__coupon-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+}
+
+.contact-step__coupon-input {
+  width: 8.5rem;
+  max-width: 40vw;
+  height: 2.15rem;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-small);
+}
+
+.contact-step__coupon-apply {
+  @include button-reset;
+  flex: 0 0 auto;
+  height: 2.15rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-accent-purple-light);
+  border-radius: var(--radius-full);
+  color: var(--color-accent-purple-light);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--gradient-brand-soft);
+  }
+}
+
+.contact-step__coupon-message {
+  margin: 0;
+  min-height: 0;
+  font-size: var(--font-size-tiny);
+  line-height: 1.3;
+  white-space: nowrap;
+
+  &:not(.contact-step__coupon-message--error):not(.contact-step__coupon-message--ok) {
+    @include bp.respond-up('lg') {
+      display: none;
+    }
+  }
+}
+
+.contact-step__coupon-message--error {
+  color: var(--color-error);
+}
+
+.contact-step__coupon-message--ok {
+  color: var(--color-accent-purple-light);
+}
+
+@include bp.respond-down('lg') {
+  .contact-step__coupon-row {
+    flex-wrap: wrap;
+  }
+
+  .contact-step__coupon-message {
+    flex: 1 0 100%;
+    min-height: 1.3em;
+    white-space: normal;
+  }
+}
+
 .contact-step__error {
   margin-top: var(--space-3);
   margin-bottom: 0;
@@ -36,7 +116,7 @@
 .contact-step__submit-wrap {
   position: relative;
   display: block;
-  margin-top: var(--space-6);
+  margin-top: 0;
 
   @include bp.respond-down('lg') {
     display: none;

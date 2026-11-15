@@ -1,3 +1,4 @@
+import { normalizeCouponCode } from '../pricing/coupon.config';
 import { calculatePriceBreakdown } from '../pricing/pricing.service';
 import type { PriceBreakdown, PricingSelection, SongLengthId } from '../pricing/pricing.types';
 import type { InquiryInput } from '../schemas/inquiry.schema';
@@ -36,6 +37,7 @@ function toPricingSelection(payload: InquiryInput): PricingSelection {
     videoFormat: payload.video?.format,
     subtitles: payload.video?.subtitles,
     addons: payload.addons ?? [],
+    couponCode: normalizeCouponCode(payload.couponCode) || undefined,
   };
 }
 
@@ -100,6 +102,7 @@ export async function processInquiry(payload: InquiryInput): Promise<InquiryResu
     inquiryFolderId,
     mainProduct: payload.mainProduct,
     total: priceBreakdown.total,
+    couponCode: priceBreakdown.couponCode,
     uploadedFileCount: payload.uploadedFiles.length,
     photosBundleCreated: Boolean(photosBundleUrl),
   });

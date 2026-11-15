@@ -126,6 +126,19 @@
                 @if (showIntroPricing) {
                   <span class="configurator__inline-price-promo">מחיר היכרות · לזמן מוגבל</span>
                 }
+                @if ((store.priceBreakdown()?.discount ?? 0) > 0) {
+                  <span class="configurator__inline-price-promo configurator__inline-coupon">
+                    <span>קופון 20%</span>
+                    <button
+                      type="button"
+                      class="configurator__inline-coupon-remove"
+                      aria-label="הסרת הקופון"
+                      (click)="store.removeCoupon()"
+                    >
+                      ×
+                    </button>
+                  </span>
+                }
               </div>
             </div>
           </div>
@@ -226,6 +239,7 @@
           [breakdown]="store.priceBreakdown()"
           [originalTotal]="store.originalPriceTotal()"
           [mainProductId]="store.mainProduct()"
+          (couponRemove)="store.removeCoupon()"
         />
       </aside>
     }

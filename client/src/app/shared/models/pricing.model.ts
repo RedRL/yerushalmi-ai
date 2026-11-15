@@ -59,6 +59,7 @@ export interface PricingSelection {
   videoFormat?: VideoFormatId;
   subtitles?: SubtitlesId;
   addons: AddonId[];
+  couponCode?: string;
 }
 
 export interface PricingLineItem {
@@ -73,6 +74,7 @@ export interface PriceBreakdown {
   lineItems: PricingLineItem[];
   subtotal: number;
   discount: number;
+  couponCode?: string;
   vatRate: number;
   vatAmount: number;
   total: number;

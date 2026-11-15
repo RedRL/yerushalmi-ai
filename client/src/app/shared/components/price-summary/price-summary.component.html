@@ -26,6 +26,22 @@
     </div>
 
     <div class="price-summary__footer">
+      @if (data.discount > 0) {
+        <div class="price-summary__discount">
+          <span class="price-summary__discount-name">
+            <span>הנחת קופון 20%</span>
+            <button
+              type="button"
+              class="price-summary__coupon-remove"
+              aria-label="הסרת הקופון"
+              (click)="couponRemove.emit()"
+            >
+              ×
+            </button>
+          </span>
+          <span>-₪{{ data.discount }}</span>
+        </div>
+      }
       <div class="price-summary__total">
         <div class="price-summary__total-label">
           <span>סה"כ משוער</span>

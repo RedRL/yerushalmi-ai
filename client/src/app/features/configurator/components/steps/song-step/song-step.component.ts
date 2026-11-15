@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, e
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import {
-  FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
   getSongLengthOptions,
   SONG_STYLE_OPTIONS,
   VOCALIST_OPTIONS,
@@ -75,11 +74,7 @@ export class SongStepComponent {
     this.store.isFullExperience() ? 'כמה ארוכים השיר והסרטון?' : 'כמה ארוך השיר?',
   );
 
-  readonly lengthDescription = computed(() =>
-    this.store.isFullExperience()
-      ? `גררו את המד עד שהאורך מרגיש נכון. כל חצי דקה נוספת היא עוד ₪${FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE}.`
-      : 'גררו את המד עד שהאורך מרגיש נכון.',
-  );
+  readonly lengthDescription = 'גררו את המד לאורך הרצוי';
 
   constructor() {
     effect(() => {

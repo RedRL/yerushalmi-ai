@@ -2,6 +2,7 @@ import type { InquiryInput } from '../schemas/inquiry.schema';
 import type { PriceBreakdown } from '../pricing/pricing.types';
 import { escapeHtml, escapeHtmlMultiline } from '../utils/html-escape';
 import { MAIN_PRODUCT_LABELS } from '../pricing/pricing.config';
+import { COUPON_DISCOUNT_RATE } from '../pricing/coupon.config';
 import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
 import { formatDateTimeHeIl, formatEventDateHeIl } from '../utils/datetime.util';
 import {
@@ -56,6 +57,11 @@ export function buildInquiryEmailHtml(
   photosBundleUrl?: string,
 ): string {
   const shortInquiryId = formatShortInquiryReference(inquiryId);
+  const couponPercent = Math.round(COUPON_DISCOUNT_RATE * 100);
+  const couponApplied = breakdown.discount > 0 && Boolean(breakdown.couponCode);
+  const couponSummary = couponApplied
+    ? `הופעל קוד ${breakdown.couponCode}. ההנחה חושבה על ₪${breakdown.subtotal}, וסכום ההנחה הוא ₪${breakdown.discount} (${couponPercent}%). הסכום אחרי ההנחה הוא ₪${breakdown.total}.`
+    : 'לא הופעל קוד קופון.';
   const lineItemsHtml = breakdown.lineItems
     .map(
       (item) => `
@@ -186,10 +192,24 @@ export function buildInquiryEmailHtml(
 
         ${section(`קבצים שהועלו (${payload.uploadedFiles.length})`, uploadedFilesHtml)}
 
+        ${section('קופון', `<p style="margin:0;color:#1a1a2e;font-size:14px;line-height:1.6;">${escapeHtml(couponSummary)}</p>`)}
+
         ${section(
           'פירוט מחיר משוער (מחושב בשרת)',
           `<table role="presentation" width="100%">
           ${lineItemsHtml}
+          ${
+            couponApplied
+              ? `<tr>
+            <td style="padding:10px 12px;color:#1a1a2e;font-size:14px;border-top:1px solid #eee;">סכום לפני קופון</td>
+            <td style="padding:10px 12px;color:#1a1a2e;font-size:14px;border-top:1px solid #eee;text-align:left;">₪${breakdown.subtotal}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;color:#6d28d9;font-size:14px;">הנחת קופון ${escapeHtml(breakdown.couponCode ?? '')} (${couponPercent}%)</td>
+            <td style="padding:10px 12px;color:#6d28d9;font-size:14px;text-align:left;">-₪${breakdown.discount}</td>
+          </tr>`
+              : ''
+          }
           <tr>
             <td style="padding:10px 12px;color:#1a1a2e;font-size:15px;font-weight:bold;border-top:1px solid #eee;">סה"כ משוער</td>
             <td style="padding:10px 12px;color:#1a1a2e;font-size:15px;font-weight:bold;border-top:1px solid #eee;text-align:left;">₪${breakdown.total}</td>

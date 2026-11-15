@@ -59,6 +59,42 @@
   flex-shrink: 0;
 }
 
+.price-summary__discount {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-accent-purple-light);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.price-summary__discount-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.price-summary__coupon-remove {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-full);
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--gradient-brand-soft);
+  }
+}
+
 .price-summary__footer {
   display: flex;
   flex-direction: column;

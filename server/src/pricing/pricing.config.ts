@@ -126,8 +126,8 @@ export const VIDEO_FORMAT_PRICES: Record<VideoFormatId, { labelHe: string; price
 
 export const SUBTITLES_PRICES: Record<SubtitlesId, { labelHe: string; price: number }> = {
   none: { labelHe: 'ללא כתוביות', price: 0 },
-  selected: { labelHe: 'כתוביות מעוצבות', price: 120 },
-  full: { labelHe: 'כתוביות מלאות', price: 150 },
+  selected: { labelHe: 'כתוביות מעוצבות', price: 0 },
+  full: { labelHe: 'כתוביות מלאות', price: 0 },
 };
 
 export const ADDON_CONFIG: Record<AddonId, { labelHe: string; price: number }> = {
@@ -138,7 +138,7 @@ export const ADDON_CONFIG: Record<AddonId, { labelHe: string; price: number }> =
   extra_version: { labelHe: 'גרסה נוספת', price: 200 }, // TODO(pricing): placeholder
   separate_audio_file: { labelHe: 'מסירת קובץ אודיו נפרד', price: 50 }, // TODO(pricing): placeholder
   extra_revision_round: { labelHe: 'סבב תיקונים נוסף', price: 150 }, // TODO(pricing): placeholder
-  ai_image_fill: { labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה', price: 80 },
+  ai_image_fill: { labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה', price: 0 },
 };
 
 /** Reserved for future use - VAT is not applied to estimates in Milestone 1. */

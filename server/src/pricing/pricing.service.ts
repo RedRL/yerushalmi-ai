@@ -13,6 +13,7 @@ import {
   VIDEO_LENGTH_PRICES,
   VIDEO_SOURCE_PRICES,
 } from './pricing.config';
+import { COUPON_CODE, couponDiscountAmount, isKnownCouponCode } from './coupon.config';
 import type { PriceBreakdown, PriceLineItem, PricingSelection } from './pricing.types';
 
 /**
@@ -112,7 +113,8 @@ export function calculatePriceBreakdown(selection: PricingSelection): PriceBreak
   }
 
   const subtotal = lineItems.reduce((sum, item) => sum + item.amount * item.quantity, 0);
-  const discount = 0;
+  const couponApplied = isKnownCouponCode(selection.couponCode);
+  const discount = couponApplied ? couponDiscountAmount(subtotal) : 0;
   const vatAmount = Math.round(subtotal * VAT_RATE * 100) / 100;
   const total = subtotal - discount + vatAmount;
 
@@ -121,6 +123,7 @@ export function calculatePriceBreakdown(selection: PricingSelection): PriceBreak
     lineItems,
     subtotal,
     discount,
+    ...(couponApplied ? { couponCode: COUPON_CODE } : {}),
     vatRate: VAT_RATE,
     vatAmount,
     total,

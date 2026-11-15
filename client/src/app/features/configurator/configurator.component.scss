@@ -387,6 +387,32 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   line-height: 1.2;
 }
 
+.configurator__inline-coupon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.configurator__inline-coupon-remove {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-full);
+  color: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--gradient-brand-soft);
+  }
+}
+
 .configurator__nav-back,
 .configurator__nav-next {
   @include button-reset;

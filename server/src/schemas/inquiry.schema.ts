@@ -8,6 +8,7 @@ import {
 } from '../upload/upload-requirements';
 import { extractInquiryFolderId, inquiryFolderContainsReference } from '../storage/storage-key.util';
 import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
+import { couponEntryState } from '../pricing/coupon.config';
 import { inquiryFolderIdSchema } from './inquiry-folder.schema';
 import { inquiryReferenceIdSchema } from './inquiry-reference.schema';
 
@@ -153,8 +154,18 @@ export const inquirySchema = z
     // Accepted for forward-compatibility with the client payload shape, but
     // NEVER used for the trusted price calculation. See pricing.service.ts.
     clientPricePreview: z.object({ total: z.number() }).optional(),
+    couponCode: z.string().trim().max(40).optional(),
   })
   .superRefine((data, ctx) => {
+    const couponState = couponEntryState(data.couponCode);
+    if (couponState === 'invalid' || couponState === 'incomplete') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['couponCode'],
+        message: 'קוד הקופון לא תקין',
+      });
+    }
+
     const includesNewSong = data.mainProduct === 'song_only' || data.mainProduct === 'video_new_song';
     const includesVideo = data.mainProduct === 'video_existing_song' || data.mainProduct === 'video_new_song';
 

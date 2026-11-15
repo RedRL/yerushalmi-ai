@@ -148,6 +148,30 @@ describe('inquirySchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects an unknown coupon code', () => {
+    const result = inquirySchema.safeParse({
+      contact: { name: 'משה כהן', phone: '0501234567', email: 'test@example.com' },
+      mainProduct: 'song_only',
+      song: { vocalist: 'female', style: 'פופ', length: 'min_2_0' },
+      projectDetails: {
+        personName: 'דוד',
+        occasion: 'יום הולדת',
+        story: 'זהו סיפור ארוך מספיק לבדיקה',
+      },
+      consents: {
+        mediaRights: true,
+        contactPermission: true,
+        termsAccepted: true,
+      },
+      couponCode: 'NOPE',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((issue) => issue.path.join('.') === 'couponCode')).toBe(true);
+    }
+  });
+
   it('rejects an existing-song clip without a song link', () => {
     const result = inquirySchema.safeParse({
       contact: { name: 'משה כהן', phone: '0501234567', email: 'test@example.com' },

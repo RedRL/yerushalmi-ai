@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { findPackage } from '../../../core/config/packages.config';
 import type { MainProductId, PriceBreakdown } from '../../models/pricing.model';
 
@@ -13,6 +13,7 @@ export class PriceSummaryComponent {
   readonly originalTotal = input<number | null>(null);
   readonly compact = input(false);
   readonly mainProductId = input<MainProductId | null>(null);
+  readonly couponRemove = output<void>();
 
   readonly justUpdated = signal(false);
 

@@ -24,6 +24,7 @@ import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-fi
 import { compressImageForUpload } from '../../../shared/utils/compress-image.util';
 import { toHebrewUserError } from '../../../shared/utils/network-error.util';
 import { isIsoDateBeforeToday, parseHeIlDateToIso } from '../../../shared/utils/he-date.util';
+import { COUPON_CODE, isKnownCouponCode, normalizeCouponCode } from '../../../core/config/coupon.config';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import { screensForStep } from './configurator-flow';
@@ -131,6 +132,9 @@ export class ConfiguratorStoreService {
   readonly submitUploadProgress = signal<{ completed: number; total: number } | null>(null);
   readonly submitError = signal<string | null>(null);
   readonly submitResult = signal<SubmitResult | null>(null);
+  /** Set only after a successful click on the coupon button. Typing does not apply a discount. */
+  readonly appliedCouponCode = signal<string | null>(null);
+  readonly couponApplyError = signal(false);
 
   readonly addonOptions = ADDON_OPTIONS;
 
@@ -198,6 +202,7 @@ export class ConfiguratorStoreService {
       Validators.maxLength(FIELD_LIMITS.contactEmail),
     ]),
     message: this.fb.control('', Validators.maxLength(FIELD_LIMITS.contactMessage)),
+    couponCode: this.fb.control('', Validators.maxLength(40)),
     mediaRightsConsent: this.fb.control(false, Validators.requiredTrue),
     contactPermissionConsent: this.fb.control(false, Validators.requiredTrue),
     termsConsent: this.fb.control(false, Validators.requiredTrue),
@@ -305,6 +310,7 @@ export class ConfiguratorStoreService {
       videoFormat: this.videoValue().format,
       subtitles: this.videoValue().subtitles,
       addons: this.addons(),
+      couponCode: this.appliedCouponCode() ?? undefined,
     };
   });
 
@@ -734,6 +740,32 @@ export class ConfiguratorStoreService {
     }
 
     return 'נא להשלים את פרטי הקשר כדי להמשיך';
+  }
+
+  onCouponDraftChange(): void {
+    this.couponApplyError.set(false);
+  }
+
+  applyCoupon(): void {
+    const normalized = normalizeCouponCode(this.contactForm.controls.couponCode.value);
+    if (!normalized) {
+      this.couponApplyError.set(false);
+      return;
+    }
+    if (isKnownCouponCode(normalized)) {
+      this.appliedCouponCode.set(COUPON_CODE);
+      this.couponApplyError.set(false);
+      this.persistState();
+      return;
+    }
+    this.couponApplyError.set(true);
+  }
+
+  removeCoupon(): void {
+    if (!this.appliedCouponCode()) return;
+    this.appliedCouponCode.set(null);
+    this.couponApplyError.set(false);
+    this.persistState();
   }
 
   selectMainProduct(id: MainProductId): void {
@@ -1204,6 +1236,7 @@ export class ConfiguratorStoreService {
     const mainProduct = this.mainProduct();
     if (!mainProduct) throw new Error('Main product must be selected before submitting.');
 
+    const appliedCoupon = this.appliedCouponCode();
     const song = this.songValue();
     const video = this.videoValue();
     const details = this.projectDetailsValue();
@@ -1247,6 +1280,7 @@ export class ConfiguratorStoreService {
         musicRights: this.requiresExistingSongRights() ? true : undefined,
       },
       clientPricePreview: { total: this.priceBreakdown()?.total ?? 0 },
+      ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
     };
 
     if (this.includesNewSong() || this.requiresExistingSongRights()) {
@@ -1553,10 +1587,13 @@ export class ConfiguratorStoreService {
       phone: '',
       email: '',
       message: '',
+      couponCode: '',
       mediaRightsConsent: false,
       contactPermissionConsent: false,
       termsConsent: false,
     });
+    this.appliedCouponCode.set(null);
+    this.couponApplyError.set(false);
     this.submitError.set(null);
     this.submitResult.set(null);
     this.submitPhase.set(null);
@@ -1579,6 +1616,7 @@ export class ConfiguratorStoreService {
       videoForm: this.videoForm.getRawValue(),
       projectDetailsForm: this.projectDetailsForm.getRawValue(),
       contactForm: this.contactForm.getRawValue(),
+      appliedCouponCode: this.appliedCouponCode(),
       uploadedFiles: this.includesVideo()
         ? this.uploadedFiles().map((file) => ({
             id: file.id,
@@ -1627,6 +1665,18 @@ export class ConfiguratorStoreService {
     this.videoForm.patchValue(savedVideoForm as typeof this.videoForm.value, { emitEvent: false });
     this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
     this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });
+    const savedCoupon = normalizeCouponCode(String(saved.contactForm?.['couponCode'] ?? ''));
+    const hasSavedAppliedCoupon = Object.prototype.hasOwnProperty.call(saved, 'appliedCouponCode');
+    this.appliedCouponCode.set(
+      hasSavedAppliedCoupon
+        ? isKnownCouponCode(saved.appliedCouponCode)
+          ? COUPON_CODE
+          : null
+        : isKnownCouponCode(savedCoupon)
+          ? COUPON_CODE
+          : null,
+    );
+    this.couponApplyError.set(false);
     this.formRevision.update((value) => value + 1);
     const screenCount = screensForStep(this.currentStep()?.id, this.mainProduct()).length;
     const savedSubStep = saved.subStepIndex ?? 0;

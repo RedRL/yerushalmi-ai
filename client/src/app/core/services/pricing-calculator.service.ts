@@ -14,6 +14,7 @@ import {
   VIDEO_LENGTH_OPTIONS,
   VIDEO_SOURCE_OPTIONS,
 } from '../config/pricing.config';
+import { COUPON_CODE, couponDiscountAmount, isKnownCouponCode } from '../config/coupon.config';
 import type { MainProductId, PriceBreakdown, PricingLineItem, PricingSelection } from '../../shared/models/pricing.model';
 
 export interface PriceTotals {
@@ -30,7 +31,7 @@ export interface PriceTotals {
 @Injectable({ providedIn: 'root' })
 export class PricingCalculatorService {
   calculate(selection: PricingSelection): PriceBreakdown {
-    return this.calculateWithBasePrices(selection, MAIN_PRODUCT_INTRO_PRICES);
+    return this.applyCoupon(this.calculateWithBasePrices(selection, MAIN_PRODUCT_INTRO_PRICES), selection.couponCode);
   }
 
   calculateOriginal(selection: PricingSelection): PriceBreakdown {
@@ -124,6 +125,17 @@ export class PricingCalculatorService {
       vatAmount: 0,
       total: subtotal,
       isEstimate: true,
+    };
+  }
+
+  private applyCoupon(breakdown: PriceBreakdown, couponCode: string | undefined): PriceBreakdown {
+    if (!isKnownCouponCode(couponCode)) return breakdown;
+    const discount = couponDiscountAmount(breakdown.subtotal);
+    return {
+      ...breakdown,
+      discount,
+      couponCode: COUPON_CODE,
+      total: breakdown.subtotal - discount,
     };
   }
 }

@@ -46,6 +46,8 @@ export interface PricingSelection {
   videoFormat?: VideoFormatId;
   subtitles?: SubtitlesId;
   addons: AddonId[];
+  /** Optional promo code. Unknown values are ignored by the pricing engine. */
+  couponCode?: string;
 }
 
 export interface PriceLineItem {
@@ -59,8 +61,10 @@ export interface PriceBreakdown {
   currency: 'ILS';
   lineItems: PriceLineItem[];
   subtotal: number;
-  /** Reserved for future discount campaigns. Always 0 in Milestone 1. */
+  /** Shekel amount taken off the subtotal. 0 unless a known coupon was supplied. */
   discount: number;
+  /** Canonical coupon code when a discount was applied. */
+  couponCode?: string;
   /** Reserved for future VAT handling. Always 0 in Milestone 1 (prices are not final). */
   vatRate: number;
   vatAmount: number;

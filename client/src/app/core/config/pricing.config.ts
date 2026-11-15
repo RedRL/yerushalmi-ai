@@ -233,7 +233,7 @@ export function normalizeVideoFormatId(value: string | null | undefined): VideoF
 
 export const SUBTITLES_OPTIONS: readonly PriceableOptionLike<SubtitlesId>[] = [
   { id: 'none', labelHe: 'ללא כתוביות', price: 0 },
-  { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 120 },
+  { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 0 },
 ];
 
 export const ADDON_OPTIONS: readonly AddonOption[] = [
@@ -247,7 +247,7 @@ export const ADDON_OPTIONS: readonly AddonOption[] = [
   {
     id: 'ai_image_fill',
     labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה',
-    price: 80,
+    price: 0,
     videoOnly: true,
   },
 ];

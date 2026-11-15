@@ -29,6 +29,7 @@ export interface PersistedConfiguratorState {
   };
   projectDetailsForm: Record<string, string>;
   contactForm: Record<string, string | boolean>;
+  appliedCouponCode?: string | null;
   uploadedFiles: Omit<UploadedFileReference, 'previewUrl' | 'file' | 'thumbnailDataUrl' | 'lightboxPreviewUrl'>[];
 }
 

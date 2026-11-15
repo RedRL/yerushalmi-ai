@@ -73,6 +73,7 @@ export interface InquiryPayload {
   consents: InquiryConsentsPayload;
   /** Sent for UX/debug purposes only - the backend never trusts this value. */
   clientPricePreview: { total: number };
+  couponCode?: string;
 }
 
 export interface InquiryResponse {

@@ -95,13 +95,34 @@ describe('calculatePriceBreakdown', () => {
     expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.video_existing_song + ADDON_CONFIG.ai_image_fill.price);
   });
 
-  it('never applies VAT or discounts in Milestone 1', () => {
+  it('does not apply VAT, and leaves the discount at 0 without a coupon', () => {
     const selection: PricingSelection = { mainProduct: 'song_only', addons: [] };
     const breakdown = calculatePriceBreakdown(selection);
 
     expect(breakdown.discount).toBe(0);
+    expect(breakdown.couponCode).toBeUndefined();
     expect(breakdown.vatAmount).toBe(0);
     expect(breakdown.isEstimate).toBe(true);
+  });
+
+  it('applies a 20% discount for the BACKSTAGE coupon, ignoring letter case', () => {
+    const selection: PricingSelection = { mainProduct: 'song_only', addons: [], couponCode: 'backstage' };
+    const breakdown = calculatePriceBreakdown(selection);
+    const discount = Math.round(MAIN_PRODUCT_INTRO_PRICES.song_only * 0.2);
+
+    expect(breakdown.subtotal).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only);
+    expect(breakdown.discount).toBe(discount);
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only - discount);
+    expect(breakdown.couponCode).toBe('BACKSTAGE');
+  });
+
+  it('ignores an unknown coupon code', () => {
+    const selection: PricingSelection = { mainProduct: 'song_only', addons: [], couponCode: 'NOPE' };
+    const breakdown = calculatePriceBreakdown(selection);
+
+    expect(breakdown.discount).toBe(0);
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only);
+    expect(breakdown.couponCode).toBeUndefined();
   });
 
   it('ignores unknown addon identifiers instead of throwing', () => {

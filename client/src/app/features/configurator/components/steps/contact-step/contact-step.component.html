@@ -57,7 +57,7 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="mediaRightsConsent">
-                אנחנו מאשרים שיש לנו הרשאה להשתמש ולשלוח את התמונות והמידע שסיפקנו. *
+                יש לי הרשאה להשתמש ולשלוח את התמונות והמידע שסיפקתי. *
               </label>
             </div>
           </div>
@@ -67,7 +67,7 @@
           <input id="contactPermissionConsent" type="checkbox" formControlName="contactPermissionConsent" />
           <div class="consent-checkbox__content">
             <div class="field__label-row">
-              <label for="contactPermissionConsent">אנחנו מאשרים שיחזרו אלינו בנוגע לבקשה. *</label>
+              <label for="contactPermissionConsent">אפשר לחזור אליי בנוגע לבקשה. *</label>
             </div>
           </div>
         </div>
@@ -77,10 +77,44 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="termsConsent">
-                אנחנו מאשרים שקראנו והסכמנו ל<a href="/clips/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a>. *
+                קראתי את <a href="/clips/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a> והסכמתי לו. *
               </label>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="contact-step__coupon">
+        <label class="contact-step__coupon-label" for="couponCode">קוד קופון</label>
+        <div class="contact-step__coupon-row">
+          <input
+            id="couponCode"
+            class="field__control contact-step__coupon-input"
+            formControlName="couponCode"
+            autocomplete="off"
+            spellcheck="false"
+            maxlength="40"
+            placeholder="הקוד"
+            [attr.aria-invalid]="store.couponApplyError() ? true : null"
+            [attr.aria-describedby]="store.couponApplyError() ? 'couponCodeError' : store.appliedCouponCode() ? 'couponCodeOk' : null"
+            (input)="store.onCouponDraftChange()"
+            (keydown.enter)="$event.preventDefault(); applyCoupon()"
+          />
+          <button
+            type="button"
+            class="contact-step__coupon-apply"
+            (click)="applyCoupon()"
+          >
+            הפעלה
+          </button>
+          <p
+            #couponMessage
+            class="contact-step__coupon-message"
+            [class.contact-step__coupon-message--error]="store.couponApplyError()"
+            [class.contact-step__coupon-message--ok]="!store.couponApplyError() && !!store.appliedCouponCode()"
+            [attr.id]="store.couponApplyError() ? 'couponCodeError' : store.appliedCouponCode() ? 'couponCodeOk' : null"
+            [attr.role]="store.couponApplyError() ? 'alert' : store.appliedCouponCode() ? 'status' : null"
+          >{{ store.couponApplyError() ? 'הקוד לא קיים' : store.appliedCouponCode() ? 'הופעלה הנחה של 20%' : '' }}</p>
         </div>
       </div>
 
