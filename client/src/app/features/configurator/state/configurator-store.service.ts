@@ -6,7 +6,7 @@ import { firstValueFrom, merge } from 'rxjs';
 import { InquiryApiService } from '../../../core/services/inquiry-api.service';
 import { UploadApiService } from '../../../core/services/upload-api.service';
 import { PricingCalculatorService, type PriceTotals } from '../../../core/services/pricing-calculator.service';
-import { ADDON_OPTIONS, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions, findAddon, PRODUCT_INCLUDES_VIDEO } from '../../../core/config/pricing.config';
+import { ADDON_OPTIONS, ALWAYS_INCLUDED_VIDEO_ADDONS, DEFAULT_SUBTITLES_COLOR, DEFAULT_SUBTITLES_HIGHLIGHT_COLOR, DEFAULT_VIDEO_SOURCE, DEFAULT_LENGTH_ID, DEFAULT_VIDEO_FORMAT, normalizeHexColor, normalizeLengthId, normalizeVideoFormatId, getSongLengthOptions, VIDEO_LENGTH_OPTIONS, findAddon, isSelectableAddon, PRODUCT_INCLUDES_VIDEO } from '../../../core/config/pricing.config';
 import { getMinimumImageCountForVideoLength, getRecommendedMaxImageCountForVideoLength, getMaximumImageCountForVideoLength, getMaximumVideoCountForVideoLength } from '../../../core/config/upload-requirements.config';
 import type { AddonId, MainProductId, PriceBreakdown, PricingSelection, SongLengthId, VideoFormatId, VideoLengthId, VocalistId } from '../../../shared/models/pricing.model';
 import type { UploadedFileReference } from '../../../shared/models/upload.model';
@@ -24,8 +24,20 @@ import { deleteUploadFile, getUploadFile } from '../../../shared/utils/upload-fi
 import { compressImageForUpload } from '../../../shared/utils/compress-image.util';
 import { toHebrewUserError } from '../../../shared/utils/network-error.util';
 import { isIsoDateBeforeToday, parseHeIlDateToIso } from '../../../shared/utils/he-date.util';
-import { COUPON_CODE, isKnownCouponCode, normalizeCouponCode } from '../../../core/config/coupon.config';
+import {
+  couponDiscountPercent,
+  normalizeCouponCode,
+  resolveCoupon,
+} from '../../../core/config/coupon.config';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
+import {
+  isOccasionId,
+  migrateLegacyOccasion,
+  occasionCopyFor,
+  resolveOccasionLabel,
+  resolveOccasionVoice,
+  type OccasionId,
+} from '../../../core/config/occasion.config';
 import { CONFIGURATOR_STEPS, type ConfiguratorStepId } from '../configurator.model';
 import { screensForStep } from './configurator-flow';
 import {
@@ -84,19 +96,31 @@ function isSongLengthId(value: string): value is SongLengthId {
 }
 
 function resolveSongLength(length: string | null | undefined, mainProduct: MainProductId | null): SongLengthId {
-  const normalized = normalizeLengthId(length) || DEFAULT_LENGTH_ID;
   const options = getSongLengthOptions(mainProduct);
-  return options.some((option) => option.id === normalized) ? normalized : DEFAULT_LENGTH_ID;
+  const fallback = (options[0]?.id as SongLengthId | undefined) ?? DEFAULT_LENGTH_ID;
+  const normalized = normalizeLengthId(length) || fallback;
+  return options.some((option) => option.id === normalized) ? normalized : fallback;
+}
+
+function resolveVideoLength(length: string | null | undefined): VideoLengthId {
+  const normalized = normalizeLengthId(length) || DEFAULT_LENGTH_ID;
+  return VIDEO_LENGTH_OPTIONS.some((option) => option.id === normalized)
+    ? normalized
+    : DEFAULT_LENGTH_ID;
 }
 
 function filterAddonsForProduct(addons: AddonId[], product: MainProductId): AddonId[] {
   const includesVideo = PRODUCT_INCLUDES_VIDEO[product];
-  return addons.filter((id) => {
+  const filtered = addons.filter((id) => {
     const addon = findAddon(id);
     if (!addon) return false;
     if (addon.videoOnly && !includesVideo) return false;
     return true;
   });
+  if (!includesVideo) {
+    return filtered.filter((id) => !ALWAYS_INCLUDED_VIDEO_ADDONS.includes(id));
+  }
+  return Array.from(new Set([...filtered, ...ALWAYS_INCLUDED_VIDEO_ADDONS]));
 }
 
 export interface SubmitResult {
@@ -160,11 +184,16 @@ export class ConfiguratorStoreService {
     length: this.fb.control<VideoLengthId>(DEFAULT_LENGTH_ID),
     format: this.fb.control<VideoFormatId>(DEFAULT_VIDEO_FORMAT),
     subtitles: this.fb.control<'none' | 'selected' | 'full'>('none'),
+    subtitlesKaraoke: this.fb.control(false),
+    subtitlesColor: this.fb.control(DEFAULT_SUBTITLES_COLOR),
+    subtitlesHighlightColor: this.fb.control(DEFAULT_SUBTITLES_HIGHLIGHT_COLOR),
+    revisionNotes: this.fb.control('', Validators.maxLength(FIELD_LIMITS.videoRevisionNotes)),
   });
 
   readonly projectDetailsForm = this.fb.group({
     personName: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.personName)]),
-    occasion: this.fb.control('', [Validators.required, Validators.maxLength(FIELD_LIMITS.occasion)]),
+    occasionId: this.fb.control<OccasionId | ''>('', Validators.required),
+    customOccasion: this.fb.control('', Validators.maxLength(FIELD_LIMITS.occasion)),
     eventDate: this.fb.control('', [
       (control) => {
         const value = String(control.value ?? '').trim();
@@ -277,6 +306,24 @@ export class ConfiguratorStoreService {
 
   readonly selectedSongStyles = computed(() => parseSongStyles(this.songValue().style));
 
+  readonly occasionId = computed(() => {
+    const id = this.projectDetailsValue().occasionId;
+    return isOccasionId(id) ? id : null;
+  });
+
+  readonly occasionLabel = computed(() => {
+    const details = this.projectDetailsValue();
+    return resolveOccasionLabel(details.occasionId, details.customOccasion);
+  });
+
+  readonly occasionCopy = computed(() =>
+    occasionCopyFor(resolveOccasionVoice(this.projectDetailsValue().occasionId)),
+  );
+
+  readonly isWeddingOccasion = computed(() => this.occasionId() === 'wedding');
+
+  readonly isCustomOccasion = computed(() => this.occasionId() === 'other');
+
   readonly songCustomStyleText = computed(() => this.songValue().customStyle);
 
   readonly songCustomStyleTouched = computed(() => {
@@ -293,6 +340,21 @@ export class ConfiguratorStoreService {
     () => this.mainProduct() === 'video_existing_song' || this.mainProduct() === 'video_new_song',
   );
   readonly requiresExistingSongRights = computed(() => this.mainProduct() === 'video_existing_song');
+
+  readonly subtitleStyle = computed(() => {
+    const video = this.videoValue();
+    const hasSubtitles = video.subtitles === 'selected' || video.subtitles === 'full';
+    return {
+      hasSubtitles,
+      karaoke: Boolean(video.subtitlesKaraoke),
+      color: normalizeHexColor(video.subtitlesColor, DEFAULT_SUBTITLES_COLOR),
+      highlightColor: normalizeHexColor(
+        video.subtitlesHighlightColor,
+        DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
+      ),
+      notes: video.revisionNotes.trim(),
+    };
+  });
 
   readonly requiresUploadStep = computed(() => this.includesVideo());
 
@@ -362,7 +424,7 @@ export class ConfiguratorStoreService {
 
   readonly isDetailsStepValid = computed(() => {
     this.formRevision();
-    return this.projectDetailsForm.valid;
+    return this.projectDetailsForm.valid && this.isOccasionSelectionValid();
   });
 
   readonly isUploadStepValid = computed(() => {
@@ -387,7 +449,7 @@ export class ConfiguratorStoreService {
       const length = this.songForm.controls.length.value;
       return isSongLengthId(length) ? length : DEFAULT_LENGTH_ID;
     }
-    return this.videoForm.controls.length.value || DEFAULT_LENGTH_ID;
+    return resolveVideoLength(this.videoForm.controls.length.value);
   });
 
   readonly minimumRequiredImages = computed(() =>
@@ -659,7 +721,7 @@ export class ConfiguratorStoreService {
     if (form.controls.personName.invalid) {
       missing.push('שם האדם/האנשים');
     }
-    if (form.controls.occasion.invalid) {
+    if (!this.isOccasionSelectionValid()) {
       missing.push('סוג האירוע');
     }
     if (form.controls.story.hasError('required') || form.controls.story.hasError('minlength')) {
@@ -752,13 +814,18 @@ export class ConfiguratorStoreService {
       this.couponApplyError.set(false);
       return;
     }
-    if (isKnownCouponCode(normalized)) {
-      this.appliedCouponCode.set(COUPON_CODE);
+    const coupon = resolveCoupon(normalized);
+    if (coupon) {
+      this.appliedCouponCode.set(coupon.code);
       this.couponApplyError.set(false);
       this.persistState();
       return;
     }
     this.couponApplyError.set(true);
+  }
+
+  appliedCouponPercent(): number {
+    return couponDiscountPercent(this.appliedCouponCode());
   }
 
   removeCoupon(): void {
@@ -824,9 +891,19 @@ export class ConfiguratorStoreService {
     const songLength = resolveSongLength(this.songForm.controls.length.value, this.mainProduct());
     return {
       songLength,
-      videoLength: this.videoForm.controls.length.value || DEFAULT_LENGTH_ID,
+      videoLength: resolveVideoLength(this.videoForm.controls.length.value),
       videoFormat: this.videoForm.controls.format.value || DEFAULT_VIDEO_FORMAT,
       subtitles: this.videoForm.controls.subtitles.value || 'none',
+      subtitlesKaraoke: this.videoForm.controls.subtitlesKaraoke.value,
+      subtitlesColor: normalizeHexColor(
+        this.videoForm.controls.subtitlesColor.value,
+        DEFAULT_SUBTITLES_COLOR,
+      ),
+      subtitlesHighlightColor: normalizeHexColor(
+        this.videoForm.controls.subtitlesHighlightColor.value,
+        DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
+      ),
+      revisionNotes: this.videoForm.controls.revisionNotes.value.trim(),
       addons: [...this.addons()],
     };
   }
@@ -836,15 +913,32 @@ export class ConfiguratorStoreService {
     this.videoForm.controls.length.setValue(DEFAULT_LENGTH_ID, { emitEvent: false });
     this.videoForm.controls.format.setValue(DEFAULT_VIDEO_FORMAT, { emitEvent: false });
     this.videoForm.controls.subtitles.setValue('none', { emitEvent: false });
-    this.addons.set([]);
+    this.videoForm.controls.subtitlesKaraoke.setValue(false, { emitEvent: false });
+    this.videoForm.controls.subtitlesColor.setValue(DEFAULT_SUBTITLES_COLOR, { emitEvent: false });
+    this.videoForm.controls.subtitlesHighlightColor.setValue(DEFAULT_SUBTITLES_HIGHLIGHT_COLOR, {
+      emitEvent: false,
+    });
+    this.videoForm.controls.revisionNotes.setValue('', { emitEvent: false });
+    const product = this.mainProduct();
+    this.addons.set(product ? filterAddonsForProduct([], product) : []);
   }
 
   private applyPricingSnapshot(snapshot: ProductPricingSnapshot, product: MainProductId): void {
     this.songForm.controls.length.setValue(resolveSongLength(snapshot.songLength, product), { emitEvent: false });
-    this.videoForm.controls.length.setValue(snapshot.videoLength || DEFAULT_LENGTH_ID, { emitEvent: false });
+    this.videoForm.controls.length.setValue(resolveVideoLength(snapshot.videoLength), { emitEvent: false });
     this.videoForm.controls.format.setValue(normalizeVideoFormatId(snapshot.videoFormat), { emitEvent: false });
     const subtitles = snapshot.subtitles === 'selected' || snapshot.subtitles === 'full' ? snapshot.subtitles : 'none';
     this.videoForm.controls.subtitles.setValue(subtitles, { emitEvent: false });
+    this.videoForm.controls.subtitlesKaraoke.setValue(Boolean(snapshot.subtitlesKaraoke), { emitEvent: false });
+    this.videoForm.controls.subtitlesColor.setValue(
+      normalizeHexColor(snapshot.subtitlesColor, DEFAULT_SUBTITLES_COLOR),
+      { emitEvent: false },
+    );
+    this.videoForm.controls.subtitlesHighlightColor.setValue(
+      normalizeHexColor(snapshot.subtitlesHighlightColor, DEFAULT_SUBTITLES_HIGHLIGHT_COLOR),
+      { emitEvent: false },
+    );
+    this.videoForm.controls.revisionNotes.setValue(snapshot.revisionNotes ?? '', { emitEvent: false });
     this.addons.set(filterAddonsForProduct(snapshot.addons ?? [], product));
   }
 
@@ -945,6 +1039,7 @@ export class ConfiguratorStoreService {
   }
 
   toggleAddon(id: AddonId): void {
+    if (!isSelectableAddon(id)) return;
     this.addons.update((current) =>
       current.includes(id) ? current.filter((addonId) => addonId !== id) : [...current, id],
     );
@@ -1035,10 +1130,40 @@ export class ConfiguratorStoreService {
     const form = this.projectDetailsForm;
     this.formRevision();
     if (field === 'personName') return form.controls.personName.valid;
-    if (field === 'occasion') return form.controls.occasion.valid;
+    if (field === 'occasion') return this.isOccasionSelectionValid();
     if (field === 'story') return form.controls.story.valid;
     if (field === 'eventDate') return form.controls.eventDate.valid;
     return false;
+  }
+
+  private isOccasionSelectionValid(): boolean {
+    const { occasionId, customOccasion } = this.projectDetailsValue();
+    if (!isOccasionId(occasionId)) return false;
+    if (occasionId === 'other') return customOccasion.trim().length > 0;
+    return true;
+  }
+
+  private restoreOccasionSelection(saved: Record<string, string>): void {
+    const savedId = String(saved['occasionId'] ?? '');
+    if (isOccasionId(savedId)) {
+      this.projectDetailsForm.patchValue(
+        {
+          occasionId: savedId,
+          customOccasion: savedId === 'other' ? String(saved['customOccasion'] ?? '') : '',
+        },
+        { emitEvent: false },
+      );
+      return;
+    }
+
+    const migrated = migrateLegacyOccasion(saved['occasion']);
+    this.projectDetailsForm.patchValue(
+      {
+        occasionId: migrated.occasionId,
+        customOccasion: migrated.customOccasion,
+      },
+      { emitEvent: false },
+    );
   }
 
   private isActiveExtrasScreenReady(): boolean {
@@ -1058,7 +1183,12 @@ export class ConfiguratorStoreService {
     const form = this.projectDetailsForm;
     this.formRevision();
     if (field === 'personName') return 'נא למלא שם כדי להמשיך';
-    if (field === 'occasion') return 'נא למלא את סוג האירוע';
+    if (field === 'occasion') {
+      if (form.controls.occasionId.value === 'other') {
+        return 'נא לכתוב מהו האירוע';
+      }
+      return 'נא לבחור סוג אירוע';
+    }
     if (field === 'story') return 'מה חשוב שנדע על הפרויקט? (לפחות 10 תווים)';
     if (field === 'eventDate') {
       if (form.controls.eventDate.hasError('pastDate')) return 'תאריך האירוע לא יכול להיות לפני היום';
@@ -1141,8 +1271,10 @@ export class ConfiguratorStoreService {
     const field = this.activeScreen().field;
     const form = this.projectDetailsForm;
     if (field === 'personName') form.controls.personName.markAsTouched();
-    else if (field === 'occasion') form.controls.occasion.markAsTouched();
-    else if (field === 'story') form.controls.story.markAsTouched();
+    else if (field === 'occasion') {
+      form.controls.occasionId.markAsTouched();
+      form.controls.customOccasion.markAsTouched();
+    } else if (field === 'story') form.controls.story.markAsTouched();
     else if (field === 'eventDate') form.controls.eventDate.markAsTouched();
   }
 
@@ -1185,7 +1317,7 @@ export class ConfiguratorStoreService {
     if (stepId === 'details') {
       const form = this.projectDetailsForm;
       if (form.controls.personName.invalid) this.subStepIndex.set(0);
-      else if (form.controls.occasion.invalid) this.subStepIndex.set(1);
+      else if (!this.isOccasionSelectionValid()) this.subStepIndex.set(1);
       else if (form.controls.story.invalid) this.subStepIndex.set(2);
       else if (form.controls.eventDate.invalid) this.subStepIndex.set(3);
       return;
@@ -1254,7 +1386,7 @@ export class ConfiguratorStoreService {
       addons: this.addons(),
       projectDetails: {
         personName: details.personName.trim(),
-        occasion: details.occasion.trim(),
+        occasion: resolveOccasionLabel(details.occasionId, details.customOccasion),
         eventDate: undefinedIfEmpty(details.eventDate.trim()),
         age: undefinedIfEmpty(details.age),
         relationship: undefinedIfEmpty(details.relationship),
@@ -1305,11 +1437,28 @@ export class ConfiguratorStoreService {
     }
 
     if (this.includesVideo()) {
+      const hasSubtitles = video.subtitles === 'selected' || video.subtitles === 'full';
+      const revisionNotes = undefinedIfEmpty(video.revisionNotes);
       payload.video = {
         source: DEFAULT_VIDEO_SOURCE,
         length: video.length,
         format: video.format,
         subtitles: video.subtitles,
+        ...(hasSubtitles
+          ? {
+              subtitlesKaraoke: Boolean(video.subtitlesKaraoke),
+              subtitlesColor: normalizeHexColor(video.subtitlesColor, DEFAULT_SUBTITLES_COLOR),
+              ...(video.subtitlesKaraoke
+                ? {
+                    subtitlesHighlightColor: normalizeHexColor(
+                      video.subtitlesHighlightColor,
+                      DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
+                    ),
+                  }
+                : {}),
+            }
+          : {}),
+        ...(revisionNotes ? { revisionNotes } : {}),
       };
     }
 
@@ -1567,10 +1716,20 @@ export class ConfiguratorStoreService {
       existingSongName: '',
       existingSongLink: '',
     });
-    this.videoForm.reset({ source: DEFAULT_VIDEO_SOURCE, length: DEFAULT_LENGTH_ID, format: DEFAULT_VIDEO_FORMAT, subtitles: 'none' });
+    this.videoForm.reset({
+      source: DEFAULT_VIDEO_SOURCE,
+      length: DEFAULT_LENGTH_ID,
+      format: DEFAULT_VIDEO_FORMAT,
+      subtitles: 'none',
+      subtitlesKaraoke: false,
+      subtitlesColor: DEFAULT_SUBTITLES_COLOR,
+      subtitlesHighlightColor: DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
+      revisionNotes: '',
+    });
     this.projectDetailsForm.reset({
       personName: '',
-      occasion: '',
+      occasionId: '',
+      customOccasion: '',
       eventDate: '',
       age: '',
       relationship: '',
@@ -1646,7 +1805,11 @@ export class ConfiguratorStoreService {
 
   private applyPersistedFormState(saved: PersistedConfiguratorState): void {
     if (saved.mainProduct) this.mainProduct.set(saved.mainProduct);
-    this.addons.set(saved.addons ?? []);
+    this.addons.set(
+      saved.mainProduct
+        ? filterAddonsForProduct(saved.addons ?? [], saved.mainProduct)
+        : (saved.addons ?? []).filter((id) => isSelectableAddon(id)),
+    );
     this.currentStepIndex.set(saved.currentStepIndex ?? 0);
     this.songForm.patchValue(saved.songForm ?? {}, { emitEvent: false });
     this.songForm.controls.length.setValue(
@@ -1657,24 +1820,27 @@ export class ConfiguratorStoreService {
     if (savedVideoForm.source !== DEFAULT_VIDEO_SOURCE) {
       savedVideoForm.source = DEFAULT_VIDEO_SOURCE;
     }
-    const normalizedVideoLength = normalizeLengthId(savedVideoForm.length);
-    if (normalizedVideoLength) {
-      savedVideoForm.length = normalizedVideoLength;
-    }
+    savedVideoForm.length = resolveVideoLength(savedVideoForm.length);
     savedVideoForm.format = normalizeVideoFormatId(savedVideoForm.format);
+    savedVideoForm.subtitlesColor = normalizeHexColor(
+      savedVideoForm.subtitlesColor,
+      DEFAULT_SUBTITLES_COLOR,
+    );
+    savedVideoForm.subtitlesHighlightColor = normalizeHexColor(
+      savedVideoForm.subtitlesHighlightColor,
+      DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
+    );
+    savedVideoForm.subtitlesKaraoke = Boolean(savedVideoForm.subtitlesKaraoke);
     this.videoForm.patchValue(savedVideoForm as typeof this.videoForm.value, { emitEvent: false });
     this.projectDetailsForm.patchValue(saved.projectDetailsForm ?? {}, { emitEvent: false });
+    this.restoreOccasionSelection(saved.projectDetailsForm ?? {});
     this.contactForm.patchValue(saved.contactForm ?? {}, { emitEvent: false });
     const savedCoupon = normalizeCouponCode(String(saved.contactForm?.['couponCode'] ?? ''));
     const hasSavedAppliedCoupon = Object.prototype.hasOwnProperty.call(saved, 'appliedCouponCode');
     this.appliedCouponCode.set(
       hasSavedAppliedCoupon
-        ? isKnownCouponCode(saved.appliedCouponCode)
-          ? COUPON_CODE
-          : null
-        : isKnownCouponCode(savedCoupon)
-          ? COUPON_CODE
-          : null,
+        ? (resolveCoupon(saved.appliedCouponCode)?.code ?? null)
+        : (resolveCoupon(savedCoupon)?.code ?? null),
     );
     this.couponApplyError.set(false);
     this.formRevision.update((value) => value + 1);

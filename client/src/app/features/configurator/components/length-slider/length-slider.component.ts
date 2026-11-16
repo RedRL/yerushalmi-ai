@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 export interface LengthChoice {
   id: string;
@@ -17,6 +17,8 @@ export class LengthSliderComponent {
   readonly value = input('');
   readonly selected = output<string>();
 
+  readonly tickMax = computed(() => Math.max(this.options().length - 1, 1));
+
   index(): number {
     const current = this.options().findIndex((option) => option.id === this.value());
     return current < 0 ? 0 : current;
@@ -30,5 +32,13 @@ export class LengthSliderComponent {
     const index = Number((event.target as HTMLInputElement).value);
     const option = this.options()[index];
     if (option) this.selected.emit(option.id);
+  }
+
+  /** Split "כ-1.5 דקות" into number + unit for stacked mobile ticks. */
+  tickParts(labelHe: string): { value: string; unit: string } {
+    const cleaned = labelHe.replace(/^כ-/, '').trim();
+    const match = /^([\d.]+)\s+(.+)$/.exec(cleaned);
+    if (!match) return { value: cleaned, unit: '' };
+    return { value: match[1] ?? cleaned, unit: match[2] ?? '' };
   }
 }

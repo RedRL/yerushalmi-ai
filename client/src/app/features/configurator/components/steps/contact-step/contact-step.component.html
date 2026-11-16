@@ -114,7 +114,7 @@
             [class.contact-step__coupon-message--ok]="!store.couponApplyError() && !!store.appliedCouponCode()"
             [attr.id]="store.couponApplyError() ? 'couponCodeError' : store.appliedCouponCode() ? 'couponCodeOk' : null"
             [attr.role]="store.couponApplyError() ? 'alert' : store.appliedCouponCode() ? 'status' : null"
-          >{{ store.couponApplyError() ? 'הקוד לא קיים' : store.appliedCouponCode() ? 'הופעלה הנחה של 20%' : '' }}</p>
+          >{{ store.couponApplyError() ? 'הקוד לא קיים' : store.appliedCouponCode() ? 'הופעלה הנחה של ' + store.appliedCouponPercent() + '%' : '' }}</p>
         </div>
       </div>
 

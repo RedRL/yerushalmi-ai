@@ -12,6 +12,7 @@ export const FIELD_LIMITS = {
   story: 800,
   projectAdditionalNotes: 200,
   songAdditionalNotes: 150,
+  videoRevisionNotes: 300,
   mood: 30,
   namesToInclude: 60,
   importantWords: 60,

@@ -46,7 +46,7 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
   readonly reactions = PORTFOLIO_REACTIONS;
   readonly loopVideos = Array.from({ length: LOOP_SETS }, () => [...DISPLAY_VIDEOS]).flat();
   readonly selectedVideo = signal<PortfolioVideo | null>(null);
-  readonly centeredIndex = signal(this.middleSetIndexOf('eliya'));
+  readonly centeredIndex = signal(this.middleSetIndexOf('babylicious'));
 
   categoryOf(video: PortfolioVideo): PortfolioCategory {
     return this.categoryById.get(video.categoryId) ?? PORTFOLIO_CATEGORIES[0];
@@ -102,16 +102,14 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
     const scroller = this.scrollerRef()?.nativeElement;
     if (!scroller) return;
 
-    const card = scroller.querySelector<HTMLElement>('.portfolio__item');
-    if (!card || card.offsetWidth === 0) return;
+    const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
+    if (items.length === 0) return;
 
-    const gap = Number.parseFloat(getComputedStyle(scroller).gap || '0');
-    const step = card.offsetWidth + gap;
+    const current = this.findClosestIndex(scroller, items);
+    const target = items[current + direction];
+    if (!target) return;
 
-    scroller.style.scrollSnapType = 'none';
-    scroller.scrollLeft += step * direction;
-    scroller.style.scrollSnapType = '';
-
+    this.scrollItemToCenter(scroller, target);
     requestAnimationFrame(() => this.normalizeLoop(scroller));
   }
 
@@ -154,40 +152,52 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
 
   private scrollToMiddleSet(scroller: HTMLElement): void {
     const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
-    const target = items[this.middleSetIndexOf('eliya')];
+    const target = items[this.middleSetIndexOf('babylicious')];
     if (!target) return;
 
-    scroller.style.scrollSnapType = 'none';
-    // Set scrollLeft directly — scrollIntoView also scrolls the page vertically.
-    const isSingleItem = target.offsetWidth >= scroller.clientWidth * 0.85;
-    if (isSingleItem) {
-      scroller.scrollLeft = target.offsetLeft;
-    } else {
-      const center = target.offsetLeft + target.offsetWidth / 2;
-      scroller.scrollLeft = center - scroller.clientWidth / 2;
-    }
-    scroller.style.scrollSnapType = '';
+    this.scrollItemToCenter(scroller, target);
     this.updateCenteredIndex(scroller);
+  }
+
+  /** Scroll so the item's visual center matches the scroller's visual center. */
+  private scrollItemToCenter(scroller: HTMLElement, target: HTMLElement): void {
+    scroller.style.scrollSnapType = 'none';
+
+    const scrollerRect = scroller.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const delta =
+      targetRect.left + targetRect.width / 2 - (scrollerRect.left + scrollerRect.width / 2);
+
+    scroller.scrollLeft += delta;
+    scroller.style.scrollSnapType = '';
   }
 
   private updateCenteredIndex(scroller: HTMLElement): void {
     const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
     if (items.length === 0) return;
+    this.centeredIndex.set(this.findClosestIndex(scroller, items));
+  }
 
-    const viewportCenter = scroller.scrollLeft + scroller.clientWidth / 2;
+  /** Pick the item whose visual center is closest to the scroller's visual center. */
+  private findClosestIndex(
+    scroller: HTMLElement,
+    items: NodeListOf<HTMLElement> | HTMLElement[],
+  ): number {
+    const scrollerRect = scroller.getBoundingClientRect();
+    const viewportCenter = scrollerRect.left + scrollerRect.width / 2;
     let closest = 0;
     let closestDist = Number.POSITIVE_INFINITY;
 
     items.forEach((item, index) => {
-      const center = item.offsetLeft + item.offsetWidth / 2;
-      const distance = Math.abs(center - viewportCenter);
+      const rect = item.getBoundingClientRect();
+      const distance = Math.abs(rect.left + rect.width / 2 - viewportCenter);
       if (distance < closestDist) {
         closestDist = distance;
         closest = index;
       }
     });
 
-    this.centeredIndex.set(closest);
+    return closest;
   }
 
   private setWidth(scroller: HTMLElement): number {

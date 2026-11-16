@@ -6,6 +6,8 @@ const LIGHTBOX_MAX_EDGE_PX = 1280;
 const TILE_QUALITY = 0.62;
 const LIGHTBOX_QUALITY = 0.72;
 const DECODE_TIMEOUT_MS = 8000;
+const HEIC_CONVERT_TIMEOUT_MS = 20000;
+const HEIC_JPEG_QUALITY = 0.82;
 
 export interface ImagePreviewSet {
   thumbnailDataUrl: string;
@@ -94,8 +96,27 @@ function previewsFromSource(
   }));
 }
 
-/** Tile JPEG + medium lightbox blob URL from a single decode. */
-export async function createImagePreviewSet(file: File): Promise<ImagePreviewSet> {
+/** Most browsers cannot decode HEIC; convert to JPEG in-browser for previews only. */
+async function convertHeicToJpegFile(file: File): Promise<File> {
+  const { default: heic2any } = await import('heic2any');
+  const result = await withTimeout(
+    heic2any({
+      blob: file,
+      toType: 'image/jpeg',
+      quality: HEIC_JPEG_QUALITY,
+    }),
+    HEIC_CONVERT_TIMEOUT_MS,
+    'heic-convert-timeout',
+  );
+  const blob = Array.isArray(result) ? result[0] : result;
+  if (!(blob instanceof Blob)) {
+    throw new Error('HEIC conversion failed');
+  }
+  const name = file.name.replace(/\.[^.]+$/i, '') + '.jpg';
+  return new File([blob], name, { type: 'image/jpeg' });
+}
+
+async function createImagePreviewSetFromDecodable(file: File): Promise<ImagePreviewSet> {
   if (typeof createImageBitmap !== 'undefined') {
     try {
       const bitmap = await decodeBitmap(file);
@@ -105,12 +126,19 @@ export async function createImagePreviewSet(file: File): Promise<ImagePreviewSet
         bitmap.close();
       }
     } catch {
-      // HEIC and some iOS bitmaps fail here; try a regular image decode next.
+      // Some mobile bitmaps fail here; try a regular image decode next.
     }
   }
 
   const image = await withTimeout(loadHtmlImage(file), DECODE_TIMEOUT_MS, 'preview-timeout');
   return previewsFromSource(image, image.naturalWidth, image.naturalHeight);
+}
+
+/** Tile JPEG + medium lightbox blob URL from a single decode. */
+export async function createImagePreviewSet(file: File): Promise<ImagePreviewSet> {
+  // Most browsers cannot decode HEIC in <img>/createImageBitmap — convert first.
+  const decodable = isHeicLikeFile(file) ? await convertHeicToJpegFile(file) : file;
+  return createImagePreviewSetFromDecodable(decodable);
 }
 
 /** Small JPEG data URL for gallery tiles. Not persisted — localStorage quota is too small on mobile. */

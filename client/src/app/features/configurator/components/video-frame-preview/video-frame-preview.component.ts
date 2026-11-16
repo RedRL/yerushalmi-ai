@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { VIDEO_FORMAT_OPTIONS } from '../../../../core/config/pricing.config';
+import {
+  DEFAULT_SUBTITLES_COLOR,
+  DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
+  normalizeHexColor,
+  VIDEO_FORMAT_OPTIONS,
+} from '../../../../core/config/pricing.config';
 import type { SubtitlesId, VideoFormatId } from '../../../../shared/models/pricing.model';
 import { FILLED_STILLS, SUBTITLE_SAMPLE, VIDEO_STILL_SRC } from '../../experience/experience.config';
 
@@ -15,8 +20,12 @@ export class VideoFramePreviewComponent {
   readonly filled = input(false);
   readonly compact = input(false);
   readonly badge = input('');
+  readonly karaoke = input(false);
+  readonly captionColor = input(DEFAULT_SUBTITLES_COLOR);
+  readonly highlightColor = input(DEFAULT_SUBTITLES_HIGHLIGHT_COLOR);
 
-  readonly sample = SUBTITLE_SAMPLE;
+  readonly sampleWords = SUBTITLE_SAMPLE.split(/\s+/).filter(Boolean);
+  readonly karaokeWordIndex = 1;
 
   readonly still = computed(() => {
     if (!this.filled()) return VIDEO_STILL_SRC;
@@ -37,4 +46,12 @@ export class VideoFramePreviewComponent {
   });
 
   readonly showCaption = computed(() => this.subtitles() === 'selected' || this.subtitles() === 'full');
+
+  readonly resolvedCaptionColor = computed(() =>
+    normalizeHexColor(this.captionColor(), DEFAULT_SUBTITLES_COLOR),
+  );
+
+  readonly resolvedHighlightColor = computed(() =>
+    normalizeHexColor(this.highlightColor(), DEFAULT_SUBTITLES_HIGHLIGHT_COLOR),
+  );
 }

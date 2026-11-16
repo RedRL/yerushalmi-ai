@@ -92,6 +92,34 @@
   font-size: var(--font-size-body);
 }
 
+.package-card__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem 0.55rem;
+  margin: 0;
+}
+
+.package-card__price-from {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
+.package-card__price-current {
+  color: var(--color-text-primary);
+  font-size: clamp(1.35rem, 1vw + 1.1rem, 1.75rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+.package-card__price-original {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  text-decoration: line-through;
+}
+
 .package-card__features {
   display: flex;
   flex-direction: column;

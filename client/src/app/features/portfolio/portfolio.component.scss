@@ -56,6 +56,7 @@
 }
 
 .portfolio__track {
+  position: relative;
   display: flex;
   gap: var(--portfolio-gap);
   overflow-x: auto;

@@ -171,15 +171,25 @@
   min-width: 0;
 }
 
+.price-summary__package-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
 .price-summary__package-emoji {
   font-size: 1.5rem;
 }
 
 .price-summary__package-title {
+  margin: 0;
   font-size: var(--font-size-body-lg);
   color: var(--color-text-primary);
   overflow-wrap: anywhere;
   white-space: normal;
+  min-width: 0;
 }
 
 .price-summary__package-subtitle {

@@ -16,11 +16,26 @@ export const mainProductSchema = z.enum(['song_only', 'video_existing_song', 'vi
 
 export const videoSourceSchema = z.enum(['customer_photos', 'ai_only', 'mixed', 'customer_videos']);
 
-export const videoLengthSchema = z.enum(['min_2_0', 'min_2_5', 'min_3_0', 'min_3_5', 'min_4_0', 'min_4_5']);
+export const videoLengthSchema = z.enum([
+  'min_1_0',
+  'min_1_5',
+  'min_2_0',
+  'min_2_5',
+  'min_3_0',
+  'min_3_5',
+  'min_4_0',
+  'min_4_5',
+]);
 
 export const videoFormatSchema = z.enum(['landscape', 'portrait', 'portrait_3_4', 'classic', 'square', 'both']);
 
 export const subtitlesSchema = z.enum(['none', 'selected', 'full']);
+
+const hexColorSchema = z
+  .string()
+  .trim()
+  .regex(/^#[0-9A-Fa-f]{6}$/, 'צבע לא תקין')
+  .transform((value) => value.toUpperCase());
 
 export const addonSchema = z.enum([
   'social_short_version',
@@ -76,13 +91,37 @@ export const songConfigSchema = z.object({
     .optional(),
 });
 
-export const videoConfigSchema = z.object({
-  source: videoSourceSchema.optional(),
-  length: videoLengthSchema.optional(),
-  format: videoFormatSchema.optional(),
-  subtitles: subtitlesSchema.optional(),
-  revisionNotes: z.string().trim().max(1000).optional(),
-});
+export const videoConfigSchema = z
+  .object({
+    source: videoSourceSchema.optional(),
+    length: videoLengthSchema.optional(),
+    format: videoFormatSchema.optional(),
+    subtitles: subtitlesSchema.optional(),
+    subtitlesKaraoke: z.boolean().optional(),
+    subtitlesColor: hexColorSchema.optional(),
+    subtitlesHighlightColor: hexColorSchema.optional(),
+    revisionNotes: z.string().trim().max(1000).optional(),
+  })
+  .superRefine((video, ctx) => {
+    const hasSubtitles = video.subtitles === 'selected' || video.subtitles === 'full';
+    if (!hasSubtitles) return;
+
+    if (!video.subtitlesColor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['subtitlesColor'],
+        message: 'נא לבחור צבע לכתוביות',
+      });
+    }
+
+    if (video.subtitlesKaraoke && !video.subtitlesHighlightColor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['subtitlesHighlightColor'],
+        message: 'נא לבחור צבע להדגשת הקריוקי',
+      });
+    }
+  });
 
 export const projectDetailsSchema = z.object({
   personName: z.string().trim().min(1, 'נא להזין את שם האדם או האנשים').max(120),

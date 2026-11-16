@@ -20,6 +20,10 @@ export interface VideoConfiguration {
   length?: VideoLengthId;
   format?: VideoFormatId;
   subtitles?: SubtitlesId;
+  subtitlesKaraoke?: boolean;
+  subtitlesColor?: string;
+  subtitlesHighlightColor?: string;
+  revisionNotes?: string;
 }
 
 export interface ProjectDetails {

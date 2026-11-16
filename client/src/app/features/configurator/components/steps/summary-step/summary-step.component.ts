@@ -64,7 +64,7 @@ export class SummaryStepComponent {
   );
 
   readonly occasionDisplay = computed(() =>
-    truncateSummaryText(this.store.projectDetailsForm.controls.occasion.value, SUMMARY_TEXT_MAX_LENGTH),
+    truncateSummaryText(this.store.occasionLabel(), SUMMARY_TEXT_MAX_LENGTH),
   );
 
   readonly eventDateDisplay = computed(() => {
@@ -108,6 +108,27 @@ export class SummaryStepComponent {
     ),
   );
 
+  readonly karaokeLabel = computed(() => {
+    const style = this.store.subtitleStyle();
+    if (!style.hasSubtitles) return null;
+    return style.karaoke ? 'קריוקי — כל מילה מושרת מודגשת' : 'בלי קריוקי';
+  });
+
+  readonly subtitlesColorLabel = computed(() => {
+    const style = this.store.subtitleStyle();
+    return style.hasSubtitles ? style.color : null;
+  });
+
+  readonly subtitlesHighlightColorLabel = computed(() => {
+    const style = this.store.subtitleStyle();
+    return style.hasSubtitles && style.karaoke ? style.highlightColor : null;
+  });
+
+  readonly videoNotesLabel = computed(() => {
+    const notes = this.store.subtitleStyle().notes;
+    return notes ? truncateSummaryText(notes, SUMMARY_TEXT_MAX_LENGTH) : null;
+  });
+
   readonly songStyleSummary = computed(() => {
     const styles = this.store.selectedSongStyles();
     const custom = this.store.songForm.controls.customStyle.value.trim();
@@ -120,10 +141,6 @@ export class SummaryStepComponent {
     const id = this.store.songForm.controls.vocalist.value;
     return VOCALIST_OPTIONS.find((option) => option.id === id)?.labelHe ?? null;
   });
-
-  readonly aiFillLabel = computed(() =>
-    this.store.isAddonSelected('ai_image_fill') ? 'מילוי אוטומטי לפורמט היציאה' : null,
-  );
 
   constructor() {
     effect(() => {

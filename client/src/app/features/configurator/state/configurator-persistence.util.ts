@@ -9,6 +9,10 @@ export interface ProductPricingSnapshot {
   videoLength: VideoLengthId;
   videoFormat: VideoFormatId;
   subtitles: SubtitlesId;
+  subtitlesKaraoke: boolean;
+  subtitlesColor: string;
+  subtitlesHighlightColor: string;
+  revisionNotes: string;
   addons: AddonId[];
 }
 
@@ -26,6 +30,10 @@ export interface PersistedConfiguratorState {
     length: string;
     format: string;
     subtitles: string;
+    subtitlesKaraoke?: boolean;
+    subtitlesColor?: string;
+    subtitlesHighlightColor?: string;
+    revisionNotes?: string;
   };
   projectDetailsForm: Record<string, string>;
   contactForm: Record<string, string | boolean>;

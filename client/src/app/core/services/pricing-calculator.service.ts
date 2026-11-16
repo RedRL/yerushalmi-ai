@@ -14,7 +14,7 @@ import {
   VIDEO_LENGTH_OPTIONS,
   VIDEO_SOURCE_OPTIONS,
 } from '../config/pricing.config';
-import { COUPON_CODE, couponDiscountAmount, isKnownCouponCode } from '../config/coupon.config';
+import { couponDiscountAmount, resolveCoupon } from '../config/coupon.config';
 import type { MainProductId, PriceBreakdown, PricingLineItem, PricingSelection } from '../../shared/models/pricing.model';
 
 export interface PriceTotals {
@@ -129,12 +129,13 @@ export class PricingCalculatorService {
   }
 
   private applyCoupon(breakdown: PriceBreakdown, couponCode: string | undefined): PriceBreakdown {
-    if (!isKnownCouponCode(couponCode)) return breakdown;
-    const discount = couponDiscountAmount(breakdown.subtotal);
+    const coupon = resolveCoupon(couponCode);
+    if (!coupon) return breakdown;
+    const discount = couponDiscountAmount(breakdown.subtotal, coupon.code);
     return {
       ...breakdown,
       discount,
-      couponCode: COUPON_CODE,
+      couponCode: coupon.code,
       total: breakdown.subtotal - discount,
     };
   }

@@ -3,6 +3,8 @@ export type MainProductId = 'song_only' | 'video_existing_song' | 'video_new_son
 export type VideoSourceId = 'customer_photos' | 'ai_only' | 'mixed' | 'customer_videos';
 
 export type VideoLengthId =
+  | 'min_1_0'
+  | 'min_1_5'
   | 'min_2_0'
   | 'min_2_5'
   | 'min_3_0'
@@ -48,6 +50,8 @@ export interface PriceableOption<TId extends string> extends SelectableOption<TI
 export interface AddonOption extends PriceableOption<AddonId> {
   /** Used to filter which addons make sense to show for the current product/video selection. */
   videoOnly: boolean;
+  /** When false, the addon is applied automatically and never shown as a customer choice. */
+  selectable?: boolean;
 }
 
 /** Raw selection identifiers sent to the backend for trusted recalculation. */

@@ -3,7 +3,7 @@
     @case ('who') {
       <app-wizard-screen
         kicker="פרטים"
-        heading="מי הם"
+        [heading]="copy().whoHeading"
         [description]="whoDescription"
         [showActions]="false"
         [index]="screenIndex()"
@@ -11,8 +11,13 @@
       >
         <div class="extras__stack">
           <label class="extras__field">
-            <span>הקשר שלכם לאדם</span>
-            <input class="field__control" formControlName="relationship" placeholder="בן/בת זוג, הורה..." [maxlength]="limits.relationship" />
+            <span>{{ copy().relationshipLabel }}</span>
+            <input
+              class="field__control"
+              formControlName="relationship"
+              [placeholder]="copy().relationshipPlaceholder"
+              [maxlength]="limits.relationship"
+            />
           </label>
           <label class="extras__field">
             <span>גיל</span>
@@ -28,7 +33,7 @@
     @case ('how') {
       <app-wizard-screen
         kicker="פרטים"
-        heading="איך הם"
+        [heading]="copy().howHeading"
         description="רשות. אפשר להמשיך גם בלי למלא."
         [showActions]="false"
         [index]="screenIndex()"
@@ -37,7 +42,12 @@
         <div class="extras__stack">
           <label class="extras__field">
             <span>תכונות אופי</span>
-            <input class="field__control" formControlName="characterTraits" placeholder="מצחיק, עקשן, נדיב..." [maxlength]="limits.characterTraits" />
+            <input
+              class="field__control"
+              formControlName="characterTraits"
+              [placeholder]="copy().traitsPlaceholder"
+              [maxlength]="limits.characterTraits"
+            />
           </label>
           <label class="extras__field">
             <span>תחביבים</span>

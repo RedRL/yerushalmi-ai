@@ -26,8 +26,9 @@ export class ProductStepComponent {
     });
   }
 
-  price(id: MainProductId): number {
-    return findPackage(id).introPrice;
+  priceLabel(id: MainProductId): string {
+    const pkg = findPackage(id);
+    return pkg.priceStartsFrom ? `החל מ ₪${pkg.introPrice}` : `₪${pkg.introPrice}`;
   }
 
   select(id: MainProductId): void {

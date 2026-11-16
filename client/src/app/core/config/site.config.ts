@@ -12,6 +12,8 @@ export const SITE_CONFIG = {
   descriptionHe:
     'קליפים מוזיקליים אישיים, שירים מקוריים וסרטוני AI שנוצרים מתמונות, סיפורים ורגעים מיוחדים. לאירועים, למשפחה, לחברות ולארגונים, וגם סתם לאדם שאוהבים, בלי שום סיבה מיוחדת 😊.',
   canonicalUrl: 'https://yerushalmi.ai/clips',
+  /** Dedicated weddings landing — sibling of /clips; page content comes later. */
+  weddingsUrl: 'https://yerushalmi.ai/weddings',
 } as const;
 
 export const NAV_LINKS: readonly NavLink[] = [

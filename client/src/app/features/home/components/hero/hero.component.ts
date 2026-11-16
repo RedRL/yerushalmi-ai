@@ -20,8 +20,8 @@ import {
   postToYouTubePlayer,
 } from '../../../../shared/utils/youtube-embed.util';
 
-/** יום הולדת לטל — background video for the hero stage. */
-const HERO_VIDEO_ID = '8Ka3yjg3hEk';
+/** בייבילישס — background video for the hero stage. */
+const HERO_VIDEO_ID = '7pcjSw9pBPc';
 const YT_PLAYING = 1;
 const YT_UNSTARTED = -1;
 

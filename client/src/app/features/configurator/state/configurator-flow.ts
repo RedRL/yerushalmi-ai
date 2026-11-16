@@ -3,7 +3,7 @@ import type { ConfiguratorStepId } from '../configurator.model';
 
 export type StoryField = 'personName' | 'occasion' | 'story' | 'eventDate';
 export type SongField = 'styles' | 'vocalist' | 'length' | 'optional' | 'existingSongName' | 'existingSongLink';
-export type VideoField = 'length' | 'format' | 'subtitles' | 'fill';
+export type VideoField = 'length' | 'format' | 'subtitles';
 export type ExtrasField = 'who' | 'how' | 'notes';
 
 export interface FlowScreen {
@@ -34,13 +34,11 @@ const VIDEO_SCREENS: readonly FlowScreen[] = [
   { field: 'length', skippable: false },
   { field: 'format', skippable: false },
   { field: 'subtitles', skippable: false },
-  { field: 'fill', skippable: false },
 ];
 
 const FULL_EXPERIENCE_VIDEO_SCREENS: readonly FlowScreen[] = [
   { field: 'format', skippable: false },
   { field: 'subtitles', skippable: false },
-  { field: 'fill', skippable: false },
 ];
 
 export function screensForStep(

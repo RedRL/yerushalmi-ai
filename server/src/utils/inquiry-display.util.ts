@@ -51,6 +51,11 @@ export function resolveSubtitlesLabel(subtitlesId: string | undefined): string |
   return SUBTITLES_PRICES[subtitlesId as SubtitlesId]?.labelHe ?? subtitlesId;
 }
 
+export function resolveSubtitlesKaraokeLabel(value: boolean | undefined): string | undefined {
+  if (value == null) return undefined;
+  return value ? 'כן — כל מילה מושרת מודגשת' : 'לא';
+}
+
 export function resolveVocalistLabel(vocalistId: string | undefined): string | undefined {
   if (!vocalistId) return undefined;
   if (vocalistId === 'male') return 'זמר';

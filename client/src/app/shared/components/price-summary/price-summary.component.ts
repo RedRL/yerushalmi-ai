@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
+import { couponDiscountPercent } from '../../../core/config/coupon.config';
 import { findPackage } from '../../../core/config/packages.config';
 import type { MainProductId, PriceBreakdown } from '../../models/pricing.model';
 
@@ -28,10 +29,24 @@ export class PriceSummaryComponent {
     return id ? findPackage(id) : null;
   });
 
+  readonly packagePrice = computed(() => {
+    const item = (this.breakdown()?.lineItems ?? []).find((line) =>
+      line.id.startsWith('main_product:'),
+    );
+    return item ? item.amount * item.quantity : null;
+  });
+
   readonly addonItems = computed(() => {
     const items = this.breakdown()?.lineItems ?? [];
-    return items.filter((item) => !item.id.startsWith('main_product:') && item.id !== 'subtitles:none');
+    return items.filter(
+      (item) =>
+        !item.id.startsWith('main_product:') &&
+        item.id !== 'subtitles:none' &&
+        item.id !== 'addon:ai_image_fill',
+    );
   });
+
+  readonly couponPercent = computed(() => couponDiscountPercent(this.breakdown()?.couponCode));
 
   private previousTotal: number | null = null;
   private bumpTimeout: ReturnType<typeof setTimeout> | null = null;

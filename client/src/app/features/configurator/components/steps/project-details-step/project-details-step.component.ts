@@ -12,6 +12,8 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
+import { OCCASION_OPTIONS } from '../../../../../core/config/occasion.config';
+import { SITE_CONFIG } from '../../../../../core/config/site.config';
 import { containScrollWheel } from '../../../../../shared/utils/contain-scroll-wheel.util';
 import {
   formatIsoDateToHeIl,
@@ -50,8 +52,11 @@ export class ProjectDetailsStepComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly nativeDate = viewChild<ElementRef<HTMLInputElement>>('nativeDate');
+  private readonly customOccasionInput = viewChild<ElementRef<HTMLInputElement>>('customOccasionInput');
   readonly store = inject(ConfiguratorStoreService);
   readonly limits = FIELD_LIMITS;
+  readonly occasionOptions = OCCASION_OPTIONS;
+  readonly weddingsUrl = SITE_CONFIG.weddingsUrl;
   readonly weekdayLabels = WEEKDAY_LABELS;
   readonly isMobileViewport = signal(false);
   readonly dateFieldTouched = signal(this.store.projectDetailsForm.controls.eventDate.touched);
@@ -84,6 +89,38 @@ export class ProjectDetailsStepComponent {
       ? 'שם האדם או האנשים שהקליפ עבורם'
       : 'שם האדם או האנשים שהשיר עבורם',
   );
+
+  onOccasionChange(): void {
+    if (this.store.projectDetailsForm.controls.occasionId.value !== 'other') {
+      this.store.projectDetailsForm.controls.customOccasion.setValue('');
+    }
+    if (this.store.isCustomOccasion()) {
+      setTimeout(() => this.scrollCustomOccasionIntoView());
+    }
+  }
+
+  private scrollCustomOccasionIntoView(): void {
+    const input = this.customOccasionInput()?.nativeElement;
+    if (!input) return;
+    const scroller = input.closest('.configurator__body');
+    if (!(scroller instanceof HTMLElement)) {
+      input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      return;
+    }
+
+    const inputRect = input.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    const padding = 12;
+    if (inputRect.top >= scrollerRect.top + padding && inputRect.bottom <= scrollerRect.bottom - padding) {
+      return;
+    }
+
+    const delta =
+      inputRect.bottom > scrollerRect.bottom - padding
+        ? inputRect.bottom - (scrollerRect.bottom - padding)
+        : inputRect.top - (scrollerRect.top + padding);
+    scroller.scrollTo({ top: scroller.scrollTop + delta, behavior: 'smooth' });
+  }
 
   readonly calendarTitle = computed(() => {
     const month = this.calendarMonth();

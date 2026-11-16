@@ -128,7 +128,7 @@
                 }
                 @if ((store.priceBreakdown()?.discount ?? 0) > 0) {
                   <span class="configurator__inline-price-promo configurator__inline-coupon">
-                    <span>קופון 20%</span>
+                    <span>קופון {{ store.appliedCouponPercent() }}%</span>
                     <button
                       type="button"
                       class="configurator__inline-coupon-remove"

@@ -12,6 +12,8 @@ export type MainProductId = 'song_only' | 'video_existing_song' | 'video_new_son
 export type VideoSourceId = 'customer_photos' | 'ai_only' | 'mixed' | 'customer_videos';
 
 export type VideoLengthId =
+  | 'min_1_0'
+  | 'min_1_5'
   | 'min_2_0'
   | 'min_2_5'
   | 'min_3_0'

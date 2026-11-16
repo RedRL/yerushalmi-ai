@@ -30,18 +30,21 @@ import type {
 
 export const CURRENCY_SYMBOL = '₪';
 
-/** Introductory package prices — keep in sync with server `MAIN_PRODUCT_INTRO_PRICES`. */
+/**
+ * Introductory package prices for the shortest included length — keep in sync with
+ * server `MAIN_PRODUCT_INTRO_PRICES`. All packages start at ~1 minute; longer lengths add a surcharge.
+ */
 export const MAIN_PRODUCT_INTRO_PRICES = {
-  song_only: 290,
-  video_existing_song: 990,
-  video_new_song: 1190,
+  song_only: 200,
+  video_existing_song: 750,
+  video_new_song: 900,
 } as const;
 
 /** Original list prices shown with strikethrough in marketing UI. */
 export const MAIN_PRODUCT_ORIGINAL_PRICES = {
-  song_only: 450,
-  video_existing_song: 1400,
-  video_new_song: 1700,
+  song_only: 360,
+  video_existing_song: 1160,
+  video_new_song: 1410,
 } as const;
 
 /** @deprecated Use MAIN_PRODUCT_INTRO_PRICES.song_only */
@@ -115,13 +118,21 @@ export const DEFAULT_VIDEO_SOURCE: VideoSourceId = 'customer_photos';
 /** Default output format for new video projects. */
 export const DEFAULT_VIDEO_FORMAT: VideoFormatId = 'landscape';
 
-export const LENGTH_HALF_STEP_PRICE = 120;
-/** Extra half-minute on the full experience only. Existing-song videos stay on LENGTH_HALF_STEP_PRICE. */
+/** Extra half-minute for existing-song videos and as the shared video length step. */
+export const LENGTH_HALF_STEP_PRICE = 150;
+/** Extra half-minute on the full experience. */
 export const FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE = 150;
-/** 3 minutes on the full experience is not two half-steps of 150. */
-export const FULL_EXPERIENCE_THREE_MINUTE_PRICE = 290;
-
-export const DEFAULT_LENGTH_ID: VideoLengthId = 'min_2_0';
+/** Extra half-minute on song-only projects. */
+export const SONG_ONLY_LENGTH_HALF_STEP_PRICE = 50;
+/**
+ * Shortest selectable length for all packages.
+ * Package intro prices are the "from" price for this length.
+ */
+export const PACKAGE_START_LENGTH_ID: VideoLengthId = 'min_1_0';
+/** @deprecated Use PACKAGE_START_LENGTH_ID — all video packages now start at 1 minute. */
+export const EXISTING_SONG_START_LENGTH_ID: VideoLengthId = PACKAGE_START_LENGTH_ID;
+/** Default slider position — cheapest package length (~1 minute). */
+export const DEFAULT_LENGTH_ID: VideoLengthId = PACKAGE_START_LENGTH_ID;
 
 type PriceableOptionLike<TId extends string> = SelectableOption<TId> & { price: number };
 
@@ -134,46 +145,60 @@ export interface VideoFormatOption extends PriceableOptionLike<VideoFormatId> {
 const LENGTH_OPTION_DEFS: readonly {
   id: VideoLengthId;
   labelHe: string;
-  halfStepsFromBase: number;
+  /** Half-minute steps above ~1 minute. */
+  halfStepsFromOneMinute: number;
 }[] = [
-  { id: 'min_2_0', labelHe: 'כ-2 דקות', halfStepsFromBase: 0 },
-  { id: 'min_2_5', labelHe: 'כ-2.5 דקות', halfStepsFromBase: 1 },
-  { id: 'min_3_0', labelHe: 'כ-3 דקות', halfStepsFromBase: 2 },
-  { id: 'min_3_5', labelHe: 'כ-3.5 דקות', halfStepsFromBase: 3 },
-  { id: 'min_4_0', labelHe: 'כ-4 דקות', halfStepsFromBase: 4 },
-  { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromBase: 5 },
+  { id: 'min_1_0', labelHe: 'כ-1 דקה', halfStepsFromOneMinute: 0 },
+  { id: 'min_1_5', labelHe: 'כ-1.5 דקות', halfStepsFromOneMinute: 1 },
+  { id: 'min_2_0', labelHe: 'כ-2 דקות', halfStepsFromOneMinute: 2 },
+  { id: 'min_2_5', labelHe: 'כ-2.5 דקות', halfStepsFromOneMinute: 3 },
+  { id: 'min_3_0', labelHe: 'כ-3 דקות', halfStepsFromOneMinute: 4 },
+  { id: 'min_3_5', labelHe: 'כ-3.5 דקות', halfStepsFromOneMinute: 5 },
+  { id: 'min_4_0', labelHe: 'כ-4 דקות', halfStepsFromOneMinute: 6 },
+  { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromOneMinute: 7 },
 ];
+
+/** Length surcharge for N half-steps above the range minimum. */
+export function lengthSurcharge(halfSteps: number, halfStepPrice: number): number {
+  return halfSteps > 0 ? halfSteps * halfStepPrice : 0;
+}
 
 function buildLengthOptions(
   maxId: VideoLengthId,
   halfStepPrice = LENGTH_HALF_STEP_PRICE,
+  minId: VideoLengthId = PACKAGE_START_LENGTH_ID,
 ): readonly PriceableOptionLike<VideoLengthId>[] {
+  const minIndex = LENGTH_OPTION_DEFS.findIndex((option) => option.id === minId);
   const maxIndex = LENGTH_OPTION_DEFS.findIndex((option) => option.id === maxId);
-  if (maxIndex < 0) return [];
-  return LENGTH_OPTION_DEFS.slice(0, maxIndex + 1).map((option) => ({
+  if (minIndex < 0 || maxIndex < 0 || maxIndex < minIndex) return [];
+  const baseSteps = LENGTH_OPTION_DEFS[minIndex].halfStepsFromOneMinute;
+  return LENGTH_OPTION_DEFS.slice(minIndex, maxIndex + 1).map((option) => ({
     id: option.id,
     labelHe: option.labelHe,
-    price: option.halfStepsFromBase * halfStepPrice,
+    price: lengthSurcharge(option.halfStepsFromOneMinute - baseSteps, halfStepPrice),
   }));
 }
 
-function buildFreeLengthOptions(maxId: VideoLengthId): readonly PriceableOptionLike<VideoLengthId>[] {
-  return buildLengthOptions(maxId).map((option) => ({ ...option, price: 0 }));
-}
-
-/** Existing-song video: 2–4.5 minutes in half-minute steps. */
-export const VIDEO_LENGTH_OPTIONS = buildLengthOptions('min_4_5');
-
-/** Full experience combined length: 2–3 minutes in half-minute steps. */
-export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions(
-  'min_3_0',
-  FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
-).map((option) =>
-  option.id === 'min_3_0' ? { ...option, price: FULL_EXPERIENCE_THREE_MINUTE_PRICE } : option,
+/** Existing-song video: 1–4.5 minutes in half-minute steps. */
+export const VIDEO_LENGTH_OPTIONS = buildLengthOptions(
+  'min_4_5',
+  LENGTH_HALF_STEP_PRICE,
+  PACKAGE_START_LENGTH_ID,
 );
 
-/** Personal song only — 2–3 minutes, no surcharge. */
-export const SONG_LENGTH_OPTIONS = buildFreeLengthOptions('min_3_0');
+/** Full experience combined length: 1–4 minutes; package price is the 1-minute starting price. */
+export const SONG_LENGTH_OPTIONS_FULL_EXPERIENCE = buildLengthOptions(
+  'min_4_0',
+  FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
+  PACKAGE_START_LENGTH_ID,
+);
+
+/** Personal song only — 1–4 minutes; package price is the 1-minute starting price. */
+export const SONG_LENGTH_OPTIONS = buildLengthOptions(
+  'min_4_0',
+  SONG_ONLY_LENGTH_HALF_STEP_PRICE,
+  PACKAGE_START_LENGTH_ID,
+);
 
 export function getSongLengthOptions(
   mainProduct: MainProductId | null,
@@ -236,6 +261,23 @@ export const SUBTITLES_OPTIONS: readonly PriceableOptionLike<SubtitlesId>[] = [
   { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 0 },
 ];
 
+/** Default subtitle text color when styled subtitles are selected. */
+export const DEFAULT_SUBTITLES_COLOR = '#FFFFFF';
+/** Default karaoke highlight color for the currently sung word. */
+export const DEFAULT_SUBTITLES_HIGHLIGHT_COLOR = '#FFD60A';
+
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
+export function normalizeHexColor(
+  value: string | null | undefined,
+  fallback: string,
+): string {
+  const trimmed = (value ?? '').trim();
+  if (HEX_COLOR_PATTERN.test(trimmed)) return trimmed.toUpperCase();
+  if (/^[0-9A-Fa-f]{6}$/.test(trimmed)) return `#${trimmed.toUpperCase()}`;
+  return fallback;
+}
+
 export const ADDON_OPTIONS: readonly AddonOption[] = [
   { id: 'social_short_version', labelHe: 'גרסה קצרה לרשתות חברתיות', price: 150, videoOnly: true },
   { id: 'custom_intro', labelHe: 'פתיח מותאם אישית', price: 120, videoOnly: true },
@@ -249,9 +291,17 @@ export const ADDON_OPTIONS: readonly AddonOption[] = [
     labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה',
     price: 0,
     videoOnly: true,
+    selectable: false,
   },
 ];
 
+/** Always applied on video products — not offered as a configurator choice. */
+export const ALWAYS_INCLUDED_VIDEO_ADDONS: readonly AddonId[] = ['ai_image_fill'];
+
 export function findAddon(id: AddonId): AddonOption | undefined {
   return ADDON_OPTIONS.find((addon) => addon.id === id);
+}
+
+export function isSelectableAddon(id: AddonId): boolean {
+  return findAddon(id)?.selectable !== false;
 }

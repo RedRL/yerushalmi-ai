@@ -19,6 +19,16 @@
 
   <p class="package-card__description">{{ pkg().descriptionHe }}</p>
 
+  <p class="package-card__price">
+    @if (pkg().priceStartsFrom) {
+      <span class="package-card__price-from">החל מ</span>
+    }
+    <span class="package-card__price-current">₪{{ pkg().introPrice }}</span>
+    @if (pkg().originalPrice > pkg().introPrice) {
+      <span class="package-card__price-original">₪{{ pkg().originalPrice }}</span>
+    }
+  </p>
+
   <ul class="package-card__features">
     @for (feature of pkg().featuresHe; track feature) {
       <li>{{ feature }}</li>

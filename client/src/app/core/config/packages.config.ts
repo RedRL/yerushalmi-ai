@@ -7,8 +7,11 @@ export interface PackageDefinition {
   readonly subtitleHe?: string;
   readonly descriptionHe: string;
   readonly featuresHe: readonly string[];
+  /** Lowest package price (≈1 minute for song / full experience). */
   readonly introPrice: number;
   readonly originalPrice: number;
+  /** When true, UI shows "החל מ" before the intro price. */
+  readonly priceStartsFrom: boolean;
   readonly ctaHe: string;
   readonly featured: boolean;
   readonly recommendedBadgeHe?: string;
@@ -30,8 +33,9 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
       '✔ מסירה עד 7 ימי עסקים',
       '✔ קובץ שמע באיכות גבוהה',
     ],
-    introPrice: 290,
-    originalPrice: 450,
+    introPrice: 200,
+    originalPrice: 360,
+    priceStartsFrom: true,
     ctaHe: PACKAGE_CTA_HE,
     featured: false,
   },
@@ -47,8 +51,9 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
       '✔ מסירה עד 7 ימי עסקים',
       '✔ סרטון באיכות Full HD',
     ],
-    introPrice: 990,
-    originalPrice: 1400,
+    introPrice: 750,
+    originalPrice: 1160,
+    priceStartsFrom: true,
     ctaHe: PACKAGE_CTA_HE,
     featured: false,
   },
@@ -64,8 +69,9 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
       '✔ מסירה עד 7 ימי עסקים',
       '✔ סרטון באיכות Full HD',
     ],
-    introPrice: 1190,
-    originalPrice: 1700,
+    introPrice: 900,
+    originalPrice: 1410,
+    priceStartsFrom: true,
     ctaHe: PACKAGE_CTA_HE,
     featured: true,
     recommendedBadgeHe: 'מומלץ',

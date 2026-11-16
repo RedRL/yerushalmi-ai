@@ -18,9 +18,22 @@
     [attr.aria-valuetext]="current()?.labelHe"
     (input)="onInput($event)"
   />
-  <div class="length-slider__ticks">
-    @for (option of options(); track option.id) {
-      <span [class.length-slider__tick--on]="option.id === current()?.id">{{ option.labelHe.replace('כ-', '') }}</span>
+  <div
+    class="length-slider__ticks"
+    [style.--tick-max]="tickMax()"
+  >
+    @for (option of options(); track option.id; let i = $index) {
+      <span
+        class="length-slider__tick"
+        [class.length-slider__tick--on]="option.id === current()?.id"
+        [style.--tick-i]="i"
+      >
+        @let parts = tickParts(option.labelHe);
+        <span class="length-slider__tick-value">{{ parts.value }}</span>
+        @if (parts.unit) {
+          <span class="length-slider__tick-unit">{{ parts.unit }}</span>
+        }
+      </span>
     }
   </div>
 </div>

@@ -27,6 +27,14 @@ export interface InquiryVideoPayload {
   length?: VideoLengthId;
   format?: VideoFormatId;
   subtitles?: SubtitlesId;
+  /** Karaoke-style word highlighting while the lyrics are sung. */
+  subtitlesKaraoke?: boolean;
+  /** Preferred subtitle text color as `#RRGGBB`. */
+  subtitlesColor?: string;
+  /** Preferred karaoke highlight color as `#RRGGBB`. */
+  subtitlesHighlightColor?: string;
+  /** Optional free-text notes about the video / subtitles. */
+  revisionNotes?: string;
 }
 
 export interface InquiryProjectDetailsPayload {

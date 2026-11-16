@@ -16,6 +16,7 @@ export class OptionalDetailsStepComponent {
   readonly limits = FIELD_LIMITS;
 
   readonly whoDescription = 'רשות. מה שתמלאו כאן נכנס לשיר.';
+  readonly copy = this.store.occasionCopy;
 
   screenIndex(): number {
     return this.store.subStepPosition();

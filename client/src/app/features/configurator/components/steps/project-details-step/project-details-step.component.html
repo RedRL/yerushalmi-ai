@@ -21,24 +21,50 @@
       <app-wizard-screen
         kicker="הסיפור"
         heading="איזה אירוע חוגגים?"
-        description="יום הולדת, חתונה, יום נישואין, או סתם לאדם שאוהבים, בלי שום סיבה מיוחדת 😊."
+        description="בחרו את סוג האירוע — השאלות בהמשך יותאמו בהתאם."
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
       >
-        <input
+        <select
           class="field__control wizard-input"
-          formControlName="occasion"
-          placeholder="יום הולדת, חתונה, או סתם ככה"
-          [maxlength]="limits.occasion"
-        />
+          formControlName="occasionId"
+          aria-label="סוג האירוע"
+          (change)="onOccasionChange()"
+        >
+          <option value="" disabled>בחרו אירוע</option>
+          @for (option of occasionOptions; track option.id) {
+            <option [value]="option.id">{{ option.labelHe }}</option>
+          }
+        </select>
+
+        @if (store.isCustomOccasion()) {
+          <label class="project-details-step__custom-occasion" for="customOccasion">
+            <span>מהו האירוע?</span>
+            <input
+              #customOccasionInput
+              id="customOccasion"
+              class="field__control wizard-input"
+              formControlName="customOccasion"
+              placeholder="לדוגמה: עלייה לכיתה א׳, סיום שירות..."
+              [maxlength]="limits.occasion"
+            />
+          </label>
+        }
+
+        @if (store.isWeddingOccasion()) {
+          <p class="project-details-step__wedding-note" role="note">
+            לחתונות יש לנו דף ייעודי —
+            <a [href]="weddingsUrl" target="_blank" rel="noopener noreferrer">למעבר לדף החתונות</a>.
+          </p>
+        }
       </app-wizard-screen>
     }
     @case ('story') {
       <app-wizard-screen
         kicker="הסיפור"
-        heading="מה חשוב שנדע?"
-        description="כתבו בחופשיות, כאילו אתם מספרים לחבר. לפחות כמה משפטים."
+        [heading]="store.occasionCopy().storyHeading"
+        [description]="store.occasionCopy().storyDescription"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"

@@ -23,7 +23,7 @@ describe('calculatePriceBreakdown', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_existing_song',
       videoSource: 'customer_photos',
-      videoLength: 'min_2_0',
+      videoLength: 'min_1_0',
       videoFormat: 'landscape',
       subtitles: 'none',
       addons: [],
@@ -33,11 +33,11 @@ describe('calculatePriceBreakdown', () => {
     expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.video_existing_song);
   });
 
-  it('charges the full experience intro price for video_new_song with no extras', () => {
+  it('charges the full experience intro price for a 1-minute video_new_song', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_new_song',
+      songLength: 'min_1_0',
       videoSource: 'customer_photos',
-      videoLength: 'min_2_0',
       videoFormat: 'landscape',
       subtitles: 'none',
       addons: [],
@@ -45,6 +45,48 @@ describe('calculatePriceBreakdown', () => {
     const breakdown = calculatePriceBreakdown(selection);
 
     expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.video_new_song);
+  });
+
+  it('adds a linear 2-minute surcharge on the full experience (2 × ₪150)', () => {
+    const selection: PricingSelection = {
+      mainProduct: 'video_new_song',
+      songLength: 'min_2_0',
+      videoSource: 'customer_photos',
+      videoFormat: 'landscape',
+      subtitles: 'none',
+      addons: [],
+    };
+    const breakdown = calculatePriceBreakdown(selection);
+
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.video_new_song + 300);
+    expect(breakdown.lineItems.some((item) => item.id === 'song_length:min_2_0' && item.amount === 300)).toBe(
+      true,
+    );
+  });
+
+  it('allows a 4-minute full experience length', () => {
+    const selection: PricingSelection = {
+      mainProduct: 'video_new_song',
+      songLength: 'min_4_0',
+      videoSource: 'customer_photos',
+      videoFormat: 'landscape',
+      subtitles: 'none',
+      addons: [],
+    };
+    const breakdown = calculatePriceBreakdown(selection);
+
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.video_new_song + 900);
+  });
+
+  it('adds a song_only surcharge for a 1.5-minute length', () => {
+    const selection: PricingSelection = {
+      mainProduct: 'song_only',
+      songLength: 'min_1_5',
+      addons: [],
+    };
+    const breakdown = calculatePriceBreakdown(selection);
+
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only + 50);
   });
 
   it('adds video source, length, format and subtitle surcharges', () => {
@@ -85,7 +127,7 @@ describe('calculatePriceBreakdown', () => {
     const selection: PricingSelection = {
       mainProduct: 'video_existing_song',
       videoSource: 'customer_photos',
-      videoLength: 'min_2_0',
+      videoLength: 'min_1_0',
       videoFormat: 'landscape',
       subtitles: 'none',
       addons: ['ai_image_fill'],
@@ -114,6 +156,17 @@ describe('calculatePriceBreakdown', () => {
     expect(breakdown.discount).toBe(discount);
     expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only - discount);
     expect(breakdown.couponCode).toBe('BACKSTAGE');
+  });
+
+  it('applies a 30% discount for the ALMOGUSHI coupon, ignoring letter case', () => {
+    const selection: PricingSelection = { mainProduct: 'song_only', addons: [], couponCode: 'almogushi' };
+    const breakdown = calculatePriceBreakdown(selection);
+    const discount = Math.round(MAIN_PRODUCT_INTRO_PRICES.song_only * 0.3);
+
+    expect(breakdown.subtotal).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only);
+    expect(breakdown.discount).toBe(discount);
+    expect(breakdown.total).toBe(MAIN_PRODUCT_INTRO_PRICES.song_only - discount);
+    expect(breakdown.couponCode).toBe('ALMOGUSHI');
   });
 
   it('ignores an unknown coupon code', () => {

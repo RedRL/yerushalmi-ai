@@ -25,14 +25,14 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
 
 export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
   {
-    id: 'yair',
-    titleHe: 'יום הולדת ליאיר',
-    categoryId: 'birthday_photos',
-    tagsHe: ['פופ', 'פאנק'],
-    descriptionHe:
-      'קליפ דוגמה מהדור הקודם של הכלים, באורך של כ־2 דקות. היום התוצאה חדה ומדויקת יותר. התמונות שהונפשו מסומנות בקליפ כ-AI Generate.',
-    youtubeUrl: 'https://youtu.be/4rhTEXQGJJU',
-    youtubeId: '4rhTEXQGJJU',
+    id: 'babylicious',
+    titleHe: 'בייבילישס',
+    categoryId: 'ai_generated',
+    tagsHe: ['גוספל'],
+    descriptionHe: 'סרטון להצגה בחתונה של פז והראל, באורך של כ-3 דקות.',
+    requiredWordsHe: ['בייבילישס'],
+    youtubeUrl: 'https://www.youtube.com/watch?v=7pcjSw9pBPc',
+    youtubeId: '7pcjSw9pBPc',
   },
   {
     id: 'eliya',
@@ -42,6 +42,16 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
     descriptionHe: 'קליפ עבור אליה כיטוב - המורה הכי שווה לריקוד! באורך של כ-2 וחצי דקות.',
     youtubeUrl: 'https://www.youtube.com/shorts/18MR3ql64NM',
     youtubeId: '18MR3ql64NM',
+  },
+  {
+    id: 'yair',
+    titleHe: 'יום הולדת ליאיר',
+    categoryId: 'birthday_photos',
+    tagsHe: ['פופ', 'פאנק'],
+    descriptionHe:
+      'קליפ דוגמה מהדור הקודם של הכלים, באורך של כ־2 דקות. היום התוצאה חדה ומדויקת יותר. התמונות שהונפשו מסומנות בקליפ כ-AI Generate.',
+    youtubeUrl: 'https://youtu.be/4rhTEXQGJJU',
+    youtubeId: '4rhTEXQGJJU',
   },
   {
     id: 'tal',

@@ -19,6 +19,8 @@ export interface InquiryResult {
 
 function isSongLengthId(value?: string): value is SongLengthId {
   return (
+    value === 'min_1_0' ||
+    value === 'min_1_5' ||
     value === 'min_2_0' ||
     value === 'min_2_5' ||
     value === 'min_3_0' ||

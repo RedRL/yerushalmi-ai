@@ -13,7 +13,10 @@ export class AddonsStepComponent {
   readonly store = inject(ConfiguratorStoreService);
 
   readonly relevantAddons = computed(() =>
-    this.store.addonOptions.filter((addon) => this.store.includesVideo() || !addon.videoOnly),
+    this.store.addonOptions.filter(
+      (addon) =>
+        addon.selectable !== false && (this.store.includesVideo() || !addon.videoOnly),
+    ),
   );
 
   isSelected(id: AddonId): boolean {

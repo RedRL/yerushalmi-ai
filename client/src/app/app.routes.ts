@@ -21,6 +21,12 @@ export const routes: Routes = [
     redirectTo: 'clips/terms',
   },
   {
+    path: 'weddings',
+    loadComponent: () =>
+      import('./features/weddings/weddings.component').then((m) => m.WeddingsComponent),
+    title: 'YERUSHALMI.AI | חתונות',
+  },
+  {
     path: '**',
     redirectTo: 'clips',
   },

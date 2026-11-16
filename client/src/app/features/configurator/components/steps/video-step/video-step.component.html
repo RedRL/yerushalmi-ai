@@ -10,7 +10,15 @@
         [total]="screenTotal()"
         (continued)="advance()"
       >
-        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" [badge]="lengthLabel()" />
+        <app-video-frame-preview
+          [format]="format()"
+          [subtitles]="subtitles()"
+          [filled]="true"
+          [badge]="lengthLabel()"
+          [karaoke]="karaokeEnabled()"
+          [captionColor]="subtitlesColor()"
+          [highlightColor]="highlightColor()"
+        />
         <app-length-slider
           [options]="lengthOptions"
           [value]="store.videoForm.controls.length.value"
@@ -28,7 +36,14 @@
         [total]="screenTotal()"
         (continued)="advance()"
       >
-        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" />
+        <app-video-frame-preview
+          [format]="format()"
+          [subtitles]="subtitles()"
+          [filled]="true"
+          [karaoke]="karaokeEnabled()"
+          [captionColor]="subtitlesColor()"
+          [highlightColor]="highlightColor()"
+        />
         <div class="choice-row" role="radiogroup" aria-label="פורמט יציאה">
           @for (option of formatOptions; track option.id) {
             <button
@@ -52,12 +67,19 @@
         [showActions]="false"
         kicker="הסרטון"
         heading="כתוביות על הפריים"
-        description="כך זה נראה על תמונת המסך."
+        description="אפשר לבחור סגנון קריוקי וצבעים מועדפים לכתוביות."
         [index]="screenIndex()"
         [total]="screenTotal()"
         (continued)="advance()"
       >
-        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" />
+        <app-video-frame-preview
+          [format]="format()"
+          [subtitles]="subtitles()"
+          [filled]="true"
+          [karaoke]="karaokeEnabled()"
+          [captionColor]="subtitlesColor()"
+          [highlightColor]="highlightColor()"
+        />
         <div class="choice-pair" role="radiogroup" aria-label="כתוביות">
           @for (option of subtitlesOptions; track option.id) {
             <button
@@ -75,43 +97,79 @@
             </button>
           }
         </div>
-      </app-wizard-screen>
-    }
-    @case ('fill') {
-      <app-wizard-screen
-        [showActions]="false"
-        kicker="הסרטון"
-        heading="מה קורה בקצוות?"
-        description="בלי מילוי נשארים פסים שחורים. עם מילוי הצדדים הריקים מתמלאים בהמשך של התמונה."
-        [index]="screenIndex()"
-        [total]="screenTotal()"
-        (continued)="advance()"
-      >
-        <app-video-frame-preview [format]="format()" [subtitles]="subtitles()" [filled]="filled()" />
-        <div class="choice-pair" role="radiogroup" aria-label="מילוי אוטומטי של התמונות">
-          <button
-            type="button"
-            class="choice-chip"
-            role="radio"
-            [attr.aria-checked]="!filled()"
-            [class.choice-chip--on]="!filled()"
-            (click)="selectImageFill(false)"
-          >
-            <span>ללא מילוי</span>
-            <small>פסים שחורים</small>
-          </button>
-          <button
-            type="button"
-            class="choice-chip"
-            role="radio"
-            [attr.aria-checked]="filled()"
-            [class.choice-chip--on]="filled()"
-            (click)="selectImageFill(true)"
-          >
-            <span>עם מילוי</span>
-            <small>השלמה לפורמט</small>
-          </button>
-        </div>
+
+        @if (hasSubtitles()) {
+          <div #subtitleOptions class="subtitle-options" [formGroup]="store.videoForm">
+            <div class="choice-pair" role="radiogroup" aria-label="סגנון קריוקי">
+              <button
+                type="button"
+                class="choice-chip"
+                role="radio"
+                [attr.aria-checked]="!karaokeEnabled()"
+                [class.choice-chip--on]="!karaokeEnabled()"
+                (click)="selectKaraoke(false)"
+              >
+                <span>בלי קריוקי</span>
+                <small>כל המילים באותו צבע</small>
+              </button>
+              <button
+                type="button"
+                class="choice-chip"
+                role="radio"
+                [attr.aria-checked]="karaokeEnabled()"
+                [class.choice-chip--on]="karaokeEnabled()"
+                (click)="selectKaraoke(true)"
+              >
+                <span>קריוקי</span>
+                <small>כל מילה מושרת מודגשת</small>
+              </button>
+            </div>
+
+            <div class="color-fields" [class.color-fields--with-highlight]="karaokeEnabled()">
+              <label class="color-field" for="subtitlesColor">
+                <span class="color-field__label">צבע הכתוביות</span>
+                <span class="color-field__control">
+                  <input
+                    id="subtitlesColor"
+                    class="color-field__input"
+                    type="color"
+                    formControlName="subtitlesColor"
+                    (input)="onSubtitlesColorInput($event)"
+                  />
+                  <span class="color-field__value">{{ subtitlesColor() }}</span>
+                </span>
+              </label>
+
+              @if (karaokeEnabled()) {
+                <label class="color-field" for="subtitlesHighlightColor">
+                  <span class="color-field__label">צבע המילה המודגשת</span>
+                  <span class="color-field__control">
+                    <input
+                      id="subtitlesHighlightColor"
+                      class="color-field__input"
+                      type="color"
+                      formControlName="subtitlesHighlightColor"
+                      (input)="onHighlightColorInput($event)"
+                    />
+                    <span class="color-field__value">{{ highlightColor() }}</span>
+                  </span>
+                </label>
+              }
+            </div>
+
+            <label class="notes-field" for="videoRevisionNotes">
+              <span class="notes-field__label">הערות <span class="notes-field__optional">(רשות)</span></span>
+              <textarea
+                id="videoRevisionNotes"
+                class="field__control notes-field__input"
+                formControlName="revisionNotes"
+                rows="3"
+                [maxlength]="limits.videoRevisionNotes"
+                placeholder="משהו שחשוב לנו לדעת על הכתוביות..."
+              ></textarea>
+            </label>
+          </div>
+        }
       </app-wizard-screen>
     }
   }

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .length-slider {
   display: flex;
   flex-direction: column;
@@ -24,6 +26,7 @@
 }
 
 .length-slider__range {
+  --length-thumb: 1.25rem;
   width: 100%;
   margin-top: var(--space-2);
   accent-color: #9b6dff;
@@ -31,25 +34,48 @@
 }
 
 .length-slider__ticks {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
+  --length-thumb: 1.25rem;
+  position: relative;
+  height: 1.25em;
   color: var(--color-text-muted);
   font-size: var(--font-size-tiny);
+
+  @include bp.respond-down('lg') {
+    height: 2.4em;
+  }
 }
 
-.length-slider__ticks span {
-  flex: 0 1 auto;
-  min-width: 0;
+.length-slider__tick {
+  position: absolute;
+  top: 0;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.2em;
+  /* Match native range thumb centers: inset by half the thumb at both ends. */
+  inset-inline-start: calc(
+    (var(--length-thumb) / 2) + (100% - var(--length-thumb)) * var(--tick-i) / var(--tick-max)
+  );
+  /* Site is RTL: inset-inline-start anchors the inline-start edge, so shift
+     physically right by half the label width to center on the thumb. */
+  transform: translateX(50%);
+  white-space: nowrap;
   text-align: center;
+  pointer-events: none;
+
+  @include bp.respond-down('lg') {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.05em;
+    line-height: 1.15;
+    white-space: normal;
+  }
 }
 
-.length-slider__ticks span:first-child {
-  text-align: right;
-}
-
-.length-slider__ticks span:last-child {
-  text-align: left;
+.length-slider__tick-unit {
+  @include bp.respond-down('lg') {
+    font-size: 0.85em;
+  }
 }
 
 .length-slider__tick--on {

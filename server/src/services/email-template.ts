@@ -2,13 +2,14 @@ import type { InquiryInput } from '../schemas/inquiry.schema';
 import type { PriceBreakdown } from '../pricing/pricing.types';
 import { escapeHtml, escapeHtmlMultiline } from '../utils/html-escape';
 import { MAIN_PRODUCT_LABELS } from '../pricing/pricing.config';
-import { COUPON_DISCOUNT_RATE } from '../pricing/coupon.config';
+import { couponDiscountPercent } from '../pricing/coupon.config';
 import { formatShortInquiryReference } from '../utils/inquiry-reference.util';
 import { formatDateTimeHeIl, formatEventDateHeIl } from '../utils/datetime.util';
 import {
   formatSongStyleDisplay,
   resolveAddonLabels,
   resolveSongLengthLabel,
+  resolveSubtitlesKaraokeLabel,
   resolveSubtitlesLabel,
   resolveVideoFormatLabel,
   resolveVideoLengthLabel,
@@ -21,6 +22,19 @@ function row(label: string, value: string | undefined | null): string {
     <tr>
       <td style="padding:6px 12px;color:#8a8a99;font-size:13px;white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
       <td style="padding:6px 12px;color:#1a1a2e;font-size:14px;">${escapeHtml(value)}</td>
+    </tr>`;
+}
+
+function colorRow(label: string, value: string | undefined | null): string {
+  if (!value) return '';
+  const safe = escapeHtml(value);
+  return `
+    <tr>
+      <td style="padding:6px 12px;color:#8a8a99;font-size:13px;white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
+      <td style="padding:6px 12px;color:#1a1a2e;font-size:14px;">
+        <span style="display:inline-block;width:14px;height:14px;border-radius:999px;background:${safe};border:1px solid #d0d0d8;vertical-align:middle;margin-left:8px;"></span>
+        ${safe}
+      </td>
     </tr>`;
 }
 
@@ -57,17 +71,26 @@ export function buildInquiryEmailHtml(
   photosBundleUrl?: string,
 ): string {
   const shortInquiryId = formatShortInquiryReference(inquiryId);
-  const couponPercent = Math.round(COUPON_DISCOUNT_RATE * 100);
+  const couponPercent = couponDiscountPercent(breakdown.couponCode);
   const couponApplied = breakdown.discount > 0 && Boolean(breakdown.couponCode);
   const couponSummary = couponApplied
     ? `הופעל קוד ${breakdown.couponCode}. ההנחה חושבה על ₪${breakdown.subtotal}, וסכום ההנחה הוא ₪${breakdown.discount} (${couponPercent}%). הסכום אחרי ההנחה הוא ₪${breakdown.total}.`
     : 'לא הופעל קוד קופון.';
   const lineItemsHtml = breakdown.lineItems
+    .filter(
+      (item) =>
+        item.id !== 'addon:ai_image_fill' &&
+        !(item.id.startsWith('video_source:') && item.amount === 0),
+    )
     .map(
       (item) => `
       <tr>
         <td style="padding:6px 12px;color:#1a1a2e;font-size:14px;">${escapeHtml(item.labelHe)}</td>
-        <td style="padding:6px 12px;color:#1a1a2e;font-size:14px;text-align:left;">₪${item.amount * item.quantity}</td>
+        <td style="padding:6px 12px;color:#1a1a2e;font-size:14px;text-align:left;">${
+          item.amount * item.quantity < 0
+            ? `-₪${-(item.amount * item.quantity)}`
+            : `₪${item.amount * item.quantity}`
+        }</td>
       </tr>`,
     )
     .join('');
@@ -94,6 +117,8 @@ export function buildInquiryEmailHtml(
       )
     : '';
 
+  const hasSubtitles =
+    payload.video?.subtitles === 'selected' || payload.video?.subtitles === 'full';
   const videoSection = payload.video
     ? section(
         'פרטי הסרטון',
@@ -101,14 +126,26 @@ export function buildInquiryEmailHtml(
           ${row('אורך', resolveVideoLengthLabel(payload.video.length))}
           ${row('פורמט', resolveVideoFormatLabel(payload.video.format))}
           ${row('כתוביות', resolveSubtitlesLabel(payload.video.subtitles))}
+          ${
+            hasSubtitles
+              ? `${row('קריוקי', resolveSubtitlesKaraokeLabel(payload.video.subtitlesKaraoke))}
+          ${colorRow('צבע כתוביות', payload.video.subtitlesColor)}
+          ${
+            payload.video.subtitlesKaraoke
+              ? colorRow('צבע מילה מודגשת', payload.video.subtitlesHighlightColor)
+              : ''
+          }`
+              : ''
+          }
         </table>
-        ${multilineBlock('הערות לסרטון', payload.video.revisionNotes)}`,
+        ${multilineBlock('הערות', payload.video.revisionNotes)}`,
       )
     : '';
 
+  const visibleAddons = (payload.addons ?? []).filter((id) => id !== 'ai_image_fill');
   const addonsSection =
-    payload.addons && payload.addons.length > 0
-      ? section('תוספות', `<table role="presentation" width="100%">${listRow('נבחרו', resolveAddonLabels(payload.addons))}</table>`)
+    visibleAddons.length > 0
+      ? section('תוספות', `<table role="presentation" width="100%">${listRow('נבחרו', resolveAddonLabels(visibleAddons))}</table>`)
       : '';
 
   const optionalDetailsRows = [

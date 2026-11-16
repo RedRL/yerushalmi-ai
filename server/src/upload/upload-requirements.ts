@@ -65,5 +65,5 @@ export function resolveVideoLengthForUploadValidation(params: {
   if (isVideoLengthId(params.videoLength)) {
     return params.videoLength;
   }
-  return 'min_2_0';
+  return 'min_1_0';
 }

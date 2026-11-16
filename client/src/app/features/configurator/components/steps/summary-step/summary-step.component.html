@@ -57,8 +57,17 @@
         }
         <p class="summary-step__text">פורמט: {{ formatLabel() }}</p>
         <p class="summary-step__text">כתוביות: {{ subtitlesLabel() }}</p>
-        @if (aiFillLabel()) {
-          <p class="summary-step__text">{{ aiFillLabel() }}</p>
+        @if (karaokeLabel()) {
+          <p class="summary-step__text">{{ karaokeLabel() }}</p>
+        }
+        @if (subtitlesColorLabel(); as color) {
+          <p class="summary-step__text">צבע כתוביות: {{ color }}</p>
+        }
+        @if (subtitlesHighlightColorLabel(); as highlight) {
+          <p class="summary-step__text">צבע מילה מודגשת: {{ highlight }}</p>
+        }
+        @if (videoNotesLabel(); as notes) {
+          <p class="summary-step__text">הערות: {{ notes }}</p>
         }
       </div>
     }
