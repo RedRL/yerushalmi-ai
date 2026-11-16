@@ -12,10 +12,10 @@
     [class.video-modal--song]="isSong()"
     role="dialog"
     aria-modal="true"
-    [attr.aria-label]="video().titleHe"
+    [attr.aria-label]="title()"
     tabindex="-1"
   >
-    <button type="button" class="video-modal__close" (click)="close()" aria-label="סגירת החלון">
+    <button type="button" class="video-modal__close" (click)="close()" [attr.aria-label]="i18n.t('portfolio.close')">
       <svg viewBox="0 0 24 24" width="20" height="20">
         <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
       </svg>
@@ -23,12 +23,12 @@
 
     <div class="video-modal__frame" [class.video-modal__frame--audio]="audioSrc()">
       @if (audioSrc()) {
-        <app-audio-player [src]="audioSrc()" [label]="video().titleHe" [autoplay]="true" />
+        <app-audio-player [src]="audioSrc()" [label]="title()" [autoplay]="true" />
       } @else if (embedUrl(); as url) {
         <iframe
           #youtubeFrame
           [src]="url"
-          [attr.aria-label]="video().titleHe"
+          [attr.aria-label]="title()"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
@@ -39,13 +39,13 @@
 
     <div class="video-modal__meta">
       @if (isSong()) {
-        <p class="video-modal__kind">שיר בלבד — בלי קליפ</p>
+        <p class="video-modal__kind">{{ i18n.t('portfolio.songOnly') }}</p>
       }
-      <p class="video-modal__title">{{ video().titleHe }}</p>
-      @if (video().tagsHe.length) {
+      <p class="video-modal__title">{{ title() }}</p>
+      @if (tags().length) {
         <p class="video-modal__genres">
-          <span class="video-modal__genre-label">סגנון:</span>
-          @for (tag of video().tagsHe; track tag) {
+          <span class="video-modal__genre-label">{{ i18n.t('portfolio.styleLabel') }}</span>
+          @for (tag of tags(); track tag) {
             <span class="video-modal__tag">{{ tag }}</span>
           }
         </p>

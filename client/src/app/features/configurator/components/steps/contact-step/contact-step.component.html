@@ -1,52 +1,52 @@
 <div class="step contact-step">
   @if (store.submitResult(); as result) {
     <div class="contact-step__success" role="status" aria-live="polite">
-      <h3 class="step__title">הבקשה נשלחה בהצלחה!</h3>
+      <h3 class="step__title">{{ i18n.t('contact.success.title') }}</h3>
       <p class="step__description">
-        תודה! קיבלנו את כל הפרטים והחומרים. נחזור אליכם בהקדם לאישור סופי ולתחילת התהליך.
-        מספר הפנייה שלכם: <strong>{{ formatShortInquiryReference(result.inquiryId) }}</strong>
+        {{ i18n.t('contact.success.body') }}
+        {{ i18n.t('contact.success.reference') }} <strong>{{ formatShortInquiryReference(result.inquiryId) }}</strong>
       </p>
       <p class="step__description">
-        העבודה תימסר עד שבעה ימי עסקים ממועד האישור שלנו שהעבודה החלה.
+        {{ i18n.t('contact.success.delivery') }}
       </p>
       <p class="step__description contact-step__inbox-tip">
-        שלחנו אליכם מייל אישור. אם הוא לא מופיע בדואר הנכנס, בדקו גם בתיקיית ספאם או קידומי מכירות — זה עלול לקרות וזה תקין.
+        {{ i18n.t('contact.success.emailSent') }}
       </p>
-      <p class="step__description">שליחת הבקשה אינה מהווה תחילת עבודה בפועל, ולא בוצע כל תשלום בשלב זה.</p>
+      <p class="step__description">{{ i18n.t('contact.success.noWorkStarted') }}</p>
       <p class="step__description contact-step__follow-up">
-        רוצים לשלוח תמונות או חומרים נוספים? השיבו למייל האישור — עם מספר הפנייה בהודעה.
+        {{ i18n.t('contact.success.moreMaterials') }}
       </p>
 
       <div class="contact-step__success-actions">
-        <a [href]="whatsappUrl" target="_blank" rel="noopener noreferrer" class="contact-step__whatsapp-link">
-          מעדיפים לדבר עכשיו? שליחת הודעה בוואטסאפ
+        <a [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer" class="contact-step__whatsapp-link">
+          {{ i18n.t('contact.success.whatsapp') }}
         </a>
-        <button type="button" class="contact-step__secondary" (click)="startNewProject()">התחלת פרויקט נוסף</button>
+        <button type="button" class="contact-step__secondary" (click)="startNewProject()">{{ i18n.t('contact.success.newProject') }}</button>
       </div>
     </div>
   } @else {
-    <p class="wizard__kicker">פרטי קשר</p>
-    <h3 class="step__title">כמעט סיימנו - איך נחזור אליכם?</h3>
+    <p class="wizard__kicker">{{ i18n.t('contact.kicker') }}</p>
+    <h3 class="step__title">{{ i18n.t('contact.title') }}</h3>
 
     <form [formGroup]="store.contactForm" (ngSubmit)="submit()">
       <div class="field-grid field-grid--pair step__section">
         <div class="field">
-          <label class="field__label" for="contactName">שם מלא *</label>
+          <label class="field__label" for="contactName">{{ i18n.t('contact.name') }}</label>
           <input id="contactName" class="field__control" formControlName="name" autocomplete="name" [maxlength]="limits.contactName" />
         </div>
 
         <div class="field">
-          <label class="field__label" for="contactPhone">טלפון *</label>
+          <label class="field__label" for="contactPhone">{{ i18n.t('contact.phone') }}</label>
           <input id="contactPhone" class="field__control" type="tel" formControlName="phone" autocomplete="tel" [maxlength]="limits.contactPhone" />
         </div>
 
         <div class="field">
-          <label class="field__label" for="contactEmail">מייל *</label>
+          <label class="field__label" for="contactEmail">{{ i18n.t('contact.email') }}</label>
           <input id="contactEmail" class="field__control" type="email" formControlName="email" autocomplete="email" [maxlength]="limits.contactEmail" />
         </div>
 
         <div class="field">
-          <label class="field__label" for="contactMessage">הודעה נוספת</label>
+          <label class="field__label" for="contactMessage">{{ i18n.t('contact.message') }}</label>
           <input id="contactMessage" class="field__control" formControlName="message" [maxlength]="limits.contactMessage" />
         </div>
       </div>
@@ -57,7 +57,7 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="mediaRightsConsent">
-                יש לי הרשאה להשתמש ולשלוח את התמונות והמידע שסיפקתי. *
+                {{ i18n.t('contact.consent.materials') }}
               </label>
             </div>
           </div>
@@ -67,7 +67,7 @@
           <input id="contactPermissionConsent" type="checkbox" formControlName="contactPermissionConsent" />
           <div class="consent-checkbox__content">
             <div class="field__label-row">
-              <label for="contactPermissionConsent">אפשר לחזור אליי בנוגע לבקשה. *</label>
+              <label for="contactPermissionConsent">{{ i18n.t('contact.consent.contact') }}</label>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="termsConsent">
-                קראתי את <a href="/clips/terms" target="_blank" rel="noopener noreferrer">תקנון השירות</a> והסכמתי לו. *
+                {{ i18n.t('contact.consent.termsPrefix') }} <a href="/clips/terms" target="_blank" rel="noopener noreferrer">{{ i18n.t('contact.consent.termsLink') }}</a> {{ i18n.t('contact.consent.termsSuffix') }}
               </label>
             </div>
           </div>
@@ -85,7 +85,7 @@
       </div>
 
       <div class="contact-step__coupon">
-        <label class="contact-step__coupon-label" for="couponCode">קוד קופון</label>
+        <label class="contact-step__coupon-label" for="couponCode">{{ i18n.t('contact.coupon.label') }}</label>
         <div class="contact-step__coupon-row">
           <input
             id="couponCode"
@@ -94,7 +94,7 @@
             autocomplete="off"
             spellcheck="false"
             maxlength="40"
-            placeholder="הקוד"
+            [placeholder]="i18n.t('contact.coupon.placeholder')"
             [attr.aria-invalid]="store.couponApplyError() ? true : null"
             [attr.aria-describedby]="store.couponApplyError() ? 'couponCodeError' : store.appliedCouponCode() ? 'couponCodeOk' : null"
             (input)="store.onCouponDraftChange()"
@@ -105,7 +105,7 @@
             class="contact-step__coupon-apply"
             (click)="applyCoupon()"
           >
-            הפעלה
+            {{ i18n.t('contact.coupon.apply') }}
           </button>
           <p
             #couponMessage
@@ -114,7 +114,7 @@
             [class.contact-step__coupon-message--ok]="!store.couponApplyError() && !!store.appliedCouponCode()"
             [attr.id]="store.couponApplyError() ? 'couponCodeError' : store.appliedCouponCode() ? 'couponCodeOk' : null"
             [attr.role]="store.couponApplyError() ? 'alert' : store.appliedCouponCode() ? 'status' : null"
-          >{{ store.couponApplyError() ? 'הקוד לא קיים' : store.appliedCouponCode() ? 'הופעלה הנחה של ' + store.appliedCouponPercent() + '%' : '' }}</p>
+          >{{ store.couponApplyError() ? i18n.t('contact.coupon.invalid') : store.appliedCouponCode() ? i18n.tf('contact.coupon.applied', { percent: store.appliedCouponPercent() }) : '' }}</p>
         </div>
       </div>
 
@@ -133,10 +133,10 @@
           @if (store.isSubmitting()) {
             <span class="contact-step__submit-content">
               <span class="contact-step__submit-spinner" aria-hidden="true"></span>
-              <span>{{ store.submitStatusLabelHe() }}</span>
+              <span>{{ store.submitStatusLabel() }}</span>
             </span>
           } @else {
-            <span>הגשת הבקשה</span>
+            <span>{{ i18n.t('contact.submit') }}</span>
           }
         </button>
       </span>
@@ -144,7 +144,7 @@
       @if (store.submitError()) {
         <p class="contact-step__error" role="alert" aria-live="assertive">
           {{ store.submitError() }}
-          <a href="#contact">מעבר לטופס יצירת הקשר</a>
+          <a href="#contact">{{ i18n.t('contact.contactFormLink') }}</a>
         </p>
       }
     </form>

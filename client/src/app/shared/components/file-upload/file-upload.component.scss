@@ -139,7 +139,7 @@
   @include scrollbars.vertical-scroll-props;
   @include scrollbars.app-scrollbar;
   @include scrollbars.scrollbar-inset-rtl;
-  direction: rtl;
+  direction: inherit;
   flex: 1 1 auto;
   min-height: 0;
   height: 0;

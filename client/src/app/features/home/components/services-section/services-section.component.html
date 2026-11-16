@@ -3,42 +3,42 @@
     <app-section-heading
       appReveal
       align="start"
-      eyebrow="השירותים"
-      heading="מה אפשר ליצור?"
-      subtitle="שיר, קליפ, או שניהם — בוחרים מה שמתאים לכם, בלי לחץ ובלי מונחים מסובכים."
+      [eyebrow]="i18n.tx(msg.eyebrow)"
+      [heading]="i18n.tx(msg.heading)"
+      [subtitle]="i18n.tx(msg.subtitle)"
     />
 
     <div class="services__layout">
       <article class="services__highlight" appReveal>
-        <span class="services__highlight-tag">החבילה המלאה</span>
+        <span class="services__highlight-tag">{{ i18n.tx(msg.highlightTag) }}</span>
 
         <span class="services__icon services__icon--lg" aria-hidden="true">
-          <ng-container [ngTemplateOutlet]="iconTpl" [ngTemplateOutletContext]="{ icon: highlighted.icon }" />
+          <ng-container [ngTemplateOutlet]="iconTpl" [ngTemplateOutletContext]="{ icon: highlighted().icon }" />
         </span>
 
-        <h3>{{ highlighted.titleHe }}</h3>
-        <p>{{ highlighted.descriptionHe }}</p>
+        <h3>{{ highlighted().title }}</h3>
+        <p>{{ highlighted().description }}</p>
 
         <button type="button" class="services__highlight-cta" (click)="goToConfigurator()">
-          בנו הצעת מחיר לחבילה הזו
+          {{ i18n.tx(msg.highlightCta) }}
         </button>
       </article>
 
       <div class="services__supporting">
-        @for (service of supporting; track service.id; let index = $index) {
+        @for (service of supporting(); track service.id; let index = $index) {
           <article class="services__card" appReveal [appRevealDelay]="index * 80">
             <span class="services__icon" aria-hidden="true">
               <ng-container [ngTemplateOutlet]="iconTpl" [ngTemplateOutletContext]="{ icon: service.icon }" />
             </span>
-            <h3>{{ service.titleHe }}</h3>
-            <p>{{ service.descriptionHe }}</p>
+            <h3>{{ service.title }}</h3>
+            <p>{{ service.description }}</p>
           </article>
         }
       </div>
     </div>
 
     <div class="services__cta">
-      <button type="button" (click)="goToConfigurator()">בנו הצעת מחיר</button>
+      <button type="button" (click)="goToConfigurator()">{{ i18n.tx(msg.cta) }}</button>
     </div>
   </div>
 </section>

@@ -4,7 +4,7 @@
     [class.file-upload__dropzone--dragging]="isDragging()"
     role="button"
     tabindex="0"
-    [attr.aria-label]="'העלאת ' + promptNoun() + ' - ' + acceptDescriptionHe()"
+    [attr.aria-label]="uploadAriaLabel()"
     (click)="openFileDialog()"
     (keydown)="onKeydown($event)"
     (dragover)="onDragOver($event)"
@@ -36,10 +36,10 @@
       @if (isImporting()) {
         <span class="file-upload__importing">
           <span class="file-upload__tile-spinner" aria-hidden="true"></span>
-          מעבד קבצים...
+          {{ i18n.t('fileUpload.importing') }}
         </span>
       } @else {
-        <span class="file-upload__prompt-drag">גררו {{ promptNoun() }} לכאן או </span><span class="file-upload__prompt-click">לחצו לבחירת {{ promptNoun() }}</span>
+        <span class="file-upload__prompt-drag">{{ i18n.tf('fileUpload.dragOr', { noun: promptNoun() }) }} </span><span class="file-upload__prompt-click">{{ i18n.tf('fileUpload.clickToChoose', { noun: promptNoun() }) }}</span>
       }
     </p>
   </div>

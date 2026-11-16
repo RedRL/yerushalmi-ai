@@ -2,17 +2,17 @@
   <div class="footer__inner">
     <div class="footer__brand">
       <span class="footer__brand-name">{{ brandName }}</span>
-      <p class="footer__tagline">{{ taglineHe }}</p>
+      <p class="footer__tagline">{{ tagline() }}</p>
       <p class="footer__contact">
-        <span class="footer__contact-label">מייל - </span>
+        <span class="footer__contact-label">{{ i18n.t('footer.mailLabel') }} </span>
         <a class="footer__email" appEmailCompose [href]="contactEmailUrl">{{ contactEmail }}</a>
       </p>
       <a
         class="footer__whatsapp"
-        [href]="whatsappUrl"
+        [href]="whatsappUrl()"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="פתיחת שיחת וואטסאפ עם YERUSHALMI.AI"
+        [attr.aria-label]="i18n.t('footer.whatsappAria')"
       >
         <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
           <path
@@ -25,7 +25,7 @@
   </div>
 
   <div class="footer__bottom">
-    <p>© {{ currentYear }} {{ brandName }}. כל הזכויות שמורות.</p>
-    <a routerLink="/clips/terms" class="footer__terms" (click)="onTermsClick($event)">תקנון</a>
+    <p>© {{ currentYear }} {{ brandName }}. {{ i18n.t('footer.rights') }}</p>
+    <a routerLink="/clips/terms" class="footer__terms" (click)="onTermsClick($event)">{{ i18n.t('footer.terms') }}</a>
   </div>
 </footer>

@@ -33,6 +33,11 @@
   max-width: 320px;
 }
 
+:host-context([dir='ltr']) .footer__tagline {
+  max-width: none;
+  white-space: nowrap;
+}
+
 .footer__contact {
   display: flex;
   flex-wrap: wrap;

@@ -597,3 +597,46 @@ select.field__control {
     display: none;
   }
 }
+
+// English/LTR: beat component-scoped `direction: rtl` helpers (scroll hosts keep
+// LTR math for the scrollbar, then force children back to LTR for readable copy).
+html[dir='ltr'] {
+  .configurator__body > *,
+  .configurator__panel,
+  .configurator__aside,
+  .configurator__aside *,
+  .price-summary,
+  .price-summary > *,
+  .wizard,
+  .wizard__header,
+  .wizard__body,
+  .wizard__description,
+  .wizard__title,
+  .wizard__kicker,
+  .flow-step,
+  .summary-step,
+  .summary-step__dialog-body,
+  .file-upload,
+  .file-upload__gallery,
+  .contact-step,
+  .project-details-step,
+  .portfolio__item,
+  .video-card,
+  .video-card__body {
+    direction: ltr !important;
+    text-align: start;
+  }
+
+  .configurator__body {
+    padding-inline-start: 0;
+    padding-inline-end: var(--space-2);
+  }
+
+  .price-summary,
+  .summary-step__dialog-body,
+  .file-upload__gallery,
+  .header__mobile-nav {
+    padding-left: 0;
+    padding-right: var(--scrollbar-gutter, 0.75rem);
+  }
+}

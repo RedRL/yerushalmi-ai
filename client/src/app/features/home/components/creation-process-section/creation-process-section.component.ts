@@ -1,67 +1,19 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { LocaleService } from '../../../../core/i18n/locale.service';
 import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
+import { HOME_MESSAGES, type HomeCreationMethod } from '../../home.messages';
 
-export type CreationMethod = 'manual' | 'ai' | 'hybrid';
+export type CreationMethod = HomeCreationMethod;
 
+/** Localized creation stage, resolved for the active locale. */
 export interface CreationStage {
   step: number;
-  titleHe: string;
-  descriptionHe: string;
+  title: string;
+  description: string;
   method: CreationMethod;
-  methodLabelHe: string;
+  methodLabel: string;
 }
-
-const CREATION_STAGES: readonly CreationStage[] = [
-  {
-    step: 1,
-    titleHe: 'כתיבת השיר',
-    descriptionHe:
-      'השיר נכתב גם באמצעות כלי AI. נכתבת סקיצה ראשונית לשיר, שמתבססת על המידע שסיפקתם. כלי AI לא מתמחים כיום בכתיבת שירים, ולכן נדרשת גם התערבות וכתיבה ידנית. עם ידע וניסיון רב בכתיבה והלחנת שירים — זה חלק שאנחנו מתערבים בו בעצמנו, וברמה גבוהה.',
-    method: 'hybrid',
-    methodLabelHe: 'AI + ידני',
-  },
-  {
-    step: 2,
-    titleHe: 'הלחנה',
-    descriptionHe:
-      'תהליך ההלחנה נעשה באמצעות כלי AI. גם כאן התוצאות דורשות פעמים רבות תיקונים והתערבות ידנית, עד שהשיר מרגיש מדויק.',
-    method: 'hybrid',
-    methodLabelHe: 'AI + ידני',
-  },
-  {
-    step: 3,
-    titleHe: 'עריכת התמונות',
-    descriptionHe:
-      'התמונות שאתם שולחים עוברות עריכה בכלי AI. אפשר גם לשלוח תמונות ישנות בשחור-לבן של יקיריכם — והן יקבלו צבע. כל התמונות מותאמות לפורמט שנבחר, כולל מילוי אוטומטי של הקצוות באמצעות כלי AI. אם תרצו, תוכלו לקבל גם את התמונות הערוכות — ללא תוספת תשלום.',
-    method: 'ai',
-    methodLabelHe: 'כלי AI',
-  },
-  {
-    step: 4,
-    titleHe: 'הנפשה',
-    descriptionHe:
-      'התמונות מונפשות באמצעות כלי AI שונים, והופכות לסצנות וידאו. גם כאן יש תהליך ידני: אנחנו בוחרים אילו תמונות מתאימות להיות מונפשות יחד — לכדי סרטון אחד שמשלב שתי תמונות.',
-    method: 'hybrid',
-    methodLabelHe: 'AI + ידני',
-  },
-  {
-    step: 5,
-    titleHe: 'עריכת הווידאו',
-    descriptionHe:
-      'התוכן של הסרטונים מותאם לשיר עצמו. זה תהליך ידני: אנחנו בוחרים תוכן שיתאים למילות השיר ולמוזיקה במקום המתאים, עורכים אפקטים ומבצעים התאמות כדי שהסרטונים ישולבו יחד כמו שצריך.',
-    method: 'manual',
-    methodLabelHe: 'ידני',
-  },
-  {
-    step: 6,
-    titleHe: 'כתוביות',
-    descriptionHe:
-      'הכתוביות נוצרות רק באמצעות כלי AI — מותאמות לקצב ולמילים של השיר.',
-    method: 'ai',
-    methodLabelHe: 'כלי AI',
-  },
-];
 
 @Component({
   selector: 'app-creation-process-section',
@@ -71,5 +23,16 @@ const CREATION_STAGES: readonly CreationStage[] = [
   styleUrl: './creation-process-section.component.scss',
 })
 export class CreationProcessSectionComponent {
-  readonly stages = CREATION_STAGES;
+  readonly i18n = inject(LocaleService);
+  readonly msg = HOME_MESSAGES.creation;
+
+  readonly stages = computed<readonly CreationStage[]>(() =>
+    this.msg.stages.map((stage) => ({
+      step: stage.step,
+      title: this.i18n.tx(stage.title),
+      description: this.i18n.tx(stage.description),
+      method: stage.method,
+      methodLabel: this.i18n.tx(stage.methodLabel),
+    })),
+  );
 }

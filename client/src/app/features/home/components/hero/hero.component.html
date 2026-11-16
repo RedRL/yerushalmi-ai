@@ -2,11 +2,11 @@
   <div #banner class="hero__banner" [style.transform]="bannerStyle().transform" [style.opacity]="bannerStyle().opacity">
     <div class="hero__banner-art">
       <picture class="hero__banner-picture">
-        <source media="(max-width: 767px)" [srcset]="mobileBannerImageUrl" />
+        <source media="(max-width: 767px)" [srcset]="mobileBannerImageUrl()" />
         <img
           class="hero__banner-image"
-          [src]="desktopBannerImageUrl"
-          alt="YERUSHALMI.AI — שיר אישי וקליפ מוזיקלי מתמונות ליום הולדת, חתונה ומתנה, וגם סתם לאדם שאוהבים"
+          [src]="desktopBannerImageUrl()"
+          [alt]="i18n.tx(msg.bannerAlt)"
           [width]="desktopBannerWidth"
           [height]="desktopBannerHeight"
           fetchpriority="high"
@@ -17,10 +17,10 @@
         type="button"
         class="hero__scroll-indicator"
         (click)="goToStage()"
-        aria-label="גלילה לתוכן הבא"
+        [attr.aria-label]="i18n.tx(msg.scrollAria)"
       >
         <span class="hero__scroll-line"><span class="hero__scroll-dot"></span></span>
-        <span class="hero__scroll-label">גללו מטה</span>
+        <span class="hero__scroll-label">{{ i18n.tx(msg.scrollLabel) }}</span>
       </button>
     </div>
   </div>
@@ -51,25 +51,22 @@
     </div>
 
     <div class="hero__content" [style.transform]="stageStyle().transform">
-      <span class="hero__kicker">שירים וקליפים אישיים · YERUSHALMI.AI</span>
+      <span class="hero__kicker">{{ i18n.tx(msg.kicker) }}</span>
 
       <h1 class="hero__headline">
-        <span class="hero__line">הופכים זיכרונות</span>
-        <span class="hero__line">לשיר ולקליפ</span>
-        <span class="hero__line hero__line--accent">שלא שוכחים</span>
+        <span class="hero__line">{{ i18n.tx(msg.headlineLine1) }}</span>
+        <span class="hero__line">{{ i18n.tx(msg.headlineLine2) }}</span>
+        <span class="hero__line hero__line--accent">{{ i18n.tx(msg.headlineAccent) }}</span>
       </h1>
 
-      <p class="hero__subtitle">
-        שיר אישי וקליפ מוזיקלי שנבנים מהתמונות ומהסיפור שלכם. מתנה ליום הולדת, לחתונה, לבר ובת מצווה ולמשפחה, וגם סתם לאדם שאוהבים, בלי שום סיבה מיוחדת 😊.
-        מספיקות תמונות ותיאור קצר, ואנחנו כותבים את השיר ובונים את הקליפ מהתמונות עצמן.
-      </p>
+      <p class="hero__subtitle">{{ i18n.tx(msg.subtitle) }}</p>
 
       <div class="hero__actions">
         <button type="button" class="hero__cta hero__cta--primary" (click)="goToConfigurator()">
-          בנו את הפרויקט שלכם
+          {{ i18n.tx(msg.ctaPrimary) }}
         </button>
         <button type="button" class="hero__cta hero__cta--secondary" (click)="goToPortfolio()">
-          צפו בדוגמאות
+          {{ i18n.tx(msg.ctaSecondary) }}
         </button>
       </div>
     </div>

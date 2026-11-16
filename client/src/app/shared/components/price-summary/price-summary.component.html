@@ -5,13 +5,13 @@
         <div class="price-summary__package">
           <span class="price-summary__package-emoji" aria-hidden="true">{{ pkg.emoji }}</span>
           <div class="price-summary__package-title-row">
-            <h4 class="price-summary__package-title">{{ pkg.titleHe }}</h4>
+            <h4 class="price-summary__package-title">{{ i18n.tx(pkg.title) }}</h4>
             @if (packagePrice(); as price) {
-              <span class="price-summary__amount">₪{{ price }}</span>
+              <span class="price-summary__amount">{{ money.format(price) }}</span>
             }
           </div>
-          @if (pkg.subtitleHe) {
-            <p class="price-summary__package-subtitle">{{ pkg.subtitleHe }}</p>
+          @if (pkg.subtitle) {
+            <p class="price-summary__package-subtitle">{{ i18n.tx(pkg.subtitle) }}</p>
           }
         </div>
       }
@@ -20,14 +20,14 @@
         <ul class="price-summary__items">
           @for (item of addonItems(); track item.id) {
             <li>
-              <span>{{ item.labelHe }}</span>
+              <span>{{ itemLabel(item) }}</span>
               <span class="price-summary__amount">
                 @if (item.amount * item.quantity === 0) {
-                  כלול
+                  {{ i18n.t('priceSummary.included') }}
                 } @else if (item.amount * item.quantity < 0) {
-                  -₪{{ -(item.amount * item.quantity) }}
+                  {{ money.formatDiscount(-(item.amount * item.quantity)) }}
                 } @else {
-                  ₪{{ item.amount * item.quantity }}
+                  {{ money.format(item.amount * item.quantity) }}
                 }
               </span>
             </li>
@@ -40,42 +40,41 @@
       @if (data.discount > 0) {
         <div class="price-summary__discount">
           <span class="price-summary__discount-name">
-            <span>הנחת קופון {{ couponPercent() }}%</span>
+            <span>{{ i18n.tf('priceSummary.couponDiscount', { percent: couponPercent() }) }}</span>
             <button
               type="button"
               class="price-summary__coupon-remove"
-              aria-label="הסרת הקופון"
+              [attr.aria-label]="i18n.t('priceSummary.removeCoupon')"
               (click)="couponRemove.emit()"
             >
               ×
             </button>
           </span>
-          <span>-₪{{ data.discount }}</span>
+          <span>{{ money.formatDiscount(data.discount) }}</span>
         </div>
       }
       <div class="price-summary__total">
         <div class="price-summary__total-label">
-          <span>סה"כ משוער</span>
+          <span>{{ i18n.t('priceSummary.total') }}</span>
           @if (showIntroPricing()) {
-            <span class="price-summary__promo">מחיר היכרות · לזמן מוגבל</span>
+            <span class="price-summary__promo">{{ i18n.t('priceSummary.introPrice') }}</span>
           }
         </div>
         <div class="price-summary__total-prices">
           @if (showIntroPricing()) {
-            <span class="price-summary__original">₪{{ originalTotal() }}</span>
+            <span class="price-summary__original">{{ money.format(originalTotal() ?? 0) }}</span>
           }
           <span class="price-summary__total-amount" [class.price-summary__total-amount--bump]="justUpdated()">
-            ₪{{ data.total }}
+            {{ money.format(data.total) }}
           </span>
         </div>
       </div>
 
       <p class="price-summary__disclaimer" aria-live="polite">
-        המחיר המוצג הוא מחיר משוער בהתאם לבחירות שסומנו. המחיר הסופי יאושר לאחר מעבר על החומרים ותיאום קצר.
-        התשלום לא מתבצע בשלב זה, והשליחה אינה מתחילה את העבודה באופן אוטומטי - ניצור איתכם קשר לאישור לפני התחלת התהליך.
+        {{ i18n.t('priceSummary.disclaimer') }}
       </p>
     </div>
   } @else {
-    <p class="price-summary__empty">בחרו חבילה כדי לראות הערכת מחיר.</p>
+    <p class="price-summary__empty">{{ i18n.t('priceSummary.empty') }}</p>
   }
 </div>

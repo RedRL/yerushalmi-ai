@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { LocaleService } from '../../../../core/i18n/locale.service';
 import {
   DEFAULT_SUBTITLES_COLOR,
   DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
@@ -15,6 +16,8 @@ import { FILLED_STILLS, SUBTITLE_SAMPLE, VIDEO_STILL_SRC } from '../../experienc
   styleUrl: './video-frame-preview.component.scss',
 })
 export class VideoFramePreviewComponent {
+  readonly i18n = inject(LocaleService);
+
   readonly format = input<VideoFormatId>('landscape');
   readonly subtitles = input<SubtitlesId | ''>('none');
   readonly filled = input(false);
@@ -24,8 +27,9 @@ export class VideoFramePreviewComponent {
   readonly captionColor = input(DEFAULT_SUBTITLES_COLOR);
   readonly highlightColor = input(DEFAULT_SUBTITLES_HIGHLIGHT_COLOR);
 
-  readonly sampleWords = SUBTITLE_SAMPLE.split(/\s+/).filter(Boolean);
-  readonly karaokeWordIndex = 1;
+  readonly sampleWords = computed(() => this.i18n.tx(SUBTITLE_SAMPLE).split(/\s+/).filter(Boolean));
+  /** Which sample word is highlighted in karaoke mode (the last one in English). */
+  readonly karaokeWordIndex = computed(() => (this.i18n.isEnglish() ? this.sampleWords().length - 1 : 1));
 
   readonly still = computed(() => {
     if (!this.filled()) return VIDEO_STILL_SRC;

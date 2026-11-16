@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
 
@@ -13,9 +14,10 @@ import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.compone
 })
 export class OptionalDetailsStepComponent {
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
   readonly limits = FIELD_LIMITS;
 
-  readonly whoDescription = 'רשות. מה שתמלאו כאן נכנס לשיר.';
+  /** Bilingual occasion copy (`L10nText` fields) — resolve with `i18n.tx()`. */
   readonly copy = this.store.occasionCopy;
 
   screenIndex(): number {

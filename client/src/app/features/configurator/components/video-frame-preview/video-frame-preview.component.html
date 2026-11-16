@@ -6,7 +6,7 @@
       [style.--ratio]="ratio()"
       [style.--frame-width]="frameWidth()"
     >
-      <img class="frame-preview__photo" [src]="still()" alt="תמונת מסך לדוגמה של הסרטון" />
+      <img class="frame-preview__photo" [src]="still()" [alt]="i18n.t('video.framePreviewAlt')" />
       @if (showCaption()) {
         <span
           class="frame-preview__caption"
@@ -15,11 +15,11 @@
           [style.--highlight-color]="resolvedHighlightColor()"
         >
           @if (karaoke()) {
-            @for (word of sampleWords; track $index; let i = $index) {
-              <span [class.frame-preview__word--on]="i === karaokeWordIndex">{{ word }}</span>
+            @for (word of sampleWords(); track $index; let i = $index) {
+              <span [class.frame-preview__word--on]="i === karaokeWordIndex()">{{ word }}</span>
             }
           } @else {
-            {{ sampleWords.join(' ') }}
+            {{ sampleWords().join(' ') }}
           }
         </span>
       }

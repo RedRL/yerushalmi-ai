@@ -27,10 +27,10 @@
   @if (showActions()) {
     <div class="wizard__actions">
       @if (skippable()) {
-        <button type="button" class="wizard__skip" (click)="skipped.emit()">דלג</button>
+        <button type="button" class="wizard__skip" (click)="skipped.emit()">{{ i18n.t('common.skip') }}</button>
       }
       <button type="button" class="wizard__continue" [disabled]="!canContinue()" (click)="continued.emit()">
-        {{ continueLabel() }}
+        {{ continueLabel() || i18n.t('common.continue') }}
       </button>
     </div>
   }

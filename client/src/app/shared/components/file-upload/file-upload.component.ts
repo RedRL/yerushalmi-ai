@@ -13,6 +13,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { LocaleService } from '../../../core/i18n/locale.service';
+import { l10n } from '../../../core/i18n/locale.types';
 import type { UploadedFileKind, UploadedFileReference } from '../../models/upload.model';
 import { isAcceptedFileType } from '../../utils/file-type.util';
 import { cloneUploadFile, cloneUploadFiles } from '../../utils/upload-file-store.util';
@@ -52,6 +54,8 @@ interface FlightAnimationOptions {
   styleUrl: './file-upload.component.scss',
 })
 export class FileUploadComponent implements OnDestroy {
+  readonly i18n = inject(LocaleService);
+
   readonly kind = input.required<UploadedFileKind>();
   readonly accept = input('');
   readonly acceptDescriptionHe = input('');
@@ -67,10 +71,15 @@ export class FileUploadComponent implements OnDestroy {
   readonly selectionStarted = output<void>();
 
   readonly promptNoun = computed(() => {
-    if (this.kind() === 'video') return 'סרטונים';
-    if (this.kind() === 'audio') return 'קבצי שמע';
-    return 'תמונות';
+    if (this.kind() === 'video') return this.i18n.t('fileUpload.noun.video');
+    if (this.kind() === 'audio') return this.i18n.tx(l10n('קבצי שמע', 'audio files'));
+    return this.i18n.t('fileUpload.noun.image');
   });
+
+  readonly uploadAriaLabel = computed(
+    () =>
+      `${this.i18n.tx(l10n('העלאת', 'Upload'))} ${this.promptNoun()} - ${this.acceptDescriptionHe()}`,
+  );
 
   readonly allErrors = computed(() => [...this.extraErrors(), ...this.errorMessages()]);
 

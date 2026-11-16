@@ -14,6 +14,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import { OCCASION_OPTIONS } from '../../../../../core/config/occasion.config';
 import { SITE_CONFIG } from '../../../../../core/config/site.config';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
+import { l10n, type L10nText } from '../../../../../core/i18n/locale.types';
 import { containScrollWheel } from '../../../../../shared/utils/contain-scroll-wheel.util';
 import {
   formatIsoDateToHeIl,
@@ -25,21 +27,30 @@ import {
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
 
-const WEEKDAY_LABELS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'] as const;
-const MONTH_LABELS = [
-  'ינואר',
-  'פברואר',
-  'מרץ',
-  'אפריל',
-  'מאי',
-  'יוני',
-  'יולי',
-  'אוגוסט',
-  'ספטמבר',
-  'אוקטובר',
-  'נובמבר',
-  'דצמבר',
-] as const;
+/** Sunday-first, matching `Date#getDay()`. */
+const WEEKDAY_LABELS: readonly L10nText[] = [
+  l10n('א', 'S'),
+  l10n('ב', 'M'),
+  l10n('ג', 'T'),
+  l10n('ד', 'W'),
+  l10n('ה', 'T'),
+  l10n('ו', 'F'),
+  l10n('ש', 'S'),
+];
+const MONTH_LABELS: readonly L10nText[] = [
+  l10n('ינואר', 'January'),
+  l10n('פברואר', 'February'),
+  l10n('מרץ', 'March'),
+  l10n('אפריל', 'April'),
+  l10n('מאי', 'May'),
+  l10n('יוני', 'June'),
+  l10n('יולי', 'July'),
+  l10n('אוגוסט', 'August'),
+  l10n('ספטמבר', 'September'),
+  l10n('אוקטובר', 'October'),
+  l10n('נובמבר', 'November'),
+  l10n('דצמבר', 'December'),
+];
 
 @Component({
   selector: 'app-project-details-step',
@@ -54,10 +65,11 @@ export class ProjectDetailsStepComponent {
   private readonly nativeDate = viewChild<ElementRef<HTMLInputElement>>('nativeDate');
   private readonly customOccasionInput = viewChild<ElementRef<HTMLInputElement>>('customOccasionInput');
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
   readonly limits = FIELD_LIMITS;
   readonly occasionOptions = OCCASION_OPTIONS;
   readonly weddingsUrl = SITE_CONFIG.weddingsUrl;
-  readonly weekdayLabels = WEEKDAY_LABELS;
+  readonly weekdayLabels = computed(() => WEEKDAY_LABELS.map((label) => this.i18n.tx(label)));
   readonly isMobileViewport = signal(false);
   readonly dateFieldTouched = signal(this.store.projectDetailsForm.controls.eventDate.touched);
   readonly eventDateText = signal(formatIsoDateToHeIl(this.store.projectDetailsForm.controls.eventDate.value));
@@ -85,9 +97,9 @@ export class ProjectDetailsStepComponent {
   }
 
   readonly personNameLabel = computed(() =>
-    this.store.includesVideo()
-      ? 'שם האדם או האנשים שהקליפ עבורם'
-      : 'שם האדם או האנשים שהשיר עבורם',
+    this.i18n.t(
+      this.store.includesVideo() ? 'details.personName.headingVideo' : 'details.personName.headingSong',
+    ),
   );
 
   onOccasionChange(): void {
@@ -124,7 +136,7 @@ export class ProjectDetailsStepComponent {
 
   readonly calendarTitle = computed(() => {
     const month = this.calendarMonth();
-    return `${MONTH_LABELS[month.getMonth()]} ${month.getFullYear()}`;
+    return `${this.i18n.tx(MONTH_LABELS[month.getMonth()])} ${month.getFullYear()}`;
   });
 
   readonly selectedCalendarDay = computed(() => {
@@ -155,8 +167,8 @@ export class ProjectDetailsStepComponent {
     this.dateFieldTouched();
     const control = this.store.projectDetailsForm.controls.eventDate;
     if (!control.touched && !this.dateFieldTouched()) return null;
-    if (control.hasError('pastDate')) return 'תאריך האירוע לא יכול להיות לפני היום';
-    if (control.hasError('invalidDate')) return 'נא להזין תאריך תקין';
+    if (control.hasError('pastDate')) return this.i18n.t('validation.eventDatePast');
+    if (control.hasError('invalidDate')) return this.i18n.t('validation.eventDateInvalid');
     return null;
   });
 

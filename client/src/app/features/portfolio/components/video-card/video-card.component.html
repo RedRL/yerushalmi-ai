@@ -18,7 +18,7 @@
       </div>
       <app-audio-player
         [src]="audioSrc()"
-        [label]="video().titleHe"
+        [label]="title()"
         (playingChange)="audioPlaying.set($event)"
       />
     </div>
@@ -27,11 +27,11 @@
       type="button"
       class="video-card__media"
       (click)="onActivate()"
-      [attr.aria-label]="'צפייה בקליפ: ' + video().titleHe"
+      [attr.aria-label]="watchAria()"
     >
       <img
         [src]="thumbnailUrl()"
-        [alt]="video().titleHe"
+        [alt]="title()"
         loading="lazy"
         decoding="async"
         width="480"
@@ -48,13 +48,13 @@
   }
 
   <div class="video-card__body">
-    <h3 class="video-card__title">{{ video().titleHe }}</h3>
-    <p class="video-card__description">{{ descriptionHe() }}</p>
-    @if (video().tagsHe.length) {
+    <h3 class="video-card__title">{{ title() }}</h3>
+    <p class="video-card__description">{{ description() }}</p>
+    @if (tags().length) {
       <div class="video-card__genres">
-        <span class="video-card__genre-label">סגנון:</span>
-        <ul class="video-card__tags" aria-label="סגנונות מוזיקליים">
-          @for (tag of video().tagsHe; track tag) {
+        <span class="video-card__genre-label">{{ i18n.t('portfolio.styleLabel') }}</span>
+        <ul class="video-card__tags" [attr.aria-label]="i18n.t('portfolio.stylesAria')">
+          @for (tag of tags(); track tag) {
             <li class="video-card__tag">{{ tag }}</li>
           }
         </ul>
@@ -62,8 +62,8 @@
     }
     @if (video().requiredWordsHe?.length) {
       <div class="video-card__genres video-card__genres--words">
-        <span class="video-card__genre-label">מילים שצריכות להופיע:</span>
-        <ul class="video-card__tags" aria-label="מילים שצריכות להופיע">
+        <span class="video-card__genre-label">{{ i18n.t('portfolio.requiredWordsLabel') }}</span>
+        <ul class="video-card__tags" [attr.aria-label]="i18n.t('portfolio.requiredWordsAria')">
           @for (word of video().requiredWordsHe; track word) {
             <li class="video-card__tag video-card__tag--words">{{ word }}</li>
           }

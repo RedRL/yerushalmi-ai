@@ -4,9 +4,11 @@ import {
   Component,
   ElementRef,
   OnDestroy,
+  inject,
   signal,
   viewChild,
 } from '@angular/core';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { SectionHeadingComponent } from '../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import type { PortfolioCategory, PortfolioVideo } from '../../shared/models/portfolio-video.model';
@@ -32,6 +34,7 @@ const DISPLAY_VIDEOS = [...PORTFOLIO_VIDEOS].reverse();
   styleUrl: './portfolio.component.scss',
 })
 export class PortfolioComponent implements AfterViewInit, OnDestroy {
+  readonly i18n = inject(LocaleService);
   private readonly scrollerRef = viewChild<ElementRef<HTMLElement>>('scroller');
   private scrollEndHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;

@@ -127,7 +127,7 @@
 .summary-step__dialog-body {
   @include scrollbars.vertical-scroll-props;
   @include scrollbars.scrollbar-inset-rtl;
-  direction: rtl;
+  direction: inherit;
   flex: 1;
   min-height: 0;
   overscroll-behavior: contain;

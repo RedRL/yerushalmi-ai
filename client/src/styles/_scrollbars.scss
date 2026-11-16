@@ -69,6 +69,24 @@
   padding-left: var(--scrollbar-gutter);
 }
 
+// English: custom rail + reserved gutter move to the physical right.
+html[dir='ltr'] {
+  .persistent-scroll-shell--gutter {
+    padding-left: 0;
+    padding-right: var(--scrollbar-gutter);
+  }
+
+  .persistent-scroll__rail {
+    left: auto;
+    right: 0;
+  }
+
+  .persistent-scroll__thumb {
+    left: auto;
+    right: 0;
+  }
+}
+
 .persistent-scroll-shell:not(.persistent-scroll-shell--gutter) > .persistent-scroll__rail {
   display: none !important;
 }
@@ -161,17 +179,20 @@
 @mixin scroll-area-rtl-props {
   @include vertical-scroll-props;
   @include scrollbar-gutter-left;
-  direction: rtl;
+  // Content direction follows the document; Hebrew keeps RTL via html[dir=rtl].
+  direction: inherit;
 
   > * {
-    direction: rtl;
+    direction: inherit;
   }
 }
 
-/** Custom scrollbar hosts — LTR scroll math; content stays RTL via children. */
+/** Custom scrollbar hosts — LTR scroll math; children inherit document direction. */
 @mixin scroll-area-custom-props {
   overflow-x: hidden;
   overflow-y: auto;
+  // Host stays LTR so the custom/native scrollbar math is stable; children
+  // inherit from html[dir] via an explicit reset below.
   direction: ltr;
 
   > * {

@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SITE_CONFIG } from '../../core/config/site.config';
+import { LocaleService } from '../../core/i18n/locale.service';
 
 /** Placeholder until the dedicated weddings landing is built. */
 @Component({
@@ -10,9 +11,9 @@ import { SITE_CONFIG } from '../../core/config/site.config';
   template: `
     <main class="weddings">
       <p class="weddings__brand">{{ brand }}</p>
-      <h1>חתונות</h1>
-      <p>הדף הייעודי לחתונות בבנייה. בינתיים אפשר לחזור לבניית קליפ רגיל.</p>
-      <a routerLink="/clips">חזרה לקליפים</a>
+      <h1>{{ i18n.t('weddings.title') }}</h1>
+      <p>{{ i18n.t('weddings.body') }}</p>
+      <a routerLink="/clips">{{ i18n.t('weddings.backToClips') }}</a>
     </main>
   `,
   styles: `
@@ -56,5 +57,6 @@ import { SITE_CONFIG } from '../../core/config/site.config';
   `,
 })
 export class WeddingsComponent {
+  readonly i18n = inject(LocaleService);
   readonly brand = SITE_CONFIG.brandName;
 }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, HostListener, inject, OnDestroy, signal, viewChildren } from '@angular/core';
 import { MAX_VIDEO_DURATION_SECONDS } from '../../../../../core/config/upload-requirements.config';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
 import { FileUploadComponent } from '../../../../../shared/components/file-upload/file-upload.component';
 import type { UploadedFileKind, UploadedFileReference } from '../../../../../shared/models/upload.model';
 import { createImagePreviewSet, createVideoThumbnailDataUrl } from '../../../../../shared/utils/image-thumbnail.util';
@@ -17,6 +18,7 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 })
 export class UploadStepComponent implements OnDestroy {
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
   readonly videoErrors = signal<string[]>([]);
   readonly helpTab = signal<'image' | 'video' | null>(null);
   readonly activeTab = signal<'image' | 'video'>('image');
@@ -36,18 +38,16 @@ export class UploadStepComponent implements OnDestroy {
 
   readonly imageFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'image'));
   readonly videoFiles = computed(() => this.store.uploadedFiles().filter((file) => file.type === 'video'));
-  readonly imageCountGuidanceHe = computed(() => {
-    const min = this.store.minimumRequiredImages();
-    const recommended = this.store.recommendedMaxImages();
-    const max = this.store.maximumAllowedImages();
-    return `יש לספק ${min}-${recommended} תמונות ועד ${max} לכל היותר - בהתאם לאורך הסרטון שנבחר.`;
-  });
-  readonly videoCountGuidanceHe = computed(() => {
-    const max = this.store.maximumAllowedVideos();
-    return `אפשר להוסיף סרטונים של עד חצי דקה, ועד ${max} סרטונים לכל היותר - בהתאם לאורך הסרטון שנבחר.`;
-  });
-  readonly orderGuidanceHe =
-    'אם חשוב לכם שהתמונות/סרטונים יופיעו בסדר מסוים, כדאי לתת שמות כרונולוגיים ברורים (למשל 1, 2, 3...). אחרת, נסדר אותם כפי שנראה לנו לנכון בהתאם לחומרים עצמם ולשיר ברקע.';
+  readonly imageCountGuidance = computed(() =>
+    this.i18n.tf('upload.imageGuidance', {
+      min: this.store.minimumRequiredImages(),
+      recommended: this.store.recommendedMaxImages(),
+      max: this.store.maximumAllowedImages(),
+    }),
+  );
+  readonly videoCountGuidance = computed(() =>
+    this.i18n.tf('upload.videoGuidance', { max: this.store.maximumAllowedVideos() }),
+  );
 
   async onImagesSelected(files: File[]): Promise<void> {
     const added = files.map((file) => this.queueMediaFile(file, 'image'));
@@ -64,13 +64,13 @@ export class UploadStepComponent implements OnDestroy {
       try {
         durationSeconds = await readVideoDurationSeconds(item.file);
       } catch {
-        this.addVideoError(`לא ניתן לקרוא את הסרטון "${item.file.name}". ודאו שמדובר בקובץ וידאו תקין.`);
+        this.addVideoError(this.i18n.tf('upload.error.videoUnreadable', { name: item.file.name }));
         this.store.removeUploadedFile(item.id);
         continue;
       }
 
       if (durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
-        this.addVideoError(`"${item.file.name}" ארוך מדי. אפשר להעלות סרטונים באורך עד חצי דקה.`);
+        this.addVideoError(this.i18n.tf('upload.error.videoTooLong', { name: item.file.name }));
         this.store.removeUploadedFile(item.id);
         continue;
       }

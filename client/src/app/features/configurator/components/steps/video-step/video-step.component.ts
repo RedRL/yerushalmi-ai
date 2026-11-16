@@ -5,11 +5,14 @@ import {
   DEFAULT_SUBTITLES_COLOR,
   DEFAULT_SUBTITLES_HIGHLIGHT_COLOR,
   FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE,
+  localizedOptionLabel,
   normalizeHexColor,
   SUBTITLES_OPTIONS,
   VIDEO_FORMAT_OPTIONS,
   VIDEO_LENGTH_OPTIONS,
 } from '../../../../../core/config/pricing.config';
+import { CurrencyService } from '../../../../../core/i18n/currency.service';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
 import type { SubtitlesId, VideoFormatId, VideoLengthId } from '../../../../../shared/models/pricing.model';
 import { FORMAT_CAPTIONS } from '../../../experience/experience.config';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
@@ -26,6 +29,8 @@ import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.compone
 })
 export class VideoStepComponent {
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
+  readonly money = inject(CurrencyService);
   readonly lengthOptions = VIDEO_LENGTH_OPTIONS;
   readonly formatOptions = VIDEO_FORMAT_OPTIONS;
   readonly subtitlesOptions = SUBTITLES_OPTIONS;
@@ -35,9 +40,15 @@ export class VideoStepComponent {
 
   lengthDescription(): string {
     if (this.store.requiresExistingSongRights()) {
-      return 'מומלץ לבחור אורך שמתאים לשיר שבחרתם.';
+      return this.i18n.t('video.length.descriptionExistingSong');
     }
-    return `כל חצי דקה נוספת היא עוד ₪${FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE}.`;
+    return this.i18n.tf('video.length.descriptionHalfStep', {
+      price: this.money.format(FULL_EXPERIENCE_LENGTH_HALF_STEP_PRICE),
+    });
+  }
+
+  optionLabel(option: { labelHe: string; labelEn?: string }): string {
+    return localizedOptionLabel(option, this.i18n.locale());
   }
 
   screenIndex(): number {
@@ -74,7 +85,8 @@ export class VideoStepComponent {
 
   lengthLabel(): string {
     const id = this.store.videoForm.controls.length.value;
-    return this.lengthOptions.find((option) => option.id === id)?.labelHe ?? '';
+    const option = this.lengthOptions.find((candidate) => candidate.id === id);
+    return option ? this.optionLabel(option) : '';
   }
 
   selectLength(id: string): void {

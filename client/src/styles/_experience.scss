@@ -123,6 +123,8 @@
   text-align: start;
   cursor: pointer;
   transition: transform 0.18s ease, border-color 0.18s ease;
+  container-type: inline-size;
+  container-name: tone-tile;
 
   &:hover {
     transform: translateY(-2px);
@@ -153,6 +155,22 @@
   font-weight: var(--font-weight-bold);
   font-size: 1.05rem;
   line-height: 1.2;
+}
+
+.tone-tile__name-short {
+  display: none;
+}
+
+// Only swap to the short English label when the tile is narrow enough that
+// "Mediterranean" (etc.) would clip — wider tiles keep the full word.
+@container tone-tile (max-width: 8.5rem) {
+  .tone-tile__name--has-short .tone-tile__name-full {
+    display: none;
+  }
+
+  .tone-tile__name--has-short .tone-tile__name-short {
+    display: inline;
+  }
 }
 
 .tone-tile__eq {

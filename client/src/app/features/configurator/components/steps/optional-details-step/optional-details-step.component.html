@@ -2,29 +2,29 @@
   @switch (store.activeScreen().field) {
     @case ('who') {
       <app-wizard-screen
-        kicker="פרטים"
-        [heading]="copy().whoHeading"
-        [description]="whoDescription"
+        [kicker]="i18n.t('extras.kicker')"
+        [heading]="i18n.tx(copy().whoHeading)"
+        [description]="i18n.t('extras.who.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
       >
         <div class="extras__stack">
           <label class="extras__field">
-            <span>{{ copy().relationshipLabel }}</span>
+            <span>{{ i18n.tx(copy().relationshipLabel) }}</span>
             <input
               class="field__control"
               formControlName="relationship"
-              [placeholder]="copy().relationshipPlaceholder"
+              [placeholder]="i18n.tx(copy().relationshipPlaceholder)"
               [maxlength]="limits.relationship"
             />
           </label>
           <label class="extras__field">
-            <span>גיל</span>
+            <span>{{ i18n.t('extras.age') }}</span>
             <input class="field__control" formControlName="age" [maxlength]="limits.age" />
           </label>
           <label class="extras__field">
-            <span>מקצוע או עיסוק</span>
+            <span>{{ i18n.t('extras.occupation') }}</span>
             <input class="field__control" formControlName="occupation" [maxlength]="limits.occupation" />
           </label>
         </div>
@@ -32,35 +32,35 @@
     }
     @case ('how') {
       <app-wizard-screen
-        kicker="פרטים"
-        [heading]="copy().howHeading"
-        description="רשות. אפשר להמשיך גם בלי למלא."
+        [kicker]="i18n.t('extras.kicker')"
+        [heading]="i18n.tx(copy().howHeading)"
+        [description]="i18n.t('common.optionalSkipHint')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
       >
         <div class="extras__stack">
           <label class="extras__field">
-            <span>תכונות אופי</span>
+            <span>{{ i18n.t('extras.traits') }}</span>
             <input
               class="field__control"
               formControlName="characterTraits"
-              [placeholder]="copy().traitsPlaceholder"
+              [placeholder]="i18n.tx(copy().traitsPlaceholder)"
               [maxlength]="limits.characterTraits"
             />
           </label>
           <label class="extras__field">
-            <span>תחביבים</span>
-            <input class="field__control" formControlName="hobbies" placeholder="כדורגל, בישול, טיולים..." [maxlength]="limits.hobbies" />
+            <span>{{ i18n.t('extras.hobbies') }}</span>
+            <input class="field__control" formControlName="hobbies" [placeholder]="i18n.t('extras.hobbiesPlaceholder')" [maxlength]="limits.hobbies" />
           </label>
         </div>
       </app-wizard-screen>
     }
     @case ('notes') {
       <app-wizard-screen
-        kicker="פרטים"
-        heading="עוד משהו שכדאי שנדע"
-        description="רשות. אפשר גם הערות על השיר עצמו, על הז'אנרים, וכל דבר שתרצו להוסיף."
+        [kicker]="i18n.t('extras.kicker')"
+        [heading]="i18n.t('extras.notes.heading')"
+        [description]="i18n.t('extras.notes.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -69,7 +69,7 @@
           class="field__control optional-details-step__notes"
           formControlName="additionalNotes"
           rows="5"
-          placeholder="הערות על השיר, על הז'אנרים, בדיחה פנימית, או כל דבר נוסף"
+          [placeholder]="i18n.t('extras.notes.placeholder')"
           [maxlength]="limits.projectAdditionalNotes"
         ></textarea>
       </app-wizard-screen>

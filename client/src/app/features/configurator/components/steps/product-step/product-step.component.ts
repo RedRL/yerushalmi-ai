@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { findPackage } from '../../../../../core/config/packages.config';
-import { MAIN_PRODUCT_OPTIONS } from '../../../../../core/config/pricing.config';
-import type { MainProductId } from '../../../../../shared/models/pricing.model';
+import { localizedProductTitle, MAIN_PRODUCT_OPTIONS } from '../../../../../core/config/pricing.config';
+import { CurrencyService } from '../../../../../core/i18n/currency.service';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
+import type { MainProductId, MainProductOption } from '../../../../../shared/models/pricing.model';
 import { PRODUCT_VISUALS } from '../../../experience/experience.config';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
@@ -15,6 +17,8 @@ import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.compone
 })
 export class ProductStepComponent {
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
+  readonly money = inject(CurrencyService);
   readonly options = MAIN_PRODUCT_OPTIONS;
   readonly visuals = PRODUCT_VISUALS;
   readonly leavingId = signal<MainProductId | null>(null);
@@ -28,7 +32,12 @@ export class ProductStepComponent {
 
   priceLabel(id: MainProductId): string {
     const pkg = findPackage(id);
-    return pkg.priceStartsFrom ? `החל מ ₪${pkg.introPrice}` : `₪${pkg.introPrice}`;
+    const price = this.money.format(pkg.introPrice);
+    return pkg.priceStartsFrom ? `${this.i18n.t('package.pricePrefix')} ${price}` : price;
+  }
+
+  productTitle(option: MainProductOption): string {
+    return localizedProductTitle(option, this.i18n.locale());
   }
 
   select(id: MainProductId): void {

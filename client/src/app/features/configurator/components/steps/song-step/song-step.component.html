@@ -2,14 +2,14 @@
   @switch (store.activeScreen().field) {
     @case ('styles') {
       <app-wizard-screen
-        kicker="השיר"
-        heading="איזה סגנון מתנגן לכם בראש?"
-        description="אפשר לבחור שילוב של כמה סגנונות. לחיצה משמיעה דוגמה קצרה, מומלץ להפעיל רמקולים."
+        [kicker]="i18n.t('song.kicker')"
+        [heading]="i18n.t('song.style.heading')"
+        [description]="i18n.t('song.style.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
       >
-        <div class="tone-grid tone-grid--styles" role="group" aria-label="סגנונות מוזיקליים">
+        <div class="tone-grid tone-grid--styles" role="group" [attr.aria-label]="i18n.t('song.style.groupAria')">
           @for (style of styleOptions; track style) {
             <button
               type="button"
@@ -22,7 +22,12 @@
               (click)="pickStyle(style)"
             >
               <span class="tone-tile__eq" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="tone-tile__name">{{ style }}</span>
+              <span class="tone-tile__name" [class.tone-tile__name--has-short]="styleHasShort(style)">
+                <span class="tone-tile__name-full">{{ styleLabel(style) }}</span>
+                @if (styleHasShort(style)) {
+                  <span class="tone-tile__name-short">{{ styleLabelShort(style) }}</span>
+                }
+              </span>
             </button>
           }
         </div>
@@ -31,8 +36,8 @@
             #customStyleInput
             class="field__control wizard-input"
             formControlName="customStyle"
-            placeholder="איזה סגנון? אפשר כמה, מופרדים בפסיקים"
-            aria-label="סגנון מותאם אישית"
+            [placeholder]="i18n.t('song.style.customPlaceholder')"
+            [attr.aria-label]="i18n.t('song.style.customAria')"
             [maxlength]="limits.customStyle"
             (blur)="store.markSongCustomStyleTouched()"
           />
@@ -41,14 +46,14 @@
     }
     @case ('vocalist') {
       <app-wizard-screen
-        kicker="השיר"
-        heading="איזה קול ישיר?"
-        description="לחיצה על קול משמיעה דוגמה קצרה. מומלץ להפעיל רמקולים."
+        [kicker]="i18n.t('song.kicker')"
+        [heading]="i18n.t('song.voice.heading')"
+        [description]="i18n.t('song.voice.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
       >
-        <div class="tone-grid tone-grid--voices" role="radiogroup" aria-label="בחירת קול">
+        <div class="tone-grid tone-grid--voices" role="radiogroup" [attr.aria-label]="i18n.t('song.voice.groupAria')">
           @for (option of vocalistOptions; track option.id) {
             <button
               type="button"
@@ -62,7 +67,7 @@
               (click)="pickVoice(option.id)"
             >
               <span class="tone-tile__eq" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="tone-tile__name">{{ option.labelHe }}</span>
+              <span class="tone-tile__name">{{ vocalistLabel(option) }}</span>
             </button>
           }
         </div>
@@ -70,9 +75,9 @@
     }
     @case ('length') {
       <app-wizard-screen
-        kicker="השיר"
+        [kicker]="i18n.t('song.kicker')"
         [heading]="lengthTitle()"
-        [description]="lengthDescription"
+        [description]="i18n.t('song.length.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -86,9 +91,9 @@
     }
     @case ('optional') {
       <app-wizard-screen
-        kicker="השיר"
-        heading="עוד על השיר"
-        description="רשות. אפשר להמשיך גם בלי למלא."
+        [kicker]="i18n.t('song.kicker')"
+        [heading]="i18n.t('song.optional.heading')"
+        [description]="i18n.t('common.optionalSkipHint')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -96,20 +101,20 @@
         <div class="song-fields">
           @for (field of optionalFields; track field.id) {
             <label class="song-fields__item">
-              <span>{{ field.title }}</span>
+              <span>{{ i18n.t(field.titleKey) }}</span>
               @if (field.control === 'additionalNotes') {
                 <textarea
                   class="field__control wizard-input"
                   [formControlName]="field.control"
                   rows="4"
-                  [placeholder]="field.placeholder"
+                  [placeholder]="i18n.t(field.placeholderKey)"
                   [maxlength]="field.max"
                 ></textarea>
               } @else {
                 <input
                   class="field__control wizard-input"
                   [formControlName]="field.control"
-                  [placeholder]="field.placeholder"
+                  [placeholder]="i18n.t(field.placeholderKey)"
                   [maxlength]="field.max"
                 />
               }
@@ -120,9 +125,9 @@
     }
     @case ('existingSongName') {
       <app-wizard-screen
-        kicker="השיר"
-        heading="איך קוראים לשיר?"
-        description="השיר שסביבו נבנה את הקליפ."
+        [kicker]="i18n.t('song.kicker')"
+        [heading]="i18n.t('song.existing.nameHeading')"
+        [description]="i18n.t('song.existing.nameDescription')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -130,16 +135,16 @@
         <input
           class="field__control wizard-input"
           formControlName="existingSongName"
-          placeholder="שם השיר"
+          [placeholder]="i18n.t('song.existing.namePlaceholder')"
           [maxlength]="limits.existingSongName"
         />
       </app-wizard-screen>
     }
     @case ('existingSongLink') {
       <app-wizard-screen
-        kicker="השיר"
-        heading="איפה אפשר לשמוע אותו?"
-        description="קישור מיוטיוב, ספוטיפיי או כל מקום אחר."
+        [kicker]="i18n.t('song.kicker')"
+        [heading]="i18n.t('song.existing.linkHeading')"
+        [description]="i18n.t('song.existing.linkDescription')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -152,7 +157,7 @@
           [maxlength]="limits.existingSongLink"
         />
         @if (store.songForm.controls.existingSongLink.touched && !linkReady()) {
-          <p class="field__error">נא להזין קישור מלא, למשל https://youtube.com/...</p>
+          <p class="field__error">{{ i18n.t('song.existing.linkInvalid') }}</p>
         }
       </app-wizard-screen>
     }

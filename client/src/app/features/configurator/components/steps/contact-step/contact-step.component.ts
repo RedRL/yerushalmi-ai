@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import { WHATSAPP_CONFIG } from '../../../../../core/config/site.config';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
 import { formatShortInquiryReference } from '../../../../../shared/utils/inquiry-reference.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 
@@ -14,7 +15,10 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 })
 export class ContactStepComponent {
   readonly store = inject(ConfiguratorStoreService);
-  readonly whatsappUrl = WHATSAPP_CONFIG.url;
+  readonly i18n = inject(LocaleService);
+  readonly whatsappUrl = computed(() =>
+    WHATSAPP_CONFIG.buildUrl(this.i18n.t('site.whatsappDefaultMessage')),
+  );
   readonly limits = FIELD_LIMITS;
   readonly formatShortInquiryReference = formatShortInquiryReference;
   private readonly couponMessage = viewChild<ElementRef<HTMLElement>>('couponMessage');

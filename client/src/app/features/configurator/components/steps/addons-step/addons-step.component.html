@@ -1,8 +1,8 @@
 <div class="step">
-  <h3 class="step__title">רוצים להוסיף עוד משהו מיוחד?</h3>
-  <p class="step__description">אפשר לבחור כמה תוספות שרוצים, או להמשיך בלי אף אחת מהן - המחיר יתעדכן באופן מיידי.</p>
+  <h3 class="step__title">{{ i18n.t('addons.title') }}</h3>
+  <p class="step__description">{{ i18n.t('addons.description') }}</p>
 
-  <div class="addons-step__grid" role="group" aria-label="תוספות אפשריות">
+  <div class="addons-step__grid" role="group" [attr.aria-label]="i18n.t('addons.groupAria')">
     @for (addon of relevantAddons(); track addon.id) {
       <button
         type="button"
@@ -12,7 +12,7 @@
         [attr.aria-checked]="isSelected(addon.id)"
         (click)="toggle(addon.id)"
       >
-        <span class="option-card__title">{{ addon.labelHe }}</span>
+        <span class="option-card__title">{{ addonLabel(addon) }}</span>
       </button>
     }
   </div>

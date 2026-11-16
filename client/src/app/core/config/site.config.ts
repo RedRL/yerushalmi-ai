@@ -1,36 +1,33 @@
 /** Site-wide constants: brand copy, navigation and contact channels. */
 
+import type { UiMessageKey } from '../i18n/messages';
+
 export interface NavLink {
-  labelHe: string;
+  labelKey: UiMessageKey;
   sectionId: string;
 }
 
 export const SITE_CONFIG = {
   brandName: 'YERUSHALMI.AI',
-  taglineHe: 'קליפים מוזיקליים ושירים בהתאמה אישית',
-  titleHe: 'YERUSHALMI.AI | קליפים מוזיקליים ושירים בהתאמה אישית',
-  descriptionHe:
-    'קליפים מוזיקליים אישיים, שירים מקוריים וסרטוני AI שנוצרים מתמונות, סיפורים ורגעים מיוחדים. לאירועים, למשפחה, לחברות ולארגונים, וגם סתם לאדם שאוהבים, בלי שום סיבה מיוחדת 😊.',
   canonicalUrl: 'https://yerushalmi.ai/clips',
   /** Dedicated weddings landing — sibling of /clips; page content comes later. */
   weddingsUrl: 'https://yerushalmi.ai/weddings',
 } as const;
 
 export const NAV_LINKS: readonly NavLink[] = [
-  { labelHe: 'דוגמאות', sectionId: 'portfolio' },
-  { labelHe: 'איך זה עובד', sectionId: 'how-it-works' },
-  { labelHe: 'שקיפות', sectionId: 'transparency' },
-  { labelHe: 'חבילות', sectionId: 'pricing' },
-  { labelHe: 'בניית הפרויקט', sectionId: 'configurator' },
-  { labelHe: 'יצירת קשר', sectionId: 'contact' },
+  { labelKey: 'nav.portfolio', sectionId: 'portfolio' },
+  { labelKey: 'nav.howItWorks', sectionId: 'how-it-works' },
+  { labelKey: 'nav.transparency', sectionId: 'transparency' },
+  { labelKey: 'nav.pricing', sectionId: 'pricing' },
+  { labelKey: 'nav.configurator', sectionId: 'configurator' },
+  { labelKey: 'nav.contact', sectionId: 'contact' },
 ];
 
 export const WHATSAPP_CONFIG = {
   localPhone: '026480886',
   internationalPhone: '97226480886',
-  defaultMessageHe: 'היי, אשמח לקבל פרטים על יצירת קליפ או שיר אישי דרך YERUSHALMI.AI',
-  get url(): string {
-    return `https://wa.me/${this.internationalPhone}?text=${encodeURIComponent(this.defaultMessageHe)}`;
+  buildUrl(message: string): string {
+    return `https://wa.me/${this.internationalPhone}?text=${encodeURIComponent(message)}`;
   },
 } as const;
 

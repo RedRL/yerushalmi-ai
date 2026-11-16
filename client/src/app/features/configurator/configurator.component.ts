@@ -3,6 +3,9 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, 
 
 
 
+import { CurrencyService } from '../../core/i18n/currency.service';
+import { LocaleService } from '../../core/i18n/locale.service';
+
 import { SectionHeadingComponent } from '../../shared/components/section-heading/section-heading.component';
 
 
@@ -165,6 +168,9 @@ export class ConfiguratorComponent implements AfterViewInit {
   private lastSubStepIndex = 0;
   private lockedViewportWidth = 0;
   private lockedViewportHeight = 0;
+
+  readonly i18n = inject(LocaleService);
+  readonly money = inject(CurrencyService);
 
   constructor(readonly store: ConfiguratorStoreService) {
     this.lastStepIndex = store.currentStepIndex();

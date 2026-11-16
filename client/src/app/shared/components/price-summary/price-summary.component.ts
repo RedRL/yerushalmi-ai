@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { couponDiscountPercent } from '../../../core/config/coupon.config';
 import { findPackage } from '../../../core/config/packages.config';
-import type { MainProductId, PriceBreakdown } from '../../models/pricing.model';
+import { localizedOptionLabel } from '../../../core/config/pricing.config';
+import { CurrencyService } from '../../../core/i18n/currency.service';
+import { LocaleService } from '../../../core/i18n/locale.service';
+import type { MainProductId, PriceBreakdown, PricingLineItem } from '../../models/pricing.model';
 
 @Component({
   selector: 'app-price-summary',
@@ -10,6 +13,9 @@ import type { MainProductId, PriceBreakdown } from '../../models/pricing.model';
   styleUrl: './price-summary.component.scss',
 })
 export class PriceSummaryComponent {
+  readonly i18n = inject(LocaleService);
+  readonly money = inject(CurrencyService);
+
   readonly breakdown = input<PriceBreakdown | null>(null);
   readonly originalTotal = input<number | null>(null);
   readonly compact = input(false);
@@ -47,6 +53,11 @@ export class PriceSummaryComponent {
   });
 
   readonly couponPercent = computed(() => couponDiscountPercent(this.breakdown()?.couponCode));
+
+  /** Line-item label in the active locale (Hebrew fallback when no English label exists). */
+  itemLabel(item: PricingLineItem): string {
+    return localizedOptionLabel(item, this.i18n.locale());
+  }
 
   private previousTotal: number | null = null;
   private bumpTimeout: ReturnType<typeof setTimeout> | null = null;

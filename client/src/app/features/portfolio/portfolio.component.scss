@@ -19,6 +19,9 @@
 }
 
 .portfolio__gallery {
+  // Physical layout never follows document dir — Hebrew and English keep the
+  // same left/right chrome (next on the left, prev on the right).
+  direction: ltr;
   width: min(100%, calc(var(--container-xl) + 18rem));
   margin-inline: auto;
   display: grid;
@@ -85,6 +88,7 @@
   flex: 0 0 100cqw;
   scroll-snap-align: start;
   direction: rtl;
+  text-align: start;
   opacity: 0;
   transform: translate3d(0, 24px, 0) scale(0.96);
 
@@ -205,14 +209,30 @@
   }
 }
 
+// Match the Hebrew visual chrome: next (<) on the physical left, prev (>) on
+// the physical right — independent of document direction.
 .portfolio__nav--prev {
-  grid-column: 1;
+  grid-column: 3;
   grid-row: 1;
 }
 
 .portfolio__nav--next {
-  grid-column: 3;
+  grid-column: 1;
   grid-row: 1;
+}
+
+.portfolio__nav svg {
+  transform: none;
+}
+
+:host-context([dir='ltr']) .portfolio__item {
+  direction: ltr;
+}
+
+:host-context([dir='ltr']) .portfolio__reactions,
+:host-context([dir='ltr']) .portfolio__songs {
+  direction: ltr;
+  text-align: start;
 }
 
 .portfolio__reactions,

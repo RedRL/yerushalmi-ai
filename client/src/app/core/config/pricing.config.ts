@@ -11,6 +11,39 @@ import type {
   SongLengthId,
   VocalistId,
 } from '../../shared/models/pricing.model';
+import { l10n, type L10nText, type Locale } from '../i18n/locale.types';
+
+/** Anything with a Hebrew label and an optional English one. */
+export interface LocalizedLabelSource {
+  readonly labelHe: string;
+  readonly labelEn?: string;
+}
+
+/**
+ * Customer-facing label of a pricing option for `locale`.
+ * Falls back to Hebrew when no English label exists.
+ */
+export function localizedOptionLabel(option: LocalizedLabelSource, locale: Locale): string {
+  return locale === 'en' ? option.labelEn || option.labelHe : option.labelHe;
+}
+
+/** Customer-facing description of a pricing option for `locale`. */
+export function localizedOptionDescription(
+  option: { readonly descriptionHe?: string; readonly descriptionEn?: string },
+  locale: Locale,
+): string {
+  return locale === 'en' ? option.descriptionEn || option.descriptionHe || '' : option.descriptionHe ?? '';
+}
+
+/** Customer-facing title of a main product for `locale`. */
+export function localizedProductTitle(option: MainProductOption, locale: Locale): string {
+  return locale === 'en' ? option.titleEn || option.titleHe : option.titleHe;
+}
+
+/** Bilingual view of an option label, for APIs that take `L10nText` (e.g. `LocaleService.tx`). */
+export function optionLabelL10n(option: LocalizedLabelSource): L10nText {
+  return l10n(option.labelHe, option.labelEn || option.labelHe);
+}
 
 /**
  * Frontend pricing configuration - used ONLY to render an immediate, friendly
@@ -56,20 +89,28 @@ export const MAIN_PRODUCT_OPTIONS: readonly MainProductOption[] = [
   {
     id: 'song_only',
     titleHe: 'שיר אישי',
+    titleEn: 'Personal song',
     descriptionHe:
       'שיר מקורי שנכתב והופק במיוחד עבורכם, בהשראת הסיפור, האנשים והרגעים החשובים שלכם.',
+    descriptionEn:
+      'An original song written and produced especially for you, inspired by your story, your people and your important moments.',
   },
   {
     id: 'video_existing_song',
     titleHe: 'סרטון עם שיר לבחירתכם',
+    titleEn: 'Video with a song of your choice',
     descriptionHe:
       'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
+    descriptionEn:
+      'We create a moving, impressive video that tells your story, set to a song of your choice.',
   },
   {
     id: 'video_new_song',
     titleHe: 'החוויה המלאה',
+    titleEn: 'The full experience',
     descriptionHe:
       'מהרעיון הראשון ועד הסרטון המוגמר – כל החוויה במקום אחד.',
+    descriptionEn: 'From the first idea to the finished video — the whole experience in one place.',
   },
 ];
 
@@ -98,17 +139,48 @@ export const SONG_STYLE_OPTIONS: readonly string[] = [
   'אחר',
 ];
 
-export const VOCALIST_OPTIONS: readonly { id: VocalistId; labelHe: string }[] = [
-  { id: 'male', labelHe: 'זמר' },
-  { id: 'female', labelHe: 'זמרת' },
-  { id: 'both', labelHe: 'שילוב של שניהם' },
+/**
+ * English display names for `SONG_STYLE_OPTIONS`. The Hebrew string stays the stored
+ * value / identifier (it is what the backend and admin receive); this map is display-only.
+ */
+export const SONG_STYLE_LABELS_EN: Readonly<Record<string, string>> = {
+  'פופ': 'Pop',
+  'רוק': 'Rock',
+  'ים תיכוני': 'Mediterranean',
+  // Short form used only when the full English label would overflow a tone tile.
+  'ים תיכוני__short': 'Med.',
+  'בלדה': 'Ballad',
+  'היפ הופ': 'Hip hop',
+  'גוספל': 'Gospel',
+  'קאנטרי': 'Country',
+  'בלוז': 'Blues',
+  'אינדי': 'Indie',
+  'אחר': 'Other',
+};
+
+/** Display name of a song style (stored Hebrew value) for `locale`. */
+export function localizedSongStyleLabel(style: string, locale: Locale, short = false): string {
+  if (locale !== 'en') return style;
+  if (short) {
+    const shortLabel = SONG_STYLE_LABELS_EN[`${style}__short`];
+    if (shortLabel) return shortLabel;
+  }
+  return SONG_STYLE_LABELS_EN[style] ?? style;
+}
+
+export const VOCALIST_OPTIONS: readonly { id: VocalistId; labelHe: string; labelEn: string }[] = [
+  { id: 'male', labelHe: 'זמר', labelEn: 'Male singer' },
+  { id: 'female', labelHe: 'זמרת', labelEn: 'Female singer' },
+  { id: 'both', labelHe: 'שילוב של שניהם', labelEn: 'Both combined' },
 ];
 
 export const VIDEO_SOURCE_OPTIONS: readonly PriceableOptionLike<VideoSourceId>[] = [
   {
     id: 'customer_photos',
     labelHe: 'עריכה מתמונות שהלקוח מספק',
+    labelEn: 'Edited from photos you provide',
     descriptionHe: 'עריכה מוזיקלית מתמונות שסיפקתם.',
+    descriptionEn: 'Musical editing from the photos you provided.',
     price: 0,
   },
 ];
@@ -145,17 +217,18 @@ export interface VideoFormatOption extends PriceableOptionLike<VideoFormatId> {
 const LENGTH_OPTION_DEFS: readonly {
   id: VideoLengthId;
   labelHe: string;
+  labelEn: string;
   /** Half-minute steps above ~1 minute. */
   halfStepsFromOneMinute: number;
 }[] = [
-  { id: 'min_1_0', labelHe: 'כ-1 דקה', halfStepsFromOneMinute: 0 },
-  { id: 'min_1_5', labelHe: 'כ-1.5 דקות', halfStepsFromOneMinute: 1 },
-  { id: 'min_2_0', labelHe: 'כ-2 דקות', halfStepsFromOneMinute: 2 },
-  { id: 'min_2_5', labelHe: 'כ-2.5 דקות', halfStepsFromOneMinute: 3 },
-  { id: 'min_3_0', labelHe: 'כ-3 דקות', halfStepsFromOneMinute: 4 },
-  { id: 'min_3_5', labelHe: 'כ-3.5 דקות', halfStepsFromOneMinute: 5 },
-  { id: 'min_4_0', labelHe: 'כ-4 דקות', halfStepsFromOneMinute: 6 },
-  { id: 'min_4_5', labelHe: 'כ-4.5 דקות', halfStepsFromOneMinute: 7 },
+  { id: 'min_1_0', labelHe: 'כ-1 דקה', labelEn: 'About 1 minute', halfStepsFromOneMinute: 0 },
+  { id: 'min_1_5', labelHe: 'כ-1.5 דקות', labelEn: 'About 1.5 minutes', halfStepsFromOneMinute: 1 },
+  { id: 'min_2_0', labelHe: 'כ-2 דקות', labelEn: 'About 2 minutes', halfStepsFromOneMinute: 2 },
+  { id: 'min_2_5', labelHe: 'כ-2.5 דקות', labelEn: 'About 2.5 minutes', halfStepsFromOneMinute: 3 },
+  { id: 'min_3_0', labelHe: 'כ-3 דקות', labelEn: 'About 3 minutes', halfStepsFromOneMinute: 4 },
+  { id: 'min_3_5', labelHe: 'כ-3.5 דקות', labelEn: 'About 3.5 minutes', halfStepsFromOneMinute: 5 },
+  { id: 'min_4_0', labelHe: 'כ-4 דקות', labelEn: 'About 4 minutes', halfStepsFromOneMinute: 6 },
+  { id: 'min_4_5', labelHe: 'כ-4.5 דקות', labelEn: 'About 4.5 minutes', halfStepsFromOneMinute: 7 },
 ];
 
 /** Length surcharge for N half-steps above the range minimum. */
@@ -175,6 +248,7 @@ function buildLengthOptions(
   return LENGTH_OPTION_DEFS.slice(minIndex, maxIndex + 1).map((option) => ({
     id: option.id,
     labelHe: option.labelHe,
+    labelEn: option.labelEn,
     price: lengthSurcharge(option.halfStepsFromOneMinute - baseSteps, halfStepPrice),
   }));
 }
@@ -239,11 +313,11 @@ export function normalizeLengthId(value: string | null | undefined): VideoLength
 }
 
 export const VIDEO_FORMAT_OPTIONS: readonly VideoFormatOption[] = [
-  { id: 'landscape', labelHe: '16:9', price: 0, previewAspectRatio: '16 / 9', previewOrientation: 'landscape' },
-  { id: 'classic', labelHe: '4:3', price: 0, previewAspectRatio: '4 / 3', previewOrientation: 'landscape' },
-  { id: 'square', labelHe: '1:1', price: 0, previewAspectRatio: '1 / 1', previewOrientation: 'square' },
-  { id: 'portrait', labelHe: '9:16', price: 0, previewAspectRatio: '9 / 16', previewOrientation: 'portrait' },
-  { id: 'portrait_3_4', labelHe: '3:4', price: 0, previewAspectRatio: '3 / 4', previewOrientation: 'portrait' },
+  { id: 'landscape', labelHe: '16:9', labelEn: '16:9', price: 0, previewAspectRatio: '16 / 9', previewOrientation: 'landscape' },
+  { id: 'classic', labelHe: '4:3', labelEn: '4:3', price: 0, previewAspectRatio: '4 / 3', previewOrientation: 'landscape' },
+  { id: 'square', labelHe: '1:1', labelEn: '1:1', price: 0, previewAspectRatio: '1 / 1', previewOrientation: 'square' },
+  { id: 'portrait', labelHe: '9:16', labelEn: '9:16', price: 0, previewAspectRatio: '9 / 16', previewOrientation: 'portrait' },
+  { id: 'portrait_3_4', labelHe: '3:4', labelEn: '3:4', price: 0, previewAspectRatio: '3 / 4', previewOrientation: 'portrait' },
 ];
 
 const VIDEO_FORMAT_IDS = new Set<VideoFormatId>(VIDEO_FORMAT_OPTIONS.map((option) => option.id));
@@ -257,8 +331,8 @@ export function normalizeVideoFormatId(value: string | null | undefined): VideoF
 }
 
 export const SUBTITLES_OPTIONS: readonly PriceableOptionLike<SubtitlesId>[] = [
-  { id: 'none', labelHe: 'ללא כתוביות', price: 0 },
-  { id: 'selected', labelHe: 'כתוביות מעוצבות', price: 0 },
+  { id: 'none', labelHe: 'ללא כתוביות', labelEn: 'No subtitles', price: 0 },
+  { id: 'selected', labelHe: 'כתוביות מעוצבות', labelEn: 'Styled subtitles', price: 0 },
 ];
 
 /** Default subtitle text color when styled subtitles are selected. */
@@ -279,16 +353,17 @@ export function normalizeHexColor(
 }
 
 export const ADDON_OPTIONS: readonly AddonOption[] = [
-  { id: 'social_short_version', labelHe: 'גרסה קצרה לרשתות חברתיות', price: 150, videoOnly: true },
-  { id: 'custom_intro', labelHe: 'פתיח מותאם אישית', price: 120, videoOnly: true },
-  { id: 'outro_screen', labelHe: 'מסך סיום', price: 60, videoOnly: true },
-  { id: 'names_dates_overlay', labelHe: 'שילוב שמות ותאריכים', price: 60, videoOnly: true },
-  { id: 'extra_version', labelHe: 'גרסה נוספת', price: 200, videoOnly: false },
-  { id: 'separate_audio_file', labelHe: 'מסירת קובץ אודיו נפרד', price: 50, videoOnly: false },
-  { id: 'extra_revision_round', labelHe: 'סבב תיקונים נוסף', price: 150, videoOnly: false },
+  { id: 'social_short_version', labelHe: 'גרסה קצרה לרשתות חברתיות', labelEn: 'Short version for social media', price: 150, videoOnly: true },
+  { id: 'custom_intro', labelHe: 'פתיח מותאם אישית', labelEn: 'Custom intro', price: 120, videoOnly: true },
+  { id: 'outro_screen', labelHe: 'מסך סיום', labelEn: 'End screen', price: 60, videoOnly: true },
+  { id: 'names_dates_overlay', labelHe: 'שילוב שמות ותאריכים', labelEn: 'Names and dates overlay', price: 60, videoOnly: true },
+  { id: 'extra_version', labelHe: 'גרסה נוספת', labelEn: 'Additional version', price: 200, videoOnly: false },
+  { id: 'separate_audio_file', labelHe: 'מסירת קובץ אודיו נפרד', labelEn: 'Separate audio file delivery', price: 50, videoOnly: false },
+  { id: 'extra_revision_round', labelHe: 'סבב תיקונים נוסף', labelEn: 'Extra revision round', price: 150, videoOnly: false },
   {
     id: 'ai_image_fill',
     labelHe: 'מילוי אוטומטי של התמונות לפורמט היציאה',
+    labelEn: 'Automatic image fill for the output format',
     price: 0,
     videoOnly: true,
     selectable: false,

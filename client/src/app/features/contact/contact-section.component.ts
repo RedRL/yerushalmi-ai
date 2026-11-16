@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { FIELD_LIMITS } from '../../core/config/field-limits.config';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { ContactApiService } from '../../core/services/contact-api.service';
 import { CONTACT_EMAIL_CONFIG, WHATSAPP_CONFIG } from '../../core/config/site.config';
 import { EmailComposeDirective } from '../../shared/directives/email-compose.directive';
@@ -17,8 +18,11 @@ import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scrol
 export class ContactSectionComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly contactApi = inject(ContactApiService);
+  readonly i18n = inject(LocaleService);
 
-  readonly whatsappUrl = WHATSAPP_CONFIG.url;
+  readonly whatsappUrl = computed(() =>
+    WHATSAPP_CONFIG.buildUrl(this.i18n.t('site.whatsappDefaultMessage')),
+  );
   readonly contactEmail = CONTACT_EMAIL_CONFIG.address;
   readonly contactEmailUrl = CONTACT_EMAIL_CONFIG.mailtoUrl;
 
@@ -67,7 +71,7 @@ export class ContactSectionComponent {
       this.submitSuccess.set(true);
       this.form.reset({ name: '', phone: '', email: '', message: '' });
     } catch (error) {
-      this.submitError.set(error instanceof Error ? error.message : 'שליחת ההודעה נכשלה. נסו שוב.');
+      this.submitError.set(error instanceof Error ? error.message : this.i18n.t('simpleContact.failed'));
     } finally {
       this.isSubmitting.set(false);
     }

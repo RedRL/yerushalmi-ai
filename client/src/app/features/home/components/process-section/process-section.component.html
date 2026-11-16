@@ -1,13 +1,18 @@
 <section id="how-it-works" class="process">
-  <app-section-heading appReveal eyebrow="התהליך" heading="האם זה מסובך?" subtitle="לא. ארבעה שלבים ברורים — בוחרים, מספרים, שולחים, ואנחנו חוזרים אליכם." />
+  <app-section-heading
+    appReveal
+    [eyebrow]="i18n.tx(msg.eyebrow)"
+    [heading]="i18n.tx(msg.heading)"
+    [subtitle]="i18n.tx(msg.subtitle)"
+  />
 
   <ol class="process__timeline">
-    @for (step of steps; track step.step; let index = $index) {
+    @for (step of steps(); track step.step; let index = $index) {
       <li class="process__item" appReveal [appRevealDelay]="index * 120">
         <span class="process__number">{{ step.step }}</span>
         <div class="process__content">
-          <h3>{{ step.titleHe }}</h3>
-          <p>{{ step.descriptionHe }}</p>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
         </div>
       </li>
     }

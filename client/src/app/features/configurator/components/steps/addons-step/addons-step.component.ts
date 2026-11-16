@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import type { AddonId } from '../../../../../shared/models/pricing.model';
+import { localizedOptionLabel } from '../../../../../core/config/pricing.config';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
+import type { AddonId, AddonOption } from '../../../../../shared/models/pricing.model';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
 
 @Component({
@@ -11,6 +13,11 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 })
 export class AddonsStepComponent {
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
+
+  addonLabel(addon: AddonOption): string {
+    return localizedOptionLabel(addon, this.i18n.locale());
+  }
 
   readonly relevantAddons = computed(() =>
     this.store.addonOptions.filter(

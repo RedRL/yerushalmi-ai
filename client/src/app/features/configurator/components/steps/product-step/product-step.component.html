@@ -1,9 +1,9 @@
 <app-wizard-screen
-  kicker="הפרויקט"
-  heading="בחרו"
+  [kicker]="i18n.t('product.kicker')"
+  [heading]="i18n.t('product.heading')"
   [showActions]="false"
 >
-  <div class="pick-grid" role="radiogroup" aria-label="סוג הפרויקט">
+  <div class="pick-grid" role="radiogroup" [attr.aria-label]="i18n.t('product.groupAria')">
     @for (option of options; track option.id) {
       <button
         type="button"
@@ -17,8 +17,8 @@
         <img [src]="visuals[option.id].image" alt="" />
         <span class="pick-card__shade"></span>
         <span class="pick-card__label">
-          <strong>{{ option.titleHe }}</strong>
-          <small>{{ visuals[option.id].blurb }}</small>
+          <strong>{{ productTitle(option) }}</strong>
+          <small>{{ i18n.tx(visuals[option.id].blurb) }}</small>
           <em>{{ priceLabel(option.id) }}</em>
         </span>
       </button>

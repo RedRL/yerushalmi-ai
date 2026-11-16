@@ -1,42 +1,28 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { LocaleService } from '../../../../core/i18n/locale.service';
 import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
-import type { ServiceItem } from '../../../../shared/models/service-item.model';
+import type { ServiceIconId } from '../../../../shared/models/service-item.model';
 import { scrollToConfigurator } from '../../../../shared/utils/scroll-to.util';
+import { HOME_MESSAGES } from '../../home.messages';
 
-const SERVICES: readonly ServiceItem[] = [
-  {
-    id: 'song-only',
-    icon: 'song',
-    titleHe: 'שיר אישי בלבד',
-    descriptionHe: 'שיר מקורי שנכתב לפי האדם, הסיפור, הזיכרונות והסגנון שתבחרו.',
-  },
-  {
-    id: 'video-existing-song',
-    icon: 'video-existing-song',
-    titleHe: 'קליפ עם שיר קיים',
-    descriptionHe: 'אתם מספקים שיר קיים, ואנחנו יוצרים עבורו קליפ המבוסס על תמונות או סצנות שנוצרות באמצעות AI.',
-  },
-  {
-    id: 'video-new-song',
-    icon: 'video-new-song',
-    titleHe: 'קליפ עם שיר אישי חדש',
-    descriptionHe: 'חבילה מלאה הכוללת כתיבה ויצירה של שיר אישי יחד עם קליפ מוזיקלי מותאם.',
-  },
-  {
-    id: 'video-photos',
-    icon: 'photos',
-    titleHe: 'קליפ מתמונות אמיתיות',
-    descriptionHe: 'תמונות שהלקוח מספק הופכות לסצנות וידאו קולנועיות ומרגשות.',
-  },
-  {
-    id: 'video-ai',
-    icon: 'ai-visual',
-    titleHe: 'קליפ AI מלא',
-    descriptionHe: 'הוויזואליה נוצרת מאפס בהתאם לסיפור, לקונספט ולאווירה הרצויה.',
-  },
-];
+/** Localized service card, resolved for the active locale. */
+interface ServiceView {
+  id: string;
+  icon: ServiceIconId;
+  title: string;
+  description: string;
+}
+
+/** Icon per service id (icons are not locale-dependent, so they live outside HOME_MESSAGES). */
+const SERVICE_ICONS: Readonly<Record<string, ServiceIconId>> = {
+  'song-only': 'song',
+  'video-existing-song': 'video-existing-song',
+  'video-new-song': 'video-new-song',
+  'video-photos': 'photos',
+  'video-ai': 'ai-visual',
+};
 
 const HIGHLIGHTED_ID = 'video-new-song';
 
@@ -48,8 +34,26 @@ const HIGHLIGHTED_ID = 'video-new-song';
   styleUrl: './services-section.component.scss',
 })
 export class ServicesSectionComponent {
-  readonly highlighted: ServiceItem = SERVICES.find((service) => service.id === HIGHLIGHTED_ID) ?? SERVICES[0];
-  readonly supporting: readonly ServiceItem[] = SERVICES.filter((service) => service.id !== HIGHLIGHTED_ID);
+  readonly i18n = inject(LocaleService);
+  readonly msg = HOME_MESSAGES.services;
+
+  private readonly services = computed<readonly ServiceView[]>(() =>
+    this.msg.items.map((item) => ({
+      id: item.id,
+      icon: SERVICE_ICONS[item.id] ?? 'ai-visual',
+      title: this.i18n.tx(item.title),
+      description: this.i18n.tx(item.description),
+    })),
+  );
+
+  readonly highlighted = computed<ServiceView>(() => {
+    const all = this.services();
+    return all.find((service) => service.id === HIGHLIGHTED_ID) ?? all[0];
+  });
+
+  readonly supporting = computed<readonly ServiceView[]>(() =>
+    this.services().filter((service) => service.id !== HIGHLIGHTED_ID),
+  );
 
   goToConfigurator(): void {
     scrollToConfigurator();

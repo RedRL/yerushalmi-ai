@@ -3,9 +3,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import {
   getSongLengthOptions,
+  localizedOptionLabel,
+  localizedSongStyleLabel,
   SONG_STYLE_OPTIONS,
   VOCALIST_OPTIONS,
 } from '../../../../../core/config/pricing.config';
+import { LocaleService } from '../../../../../core/i18n/locale.service';
+import type { UiMessageKey } from '../../../../../core/i18n/messages';
 import type { SongLengthId, VocalistId } from '../../../../../shared/models/pricing.model';
 import { STYLE_TONES, VOICE_TONES } from '../../../experience/experience.config';
 import { StylePreviewPlayer } from '../../../experience/style-preview-player.service';
@@ -22,6 +26,7 @@ import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.compone
 })
 export class SongStepComponent {
   readonly store = inject(ConfiguratorStoreService);
+  readonly i18n = inject(LocaleService);
   readonly player = inject(StylePreviewPlayer);
   readonly styleOptions = SONG_STYLE_OPTIONS;
   readonly vocalistOptions = VOCALIST_OPTIONS;
@@ -33,48 +38,71 @@ export class SongStepComponent {
   readonly optionalFields = [
     {
       id: 'mood',
-      title: 'איזה מצב רוח?',
-      placeholder: 'שמח, מרגש, קצבי...',
+      titleKey: 'song.field.mood.title',
+      placeholderKey: 'song.field.mood.placeholder',
       control: 'mood',
       max: FIELD_LIMITS.mood,
     },
     {
       id: 'namesToInclude',
-      title: 'שמות שחשוב שיופיעו',
-      placeholder: 'הפרידו בפסיקים',
+      titleKey: 'song.field.names.title',
+      placeholderKey: 'song.field.commaSeparated',
       control: 'namesToInclude',
       max: FIELD_LIMITS.namesToInclude,
     },
     {
       id: 'importantWords',
-      title: 'מילים שחייבות להיכנס',
-      placeholder: 'הפרידו בפסיקים',
+      titleKey: 'song.field.words.title',
+      placeholderKey: 'song.field.commaSeparated',
       control: 'importantWords',
       max: FIELD_LIMITS.importantWords,
     },
     {
       id: 'excludedTopics',
-      title: 'מה לא להכניס לשיר?',
-      placeholder: 'הפרידו בפסיקים',
+      titleKey: 'song.field.excluded.title',
+      placeholderKey: 'song.field.commaSeparated',
       control: 'excludedTopics',
       max: FIELD_LIMITS.excludedTopics,
     },
     {
       id: 'additionalNotes',
-      title: 'עוד משהו על השיר?',
-      placeholder: 'הערה קצרה',
+      titleKey: 'song.field.notes.title',
+      placeholderKey: 'song.field.notes.placeholder',
       control: 'additionalNotes',
       max: FIELD_LIMITS.songAdditionalNotes,
     },
-  ] as const;
+  ] as const satisfies readonly {
+    id: string;
+    titleKey: UiMessageKey;
+    placeholderKey: UiMessageKey;
+    control: string;
+    max: number;
+  }[];
 
   readonly lengthOptions = computed(() => getSongLengthOptions(this.store.mainProduct()));
 
   readonly lengthTitle = computed(() =>
-    this.store.isFullExperience() ? 'כמה ארוכים השיר והסרטון?' : 'כמה ארוך השיר?',
+    this.i18n.t(this.store.isFullExperience() ? 'song.length.headingCombined' : 'song.length.heading'),
   );
 
-  readonly lengthDescription = 'גררו את המד לאורך הרצוי';
+  styleLabel(style: string): string {
+    return localizedSongStyleLabel(style, this.i18n.locale());
+  }
+
+  styleLabelShort(style: string): string {
+    return localizedSongStyleLabel(style, this.i18n.locale(), true);
+  }
+
+  styleHasShort(style: string): boolean {
+    if (!this.i18n.isEnglish()) return false;
+    const full = localizedSongStyleLabel(style, 'en');
+    const short = localizedSongStyleLabel(style, 'en', true);
+    return short !== full;
+  }
+
+  vocalistLabel(option: { labelHe: string; labelEn?: string }): string {
+    return localizedOptionLabel(option, this.i18n.locale());
+  }
 
   constructor() {
     effect(() => {

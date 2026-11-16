@@ -1,8 +1,8 @@
 <div class="step">
-  <p class="wizard__kicker">החומרים</p>
-  <h3 class="step__title">תמונות וסרטונים לקליפ</h3>
+  <p class="wizard__kicker">{{ i18n.t('upload.kicker') }}</p>
+  <h3 class="step__title">{{ i18n.t('upload.title') }}</h3>
 
-  <div class="upload-step__tabs" role="tablist" aria-label="בחירת סוג העלאה">
+  <div class="upload-step__tabs" role="tablist" [attr.aria-label]="i18n.t('upload.tabsAria')">
     <div class="upload-step__tab-group">
       <button
         type="button"
@@ -12,12 +12,12 @@
         [attr.aria-selected]="activeTab() === 'image'"
         (click)="setActiveTab('image')"
       >
-        תמונות
+        {{ i18n.t('upload.tab.images') }}
       </button>
       <button
         type="button"
         class="upload-step__info-button"
-        aria-label="מידע על העלאת תמונות"
+        [attr.aria-label]="i18n.t('upload.imagesInfoAria')"
         [class.upload-step__info-button--active]="helpTab() === 'image'"
         [attr.aria-expanded]="helpTab() === 'image'"
         (click)="toggleHelp('image', $event)"
@@ -35,12 +35,12 @@
         [attr.aria-selected]="activeTab() === 'video'"
         (click)="setActiveTab('video')"
       >
-        סרטונים
+        {{ i18n.t('upload.tab.videos') }}
       </button>
       <button
         type="button"
         class="upload-step__info-button"
-        aria-label="מידע על העלאת סרטונים"
+        [attr.aria-label]="i18n.t('upload.videosInfoAria')"
         [class.upload-step__info-button--active]="helpTab() === 'video'"
         [attr.aria-expanded]="helpTab() === 'video'"
         (click)="toggleHelp('video', $event)"
@@ -58,11 +58,11 @@
         (mouseleave)="scheduleHideHelp()"
       >
         @if (tab === 'image') {
-          <p>{{ imageCountGuidanceHe() }}</p>
+          <p>{{ imageCountGuidance() }}</p>
         } @else {
-          <p>{{ videoCountGuidanceHe() }}</p>
+          <p>{{ videoCountGuidance() }}</p>
         }
-        <p>{{ orderGuidanceHe }}</p>
+        <p>{{ i18n.t('upload.orderGuidance') }}</p>
       </div>
     }
   </div>
@@ -71,9 +71,9 @@
     <app-file-upload
       kind="image"
       accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
-        acceptDescriptionHe="JPEG, PNG, WEBP או HEIC"
-        [maxFiles]="store.maximumAllowedImages()"
-        [files]="imageFiles()"
+      [acceptDescriptionHe]="i18n.t('upload.accept.images')"
+      [maxFiles]="store.maximumAllowedImages()"
+      [files]="imageFiles()"
       (filesSelected)="onImagesSelected($event)"
       (selectionStarted)="clearErrors()"
       (removeFile)="onRemoveFile($event)"
@@ -84,7 +84,7 @@
     <app-file-upload
       kind="video"
       accept="video/mp4,video/quicktime,video/webm,.mp4,.m4v,.mov,.webm,.3gp"
-      acceptDescriptionHe="MP4, MOV או WEBM"
+      [acceptDescriptionHe]="i18n.t('upload.accept.videos')"
       [maxFiles]="store.maximumAllowedVideos()"
       [files]="videoFiles()"
       [extraErrors]="videoErrors()"
@@ -95,6 +95,6 @@
   </div>
 
   <div class="upload-step__summary" aria-live="polite">
-    {{ imageFiles().length }} תמונות · {{ videoFiles().length }} סרטונים
+    {{ i18n.tf('upload.summary', { images: imageFiles().length, videos: videoFiles().length }) }}
   </div>
 </div>

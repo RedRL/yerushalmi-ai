@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { NAV_LINKS, SITE_CONFIG } from '../../../core/config/site.config';
+import { CurrencyService } from '../../../core/i18n/currency.service';
+import { LocaleService } from '../../../core/i18n/locale.service';
 import { beginScrollRestoration } from '../../utils/scroll-restoration.util';
 import { scrollToPageTop, scrollToSectionFromNav } from '../../utils/scroll-to.util';
 
@@ -16,6 +18,8 @@ export class HeaderComponent {
   private readonly hostRef = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  readonly i18n = inject(LocaleService);
+  readonly currency = inject(CurrencyService);
   private closeMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly brandName = SITE_CONFIG.brandName;

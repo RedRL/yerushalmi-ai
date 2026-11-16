@@ -1,19 +1,24 @@
 <section id="portfolio" class="portfolio">
   <div class="portfolio__intro" appReveal>
     <app-section-heading
-      eyebrow="פורטפוליו"
-      heading="מה אפשר לקבל?"
-      subtitle="גללו בין דוגמאות אמיתיות — מספיקות תמונות ותיאור קצר, ואנחנו הופכים אותן לקליפ מוזיקלי מלא."
+      [eyebrow]="i18n.t('portfolio.eyebrow')"
+      [heading]="i18n.t('portfolio.heading')"
+      [subtitle]="i18n.t('portfolio.subtitle')"
     />
   </div>
 
   <div class="portfolio__gallery" appReveal>
-    <button type="button" class="portfolio__nav portfolio__nav--prev" (click)="scrollPrev()" aria-label="גלילה לדוגמה הקודמת">
+    <button
+      type="button"
+      class="portfolio__nav portfolio__nav--prev"
+      (click)="scrollPrev()"
+      [attr.aria-label]="i18n.t('portfolio.prev')"
+    >
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
 
     <div class="portfolio__viewport">
-      <div #scroller class="portfolio__track" tabindex="0" aria-label="גלריית קליפים">
+      <div #scroller class="portfolio__track" tabindex="0" [attr.aria-label]="i18n.t('portfolio.galleryAria')">
         @for (video of loopVideos; track $index) {
           <div
             class="portfolio__item"
@@ -26,6 +31,7 @@
                 size="gallery"
                 [video]="video"
                 [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
+                [descriptionEn]="video.descriptionEn ?? categoryOf(video).descriptionEn"
                 (play)="openVideo($event)"
               />
             </div>
@@ -34,19 +40,25 @@
       </div>
     </div>
 
-    <button type="button" class="portfolio__nav portfolio__nav--next" (click)="scrollNext()" aria-label="גלילה לדוגמה הבאה">
+    <button
+      type="button"
+      class="portfolio__nav portfolio__nav--next"
+      (click)="scrollNext()"
+      [attr.aria-label]="i18n.t('portfolio.next')"
+    >
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </div>
 
   <div class="portfolio__reactions" appReveal>
-    <h3 class="portfolio__songs-title">תגובות לסרטונים</h3>
+    <h3 class="portfolio__songs-title">{{ i18n.t('portfolio.reactionsTitle') }}</h3>
     <div class="portfolio__songs-grid">
       @for (video of reactions; track video.id) {
         <app-video-card
           size="gallery"
           [video]="video"
           [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
+          [descriptionEn]="video.descriptionEn ?? categoryOf(video).descriptionEn"
           (play)="openVideo($event)"
         />
       }
@@ -54,14 +66,15 @@
   </div>
 
   <div class="portfolio__songs" appReveal>
-    <h3 class="portfolio__songs-title">דוגמאות לשירים</h3>
-    <p class="portfolio__songs-subtitle">האזנה לשירים מקוריים — בלי קליפ.</p>
+    <h3 class="portfolio__songs-title">{{ i18n.t('portfolio.songsTitle') }}</h3>
+    <p class="portfolio__songs-subtitle">{{ i18n.t('portfolio.songsSubtitle') }}</p>
     <div class="portfolio__songs-grid">
       @for (song of songs; track song.id) {
         <app-video-card
           size="gallery"
           [video]="song"
           [descriptionHe]="song.descriptionHe ?? categoryOf(song).descriptionHe"
+          [descriptionEn]="song.descriptionEn ?? categoryOf(song).descriptionEn"
           (play)="openVideo($event)"
         />
       }

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { CurrencyService } from '../../../core/i18n/currency.service';
 
 @Component({
   selector: 'app-intro-price',
@@ -7,6 +8,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   styleUrl: './intro-price.component.scss',
 })
 export class IntroPriceComponent {
+  readonly money = inject(CurrencyService);
   readonly introTotal = input.required<number>();
   readonly originalTotal = input.required<number>();
   readonly compact = input(false);

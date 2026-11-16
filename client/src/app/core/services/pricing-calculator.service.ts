@@ -53,10 +53,13 @@ export class PricingCalculatorService {
     const includesVideo = PRODUCT_INCLUDES_VIDEO[selection.mainProduct];
     const includesNewSong = PRODUCT_INCLUDES_NEW_SONG[selection.mainProduct];
 
-    const productLabel = MAIN_PRODUCT_OPTIONS.find((option) => option.id === selection.mainProduct)?.titleHe ?? '';
+    const product = MAIN_PRODUCT_OPTIONS.find((option) => option.id === selection.mainProduct);
+    const productLabel = product?.titleHe ?? '';
+    const productLabelEn = product?.titleEn ?? productLabel;
     lineItems.push({
       id: `main_product:${selection.mainProduct}`,
       labelHe: productLabel,
+      labelEn: productLabelEn,
       amount: basePrices[selection.mainProduct],
       quantity: 1,
     });
@@ -73,6 +76,7 @@ export class PricingCalculatorService {
         lineItems.push({
           id: `song_length:${selection.songLength}`,
           labelHe: songLength.labelHe,
+          labelEn: songLength.labelEn,
           amount: songLengthPrice,
           quantity: 1,
         });
@@ -82,12 +86,12 @@ export class PricingCalculatorService {
     if (includesVideo) {
       const source = VIDEO_SOURCE_OPTIONS.find((option) => option.id === selection.videoSource);
       if (source && source.price > 0) {
-        lineItems.push({ id: `video_source:${source.id}`, labelHe: source.labelHe, amount: source.price, quantity: 1 });
+        lineItems.push({ id: `video_source:${source.id}`, labelHe: source.labelHe, labelEn: source.labelEn, amount: source.price, quantity: 1 });
       }
 
       const length = VIDEO_LENGTH_OPTIONS.find((option) => option.id === selection.videoLength);
       if (length && !usesCombinedSongVideoLength(selection.mainProduct)) {
-        lineItems.push({ id: `video_length:${length.id}`, labelHe: length.labelHe, amount: length.price, quantity: 1 });
+        lineItems.push({ id: `video_length:${length.id}`, labelHe: length.labelHe, labelEn: length.labelEn, amount: length.price, quantity: 1 });
       }
 
       const format = VIDEO_FORMAT_OPTIONS.find((option) => option.id === selection.videoFormat);
@@ -95,6 +99,7 @@ export class PricingCalculatorService {
         lineItems.push({
           id: `video_format:${format.id}`,
           labelHe: `פורמט — ${format.labelHe}`,
+          labelEn: `Format — ${format.labelEn ?? format.labelHe}`,
           amount: format.price,
           quantity: 1,
         });
@@ -102,7 +107,7 @@ export class PricingCalculatorService {
 
       const subtitles = SUBTITLES_OPTIONS.find((option) => option.id === selection.subtitles);
       if (subtitles) {
-        lineItems.push({ id: `subtitles:${subtitles.id}`, labelHe: subtitles.labelHe, amount: subtitles.price, quantity: 1 });
+        lineItems.push({ id: `subtitles:${subtitles.id}`, labelHe: subtitles.labelHe, labelEn: subtitles.labelEn, amount: subtitles.price, quantity: 1 });
       }
     }
 
@@ -110,7 +115,7 @@ export class PricingCalculatorService {
     for (const addonId of uniqueAddons) {
       const addon = ADDON_OPTIONS.find((option) => option.id === addonId);
       if (addon) {
-        lineItems.push({ id: `addon:${addon.id}`, labelHe: addon.labelHe, amount: addon.price, quantity: 1 });
+        lineItems.push({ id: `addon:${addon.id}`, labelHe: addon.labelHe, labelEn: addon.labelEn, amount: addon.price, quantity: 1 });
       }
     }
 

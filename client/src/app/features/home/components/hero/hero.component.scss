@@ -91,8 +91,12 @@
   height: auto;
   max-height: none;
   max-width: 100%;
+  // Lock desktop aspect so HE/EN swaps cannot reflow the page.
+  aspect-ratio: 1903 / 826;
 
+  // EN PNGs match HE pixel size exactly; lock mobile aspect too (portrait masters).
   @include bp.respond-down('md') {
+    aspect-ratio: 1024 / 1536;
     object-fit: contain;
     object-position: center top;
   }

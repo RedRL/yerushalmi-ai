@@ -40,6 +40,10 @@
   }
 }
 
+:host-context([dir='ltr']) input.field__control.project-details-step__date-text {
+  text-align: left;
+}
+
 .project-details-step__date-icon {
   position: absolute;
   left: 0.45rem;

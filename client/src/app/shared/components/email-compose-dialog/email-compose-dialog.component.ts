@@ -11,6 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { LocaleService } from '../../../core/i18n/locale.service';
 import { EmailComposeDialogService } from './email-compose-dialog.service';
 
 @Component({
@@ -22,6 +23,7 @@ import { EmailComposeDialogService } from './email-compose-dialog.service';
 export class EmailComposeDialogComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly dialog = inject(EmailComposeDialogService);
+  readonly i18n = inject(LocaleService);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
   private previouslyFocused: HTMLElement | null = null;
   private openAddress: string | null = null;

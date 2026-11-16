@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
+import { LocaleService } from '../../../../core/i18n/locale.service';
 import { AudioPlayerComponent } from '../../../../shared/components/audio-player/audio-player.component';
 import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
 import {
@@ -33,6 +34,14 @@ const FOCUSABLE_SELECTOR =
 export class VideoModalComponent implements OnInit, OnDestroy {
   readonly video = input.required<PortfolioVideo>();
   readonly closed = output<void>();
+  readonly i18n = inject(LocaleService);
+
+  readonly title = computed(() =>
+    this.i18n.isEnglish() ? this.video().titleEn : this.video().titleHe,
+  );
+  readonly tags = computed(() =>
+    this.i18n.isEnglish() ? this.video().tagsEn : this.video().tagsHe,
+  );
 
   private readonly hostRef: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly sanitizer = inject(DomSanitizer);

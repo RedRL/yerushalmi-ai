@@ -2,9 +2,9 @@
   @switch (store.activeScreen().field) {
     @case ('personName') {
       <app-wizard-screen
-        kicker="הסיפור"
+        [kicker]="i18n.t('details.kicker')"
         [heading]="personNameLabel()"
-        description="השם שסביבו נבנה את הפרויקט."
+        [description]="i18n.t('details.personName.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -12,16 +12,16 @@
         <input
           class="field__control wizard-input"
           formControlName="personName"
-          placeholder="שם מלא, או כמה שמות"
+          [placeholder]="i18n.t('details.personName.placeholder')"
           [maxlength]="limits.personName"
         />
       </app-wizard-screen>
     }
     @case ('occasion') {
       <app-wizard-screen
-        kicker="הסיפור"
-        heading="איזה אירוע חוגגים?"
-        description="בחרו את סוג האירוע — השאלות בהמשך יותאמו בהתאם."
+        [kicker]="i18n.t('details.kicker')"
+        [heading]="i18n.t('details.occasion.heading')"
+        [description]="i18n.t('details.occasion.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -29,24 +29,24 @@
         <select
           class="field__control wizard-input"
           formControlName="occasionId"
-          aria-label="סוג האירוע"
+          [attr.aria-label]="i18n.t('details.occasion.aria')"
           (change)="onOccasionChange()"
         >
-          <option value="" disabled>בחרו אירוע</option>
+          <option value="" disabled>{{ i18n.t('details.occasion.placeholder') }}</option>
           @for (option of occasionOptions; track option.id) {
-            <option [value]="option.id">{{ option.labelHe }}</option>
+            <option [value]="option.id">{{ i18n.tx(option.label) }}</option>
           }
         </select>
 
         @if (store.isCustomOccasion()) {
           <label class="project-details-step__custom-occasion" for="customOccasion">
-            <span>מהו האירוע?</span>
+            <span>{{ i18n.t('details.occasion.customLabel') }}</span>
             <input
               #customOccasionInput
               id="customOccasion"
               class="field__control wizard-input"
               formControlName="customOccasion"
-              placeholder="לדוגמה: עלייה לכיתה א׳, סיום שירות..."
+              [placeholder]="i18n.t('details.occasion.customPlaceholder')"
               [maxlength]="limits.occasion"
             />
           </label>
@@ -54,17 +54,17 @@
 
         @if (store.isWeddingOccasion()) {
           <p class="project-details-step__wedding-note" role="note">
-            לחתונות יש לנו דף ייעודי —
-            <a [href]="weddingsUrl" target="_blank" rel="noopener noreferrer">למעבר לדף החתונות</a>.
+            {{ i18n.t('details.occasion.weddingNote') }}
+            <a [href]="weddingsUrl" target="_blank" rel="noopener noreferrer">{{ i18n.t('details.occasion.weddingLink') }}</a>.
           </p>
         }
       </app-wizard-screen>
     }
     @case ('story') {
       <app-wizard-screen
-        kicker="הסיפור"
-        [heading]="store.occasionCopy().storyHeading"
-        [description]="store.occasionCopy().storyDescription"
+        [kicker]="i18n.t('details.kicker')"
+        [heading]="i18n.tx(store.occasionCopy().storyHeading)"
+        [description]="i18n.tx(store.occasionCopy().storyDescription)"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -74,7 +74,7 @@
           formControlName="story"
           rows="7"
           [maxlength]="limits.story"
-          placeholder="כתבו כאן בחופשיות..."
+          [placeholder]="i18n.t('details.story.placeholder')"
           aria-describedby="story-counter"
           (wheel)="onStoryWheel($event)"
         ></textarea>
@@ -84,15 +84,15 @@
           </span>
         </div>
         @if (store.projectDetailsForm.controls.story.touched && store.projectDetailsForm.controls.story.invalid) {
-          <p class="field__error">לפחות 10 תווים, כדי שיהיה לנו ממה להתחיל</p>
+          <p class="field__error">{{ i18n.t('details.story.tooShort') }}</p>
         }
       </app-wizard-screen>
     }
     @case ('eventDate') {
       <app-wizard-screen
-        kicker="הסיפור"
-        heading="למתי צריך את הפרויקט?"
-        description="רשות. רק כדי לדעת מתי האירוע, בלי להשפיע על זמן ההכנה."
+        [kicker]="i18n.t('details.kicker')"
+        [heading]="i18n.t('details.eventDate.heading')"
+        [description]="i18n.t('details.eventDate.description')"
         [showActions]="false"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -112,7 +112,7 @@
             (input)="onEventDateInput($event)"
             (blur)="onEventDateBlur()"
           />
-          <button type="button" class="project-details-step__date-icon" aria-label="פתיחת לוח שנה" (click)="toggleCalendar()">
+          <button type="button" class="project-details-step__date-icon" [attr.aria-label]="i18n.t('details.calendar.open')" (click)="toggleCalendar()">
             <svg viewBox="0 0 24 24" width="18" height="18">
               <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
               <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
@@ -130,15 +130,15 @@
             (change)="onNativeEventDateInput($event)"
           />
           @if (!isMobileViewport() && calendarOpen()) {
-            <div class="project-details-step__calendar" role="dialog" aria-label="בחירת תאריך">
+            <div class="project-details-step__calendar" role="dialog" [attr.aria-label]="i18n.t('details.calendar.pick')">
               <div class="project-details-step__calendar-head">
-                <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" aria-label="חודש קודם">‹</button>
+                <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" [attr.aria-label]="i18n.t('details.calendar.prevMonth')">‹</button>
                 <span>{{ calendarTitle() }}</span>
-                <button type="button" (click)="shiftCalendarMonth(1)" aria-label="חודש הבא">›</button>
+                <button type="button" (click)="shiftCalendarMonth(1)" [attr.aria-label]="i18n.t('details.calendar.nextMonth')">›</button>
               </div>
-              <button type="button" class="project-details-step__calendar-today" (click)="revealToday()">היום</button>
+              <button type="button" class="project-details-step__calendar-today" (click)="revealToday()">{{ i18n.t('common.today') }}</button>
               <div class="project-details-step__calendar-weekdays">
-                @for (day of weekdayLabels; track day) {
+                @for (day of weekdayLabels(); track $index) {
                   <span>{{ day }}</span>
                 }
               </div>

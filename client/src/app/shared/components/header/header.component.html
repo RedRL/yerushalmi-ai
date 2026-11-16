@@ -4,12 +4,12 @@
       {{ brandName }}
     </a>
 
-    <nav class="header__nav" aria-label="ניווט ראשי">
+    <nav class="header__nav" [attr.aria-label]="i18n.t('header.navAria')">
       <ul>
         @for (link of navLinks; track link.sectionId) {
           <li>
             <button type="button" class="header__nav-link" (click)="navigateTo(link.sectionId)">
-              {{ link.labelHe }}
+              {{ i18n.t(link.labelKey) }}
             </button>
           </li>
         }
@@ -17,8 +17,26 @@
     </nav>
 
     <div class="header__actions">
+      <button
+        type="button"
+        class="header__lang"
+        (click)="i18n.toggleLocale()"
+        [attr.aria-label]="i18n.t('header.langSwitchAria')"
+      >
+        {{ i18n.t('header.langSwitch') }}
+      </button>
+
+      <button
+        type="button"
+        class="header__lang header__currency"
+        (click)="currency.toggleCurrency()"
+        [attr.aria-label]="i18n.t('header.currencySwitchAria')"
+      >
+        {{ currency.switchLabel() }}
+      </button>
+
       <button type="button" class="header__cta" (click)="navigateTo('configurator')">
-        התחילו ליצור
+        {{ i18n.t('header.cta') }}
       </button>
 
       <button
@@ -28,7 +46,7 @@
         (click)="toggleMobileMenu($event)"
         [attr.aria-expanded]="isMobileMenuOpen()"
         aria-controls="mobile-nav"
-        [attr.aria-label]="isMobileMenuOpen() ? 'סגירת תפריט ניווט' : 'פתיחת תפריט ניווט'"
+        [attr.aria-label]="isMobileMenuOpen() ? i18n.t('header.menuClose') : i18n.t('header.menuOpen')"
       >
         <span></span>
         <span></span>
@@ -44,7 +62,7 @@
     (click)="closeMobileMenu()"
     [attr.aria-hidden]="!isMobileMenuOpen() && !isMobileMenuClosing()"
     tabindex="-1"
-    aria-label="סגירת תפריט"
+    [attr.aria-label]="i18n.t('header.backdropClose')"
   ></button>
   <nav
     id="mobile-nav"
@@ -52,15 +70,25 @@
     [class.header__mobile-nav--open]="isMobileMenuOpen()"
     [attr.aria-hidden]="!isMobileMenuOpen()"
     [attr.inert]="isMobileMenuOpen() ? null : ''"
-    aria-label="ניווט ראשי - נייד"
+    [attr.aria-label]="i18n.t('header.mobileNavAria')"
     (click)="$event.stopPropagation()"
   >
     <ul>
       @for (link of navLinks; track link.sectionId) {
         <li>
-          <button type="button" (click)="navigateTo(link.sectionId)">{{ link.labelHe }}</button>
+          <button type="button" (click)="navigateTo(link.sectionId)">{{ i18n.t(link.labelKey) }}</button>
         </li>
       }
+      <li>
+        <button type="button" class="header__mobile-lang" (click)="i18n.toggleLocale()">
+          {{ i18n.t('header.langSwitch') }}
+        </button>
+      </li>
+      <li>
+        <button type="button" class="header__mobile-lang" (click)="currency.toggleCurrency()">
+          {{ currency.switchLabel() }}
+        </button>
+      </li>
     </ul>
   </nav>
 </header>

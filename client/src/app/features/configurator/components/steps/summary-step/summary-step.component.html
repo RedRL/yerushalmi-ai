@@ -1,46 +1,46 @@
 <div class="step summary-step">
-  <h3 class="step__title">כך נראה הפרויקט שבנינו יחד</h3>
+  <h3 class="step__title">{{ i18n.t('summary.title') }}</h3>
 
   <div class="summary-step__details">
     <div class="summary-step__row">
       <div class="summary-step__row-header">
-        <h4>סוג הפרויקט</h4>
-        <button type="button" (click)="goToStep('product')">עריכה</button>
+        <h4>{{ i18n.t('summary.productType') }}</h4>
+        <button type="button" (click)="goToStep('product')">{{ i18n.t('common.edit') }}</button>
       </div>
       <p class="summary-step__text">{{ productLabel() }}</p>
     </div>
 
     <div class="summary-step__row">
       <div class="summary-step__row-header">
-        <h4>הסיפור</h4>
-        <button type="button" (click)="goToStep('details')">עריכה</button>
+        <h4>{{ i18n.t('summary.story') }}</h4>
+        <button type="button" (click)="goToStep('details')">{{ i18n.t('common.edit') }}</button>
       </div>
-      <p class="summary-step__text">עבור: {{ personNameDisplay() }}</p>
-      <p class="summary-step__text">אירוע: {{ occasionDisplay() }}</p>
+      <p class="summary-step__text">{{ i18n.t('summary.for') }}: {{ personNameDisplay() }}</p>
+      <p class="summary-step__text">{{ i18n.t('summary.occasion') }}: {{ occasionDisplay() }}</p>
       @if (eventDateDisplay()) {
-        <p class="summary-step__text">תאריך האירוע: {{ eventDateDisplay() }}</p>
+        <p class="summary-step__text">{{ i18n.t('summary.eventDate') }}: {{ eventDateDisplay() }}</p>
       }
-      <p #storyTextEl class="summary-step__text summary-step__story">הסיפור: {{ storyText() }}</p>
+      <p #storyTextEl class="summary-step__text summary-step__story">{{ i18n.t('summary.storyText') }}: {{ storyText() }}</p>
       @if (storyOverflows()) {
-        <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">הצג עוד</button>
+        <button type="button" class="summary-step__story-expand" (click)="openStoryDialog()">{{ i18n.t('common.showMore') }}</button>
       }
     </div>
 
     @if (store.includesNewSong() || store.requiresExistingSongRights()) {
       <div class="summary-step__row">
         <div class="summary-step__row-header">
-          <h4>השיר</h4>
-          <button type="button" (click)="goToStep('song')">עריכה</button>
+          <h4>{{ i18n.t('summary.song') }}</h4>
+          <button type="button" (click)="goToStep('song')">{{ i18n.t('common.edit') }}</button>
         </div>
         @if (store.requiresExistingSongRights()) {
-          <p class="summary-step__text">שיר קיים: {{ existingSongDisplay() }}</p>
+          <p class="summary-step__text">{{ i18n.t('summary.existingSong') }}: {{ existingSongDisplay() }}</p>
         } @else {
-          <p class="summary-step__text">סגנון: {{ songStyleSummary() }}</p>
+          <p class="summary-step__text">{{ i18n.t('summary.style') }}: {{ songStyleSummary() }}</p>
           @if (vocalistLabel()) {
-            <p class="summary-step__text">קול: {{ vocalistLabel() }}</p>
+            <p class="summary-step__text">{{ i18n.t('summary.voice') }}: {{ vocalistLabel() }}</p>
           }
           @if (songLengthLabel()) {
-            <p class="summary-step__text">אורך: {{ songLengthLabel() }}</p>
+            <p class="summary-step__text">{{ i18n.t('summary.length') }}: {{ songLengthLabel() }}</p>
           }
         }
       </div>
@@ -49,25 +49,25 @@
     @if (store.includesVideo()) {
       <div class="summary-step__row">
         <div class="summary-step__row-header">
-          <h4>הסרטון</h4>
-          <button type="button" (click)="goToStep('video')">עריכה</button>
+          <h4>{{ i18n.t('summary.video') }}</h4>
+          <button type="button" (click)="goToStep('video')">{{ i18n.t('common.edit') }}</button>
         </div>
         @if (!store.isFullExperience()) {
-          <p class="summary-step__text">אורך: {{ lengthLabel() }}</p>
+          <p class="summary-step__text">{{ i18n.t('summary.length') }}: {{ lengthLabel() }}</p>
         }
-        <p class="summary-step__text">פורמט: {{ formatLabel() }}</p>
-        <p class="summary-step__text">כתוביות: {{ subtitlesLabel() }}</p>
+        <p class="summary-step__text">{{ i18n.t('summary.format') }}: {{ formatLabel() }}</p>
+        <p class="summary-step__text">{{ i18n.t('summary.subtitles') }}: {{ subtitlesLabel() }}</p>
         @if (karaokeLabel()) {
           <p class="summary-step__text">{{ karaokeLabel() }}</p>
         }
         @if (subtitlesColorLabel(); as color) {
-          <p class="summary-step__text">צבע כתוביות: {{ color }}</p>
+          <p class="summary-step__text">{{ i18n.t('summary.subtitlesColor') }}: {{ color }}</p>
         }
         @if (subtitlesHighlightColorLabel(); as highlight) {
-          <p class="summary-step__text">צבע מילה מודגשת: {{ highlight }}</p>
+          <p class="summary-step__text">{{ i18n.t('summary.subtitlesHighlightColor') }}: {{ highlight }}</p>
         }
         @if (videoNotesLabel(); as notes) {
-          <p class="summary-step__text">הערות: {{ notes }}</p>
+          <p class="summary-step__text">{{ i18n.t('summary.notes') }}: {{ notes }}</p>
         }
       </div>
     }
@@ -75,16 +75,16 @@
     @if (hasOptionalDetails()) {
       <div class="summary-step__row">
         <div class="summary-step__row-header">
-          <h4>פרטים נוספים</h4>
-          <button type="button" (click)="goToStep('extras')">עריכה</button>
+          <h4>{{ i18n.t('summary.extraDetails') }}</h4>
+          <button type="button" (click)="goToStep('extras')">{{ i18n.t('common.edit') }}</button>
         </div>
-        @for (line of optionalDetailsLines(); track line.label) {
+        @for (line of optionalDetailsLines(); track line.id) {
           <p class="summary-step__text">{{ line.label }}: {{ line.value }}</p>
         }
         @if (additionalNotesText()) {
-          <p #additionalNotesEl class="summary-step__text summary-step__story">מידע נוסף: {{ additionalNotesText() }}</p>
+          <p #additionalNotesEl class="summary-step__text summary-step__story">{{ i18n.t('summary.additionalInfo') }}: {{ additionalNotesText() }}</p>
           @if (additionalNotesOverflows()) {
-            <button type="button" class="summary-step__story-expand" (click)="openAdditionalNotesDialog()">הצג עוד</button>
+            <button type="button" class="summary-step__story-expand" (click)="openAdditionalNotesDialog()">{{ i18n.t('common.showMore') }}</button>
           }
         }
       </div>
@@ -93,11 +93,11 @@
     @if (store.requiresUploadStep()) {
       <div class="summary-step__row">
         <div class="summary-step__row-header">
-          <h4>קבצים</h4>
-          <button type="button" (click)="goToStep('upload')">עריכה</button>
+          <h4>{{ i18n.t('summary.files') }}</h4>
+          <button type="button" (click)="goToStep('upload')">{{ i18n.t('common.edit') }}</button>
         </div>
-        <p class="summary-step__text">תמונות: {{ store.uploadImageCount() }}</p>
-        <p class="summary-step__text">סרטונים: {{ store.uploadVideoCount() }}</p>
+        <p class="summary-step__text">{{ i18n.t('summary.images') }}: {{ store.uploadImageCount() }}</p>
+        <p class="summary-step__text">{{ i18n.t('summary.videos') }}: {{ store.uploadVideoCount() }}</p>
       </div>
     }
   </div>
@@ -106,8 +106,8 @@
     <div class="summary-step__dialog-backdrop" (click)="closeStoryDialog()" aria-hidden="true"></div>
     <div class="summary-step__dialog" role="dialog" aria-modal="true" aria-labelledby="story-dialog-title" (wheel)="onStoryDialogWheel($event)">
       <div class="summary-step__dialog-header">
-        <h4 id="story-dialog-title">הסיפור המלא</h4>
-        <button type="button" class="summary-step__dialog-close" (click)="closeStoryDialog()" aria-label="סגירה">×</button>
+        <h4 id="story-dialog-title">{{ i18n.t('summary.fullStory') }}</h4>
+        <button type="button" class="summary-step__dialog-close" (click)="closeStoryDialog()" [attr.aria-label]="i18n.t('common.close')">×</button>
       </div>
       <div class="summary-step__dialog-body">
         <p class="summary-step__dialog-story">{{ storyText() }}</p>
@@ -125,8 +125,8 @@
       (wheel)="onAdditionalNotesDialogWheel($event)"
     >
       <div class="summary-step__dialog-header">
-        <h4 id="additional-notes-dialog-title">מידע נוסף</h4>
-        <button type="button" class="summary-step__dialog-close" (click)="closeAdditionalNotesDialog()" aria-label="סגירה">×</button>
+        <h4 id="additional-notes-dialog-title">{{ i18n.t('summary.additionalInfo') }}</h4>
+        <button type="button" class="summary-step__dialog-close" (click)="closeAdditionalNotesDialog()" [attr.aria-label]="i18n.t('common.close')">×</button>
       </div>
       <div class="summary-step__dialog-body">
         <p class="summary-step__dialog-story">{{ additionalNotesText() }}</p>

@@ -1,3 +1,6 @@
+import type { L10nText } from '../../core/i18n/locale.types';
+import { UI_MESSAGES } from '../../core/i18n/messages';
+
 export type ConfiguratorStepId =
   | 'product'
   | 'song'
@@ -10,18 +13,19 @@ export type ConfiguratorStepId =
 
 export interface ConfiguratorStepDef {
   id: ConfiguratorStepId;
-  labelHe: string;
+  /** Bilingual progress label — resolve with `LocaleService.tx()`. */
+  label: L10nText;
   /** Shorter progress label for mobile when the default is too long. */
-  labelHeMobile?: string;
+  labelMobile?: L10nText;
 }
 
 export const CONFIGURATOR_STEPS: readonly ConfiguratorStepDef[] = [
-  { id: 'product', labelHe: 'הפרויקט' },
-  { id: 'details', labelHe: 'הסיפור' },
-  { id: 'song', labelHe: 'השיר' },
-  { id: 'video', labelHe: 'הסרטון' },
-  { id: 'extras', labelHe: 'פרטים' },
-  { id: 'upload', labelHe: 'חומרים' },
-  { id: 'summary', labelHe: 'סיכום' },
-  { id: 'contact', labelHe: 'פרטי קשר' },
+  { id: 'product', label: UI_MESSAGES['config.step.product'] },
+  { id: 'details', label: UI_MESSAGES['config.step.details'] },
+  { id: 'song', label: UI_MESSAGES['config.step.song'] },
+  { id: 'video', label: UI_MESSAGES['config.step.video'] },
+  { id: 'extras', label: UI_MESSAGES['config.step.extras'] },
+  { id: 'upload', label: UI_MESSAGES['config.step.upload'] },
+  { id: 'summary', label: UI_MESSAGES['config.step.summary'] },
+  { id: 'contact', label: UI_MESSAGES['config.step.contact'] },
 ];

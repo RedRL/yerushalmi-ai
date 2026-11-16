@@ -30,10 +30,13 @@ import {
   resolveCoupon,
 } from '../../../core/config/coupon.config';
 import { FIELD_LIMITS } from '../../../core/config/field-limits.config';
+import { LocaleService } from '../../../core/i18n/locale.service';
+import type { UiMessageKey } from '../../../core/i18n/messages';
 import {
   isOccasionId,
   migrateLegacyOccasion,
   occasionCopyFor,
+  resolveOccasionDisplayLabel,
   resolveOccasionLabel,
   resolveOccasionVoice,
   type OccasionId,
@@ -47,6 +50,9 @@ import {
   type PersistedConfiguratorState,
   type ProductPricingSnapshot,
 } from './configurator-persistence.util';
+
+/** Error whose message is already localized for the customer and safe to show as-is. */
+class UserFacingError extends Error {}
 
 function splitToList(value: string): string[] {
   return value
@@ -135,6 +141,7 @@ export class ConfiguratorStoreService {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly pricingCalculator = inject(PricingCalculatorService);
+  private readonly i18n = inject(LocaleService);
   private readonly inquiryApi = inject(InquiryApiService);
   private readonly uploadApi = inject(UploadApiService);
 
@@ -311,9 +318,13 @@ export class ConfiguratorStoreService {
     return isOccasionId(id) ? id : null;
   });
 
+  /**
+   * Customer-facing occasion label in the active locale. The inquiry payload uses
+   * `resolveOccasionLabel` instead, which is always Hebrew for admin consistency.
+   */
   readonly occasionLabel = computed(() => {
     const details = this.projectDetailsValue();
-    return resolveOccasionLabel(details.occasionId, details.customOccasion);
+    return resolveOccasionDisplayLabel(details.occasionId, details.customOccasion, this.i18n.locale());
   });
 
   readonly occasionCopy = computed(() =>
@@ -488,36 +499,39 @@ export class ConfiguratorStoreService {
     const count = this.uploadImageCount();
     const minimum = this.minimumRequiredImages();
     const remaining = this.remainingRequiredImages();
-    return `יש להעלות עוד ${remaining} תמונות לפחות\n(מינימום ${minimum} לאורך הסרטון שבחרתם, הועלו ${count})`;
+    return this.i18n.tf('upload.progress', { remaining, minimum, count });
   });
 
   readonly uploadLimitExceededLabelHe = computed(() => {
     const count = this.uploadImageCount();
     const maximum = this.maximumAllowedImages();
     const excess = count - maximum;
-    return `יש להסיר ${excess} תמונות\n(מקסימום ${maximum} לאורך הסרטון שבחרתם, הועלו ${count})`;
+    return this.i18n.tf('upload.limitExceeded', { excess, maximum, count });
   });
 
   readonly uploadVideoLimitExceededLabelHe = computed(() => {
     const count = this.uploadVideoCount();
     const maximum = this.maximumAllowedVideos();
     const excess = Math.max(0, count - maximum);
-    return `יש להסיר ${excess} סרטונים\n(מקסימום ${maximum} לאורך הסרטון שבחרתם, ועד 30 שניות לסרטון)`;
+    return this.i18n.tf('upload.videoLimitExceeded', { excess, maximum });
   });
 
-  readonly submitStatusLabelHe = computed(() => {
+  readonly submitStatusLabel = computed(() => {
     const phase = this.submitPhase();
     if (phase === 'uploading') {
       const progress = this.submitUploadProgress();
       if (progress && progress.total > 0) {
-        return `מעלים את החומרים (${progress.completed} מתוך ${progress.total})...`;
+        return this.i18n.tf('config.submit.uploadingProgress', {
+          completed: progress.completed,
+          total: progress.total,
+        });
       }
-      return 'מעלים את החומרים...';
+      return this.i18n.t('config.submit.uploading');
     }
     if (phase === 'sending') {
-      return 'שולחים את הבקשה...';
+      return this.i18n.t('config.submit.sending');
     }
-    return 'שולחים...';
+    return this.i18n.t('config.submit.working');
   });
 
   readonly isExtrasStepValid = computed(() => {
@@ -620,7 +634,7 @@ export class ConfiguratorStoreService {
     if (step === 'details') return this.getActiveDetailsMessage();
     if (step === 'extras') return this.getActiveExtrasMessage();
     const current = this.currentStep();
-    if (!current || this.isStepValid(current.id)) return 'נא להשלים את השלב הנוכחי כדי להמשיך';
+    if (!current || this.isStepValid(current.id)) return this.i18n.t('validation.completeStep');
     return this.getStepValidationMessage(current.id);
   });
 
@@ -644,11 +658,11 @@ export class ConfiguratorStoreService {
   getStepValidationMessage(id: ConfiguratorStepId): string {
     switch (id) {
       case 'product':
-        return 'נא לבחור סוג פרויקט כדי להמשיך';
+        return this.i18n.t('validation.productRequired');
       case 'song':
         return this.getSongStepValidationMessage();
       case 'video':
-        return 'נא להשלים את פרטי הסרטון כדי להמשיך';
+        return this.i18n.t('validation.videoDetailsRequired');
       case 'details':
         return this.getDetailsStepValidationMessage();
       case 'extras':
@@ -656,11 +670,11 @@ export class ConfiguratorStoreService {
       case 'upload':
         return this.getUploadStepValidationMessage();
       case 'summary':
-        return 'נא להשלים את השלב הנוכחי כדי להמשיך';
+        return this.i18n.t('validation.completeStep');
       case 'contact':
         return this.getContactStepValidationMessage();
       default:
-        return 'נא להשלים את השלב הנוכחי כדי להמשיך';
+        return this.i18n.t('validation.completeStep');
     }
   }
 
@@ -670,47 +684,47 @@ export class ConfiguratorStoreService {
 
     if (this.requiresExistingSongRights()) {
       if (value.existingSongName.trim().length === 0) {
-        return 'נא להזין את שם השיר כדי להמשיך';
+        return this.i18n.t('validation.songNameRequired');
       }
       if (!isValidExistingSongLink(value.existingSongLink)) {
-        return 'נא להזין קישור לשיר (יוטיוב גם בסדר)';
+        return this.i18n.t('validation.songLinkRequired');
       }
     }
 
     if (this.includesNewSong()) {
       const styles = parseSongStyles(value.style);
       if (styles.length === 0) {
-        return 'נא לבחור לפחות סגנון שיר אחד כדי להמשיך';
+        return this.i18n.t('validation.songStyleRequired');
       }
       if (styles.length === 1 && styles[0] === 'אחר' && value.customStyle.trim().length === 0) {
-        return 'נא לפרט את הסגנון המוזיקלי כדי להמשיך';
+        return this.i18n.t('validation.songCustomStyleRequired');
       }
       const vocalist = value.vocalist;
       if (vocalist !== 'male' && vocalist !== 'female' && vocalist !== 'both') {
-        return 'נא לבחור זמר, זמרת או שילוב של שניהם';
+        return this.i18n.t('validation.vocalistRequired');
       }
       if (!value.length) {
-        return 'נא לבחור אורך משוער כדי להמשיך';
+        return this.i18n.t('validation.songLengthRequired');
       }
     }
 
     if (this.songForm.controls.mood.invalid) {
-      return 'מצב הרוח ארוך מדי — קצרו את הטקסט כדי להמשיך';
+      return this.i18n.t('validation.moodTooLong');
     }
     if (this.songForm.controls.namesToInclude.invalid) {
-      return 'רשימת השמות ארוכה מדי — קצרו את הטקסט כדי להמשיך';
+      return this.i18n.t('validation.namesTooLong');
     }
     if (this.songForm.controls.importantWords.invalid) {
-      return 'רשימת המילים ארוכה מדי — קצרו את הטקסט כדי להמשיך';
+      return this.i18n.t('validation.wordsTooLong');
     }
     if (this.songForm.controls.excludedTopics.invalid) {
-      return 'רשימת הנושאים ארוכה מדי — קצרו את הטקסט כדי להמשיך';
+      return this.i18n.t('validation.topicsTooLong');
     }
     if (this.songForm.controls.additionalNotes.invalid) {
-      return 'הערות השיר ארוכות מדי — קצרו את הטקסט כדי להמשיך';
+      return this.i18n.t('validation.songNotesTooLong');
     }
 
-    return 'נא להשלים את פרטי השיר כדי להמשיך';
+    return this.i18n.t('validation.songDetailsRequired');
   }
 
   private getDetailsStepValidationMessage(): string {
@@ -719,29 +733,29 @@ export class ConfiguratorStoreService {
     const form = this.projectDetailsForm;
 
     if (form.controls.personName.invalid) {
-      missing.push('שם האדם/האנשים');
+      missing.push(this.i18n.t('validation.missing.personName'));
     }
     if (!this.isOccasionSelectionValid()) {
-      missing.push('סוג האירוע');
+      missing.push(this.i18n.t('validation.missing.occasion'));
     }
     if (form.controls.story.hasError('required') || form.controls.story.hasError('minlength')) {
-      missing.push('מה חשוב שנדע על הפרויקט? (לפחות 10 תווים)');
+      missing.push(this.i18n.t('validation.missing.story'));
     }
     if (form.controls.eventDate.hasError('pastDate')) {
-      return 'תאריך האירוע לא יכול להיות לפני היום';
+      return this.i18n.t('validation.eventDatePast');
     }
     if (form.controls.eventDate.hasError('invalidDate')) {
-      return 'נא להזין תאריך תקין';
+      return this.i18n.t('validation.eventDateInvalid');
     }
 
     if (missing.length === 1) {
-      return `נא להשלים: ${missing[0]}`;
+      return this.i18n.tf('validation.completeFields', { fields: missing[0] });
     }
     if (missing.length > 1) {
-      return `נא להשלים: ${missing.join(', ')}`;
+      return this.i18n.tf('validation.completeFields', { fields: missing.join(', ') });
     }
 
-    return 'נא להשלים את השדות החובה כדי להמשיך';
+    return this.i18n.t('validation.requiredFields');
   }
 
   private getUploadStepValidationMessage(): string {
@@ -749,7 +763,7 @@ export class ConfiguratorStoreService {
     const videos = this.uploadedFiles().filter((file) => file.type === 'video');
 
     if (images.some((file) => file.status === 'error') || videos.some((file) => file.status === 'error')) {
-      return 'יש קבצים שלא נשמרו במכשיר — הסירו אותם או העלו מחדש';
+      return this.i18n.t('upload.error.unsavedFiles');
     }
 
     const count = this.uploadImageCount();
@@ -767,7 +781,7 @@ export class ConfiguratorStoreService {
       return this.uploadProgressLabelHe();
     }
 
-    return 'נא להעלות תמונות כדי להמשיך';
+    return this.i18n.t('validation.photosRequired');
   }
 
   private getContactStepValidationMessage(): string {
@@ -776,32 +790,32 @@ export class ConfiguratorStoreService {
     const form = this.contactForm;
 
     if (form.controls.name.invalid) {
-      missing.push('שם מלא');
+      missing.push(this.i18n.t('validation.missing.fullName'));
     }
     if (form.controls.phone.invalid) {
-      missing.push('טלפון');
+      missing.push(this.i18n.t('validation.missing.phone'));
     }
     if (form.controls.email.invalid) {
-      missing.push('אימייל');
+      missing.push(this.i18n.t('validation.missing.email'));
     }
     if (form.controls.mediaRightsConsent.invalid) {
-      missing.push('אישור הרשאות לחומרים');
+      missing.push(this.i18n.t('validation.missing.materialsConsent'));
     }
     if (form.controls.contactPermissionConsent.invalid) {
-      missing.push('אישור ליצירת קשר');
+      missing.push(this.i18n.t('validation.missing.contactConsent'));
     }
     if (form.controls.termsConsent.invalid) {
-      missing.push('אישור תקנון');
+      missing.push(this.i18n.t('validation.missing.termsConsent'));
     }
 
     if (missing.length === 1) {
-      return `נא להשלים: ${missing[0]}`;
+      return this.i18n.tf('validation.completeFields', { fields: missing[0] });
     }
     if (missing.length > 1) {
-      return `נא להשלים: ${missing.join(', ')}`;
+      return this.i18n.tf('validation.completeFields', { fields: missing.join(', ') });
     }
 
-    return 'נא להשלים את פרטי הקשר כדי להמשיך';
+    return this.i18n.t('validation.contactDetailsRequired');
   }
 
   onCouponDraftChange(): void {
@@ -978,7 +992,7 @@ export class ConfiguratorStoreService {
   private getContactNameForUpload(): string {
     const name = this.contactForm.getRawValue().name.trim();
     if (!name) {
-      throw new Error('נא למלא את שם איש הקשר לפני שליחת הבקשה.');
+      throw new UserFacingError(this.i18n.t('validation.contactNameBeforeSubmit'));
     }
     return name;
   }
@@ -994,7 +1008,7 @@ export class ConfiguratorStoreService {
     ];
 
     if (folderIds.length > 1) {
-      throw new Error('תמונות ההעלאה נמצאות במספר תיקיות שונות. נא לנסות שוב.');
+      throw new UserFacingError(this.i18n.t('upload.error.multipleFolders'));
     }
 
     if (folderIds.length === 1) {
@@ -1182,23 +1196,23 @@ export class ConfiguratorStoreService {
     const field = this.activeScreen().field;
     const form = this.projectDetailsForm;
     this.formRevision();
-    if (field === 'personName') return 'נא למלא שם כדי להמשיך';
+    if (field === 'personName') return this.i18n.t('validation.personNameRequired');
     if (field === 'occasion') {
       if (form.controls.occasionId.value === 'other') {
-        return 'נא לכתוב מהו האירוע';
+        return this.i18n.t('validation.occasionCustomRequired');
       }
-      return 'נא לבחור סוג אירוע';
+      return this.i18n.t('validation.occasionRequired');
     }
-    if (field === 'story') return 'מה חשוב שנדע על הפרויקט? (לפחות 10 תווים)';
+    if (field === 'story') return this.i18n.t('validation.storyRequired');
     if (field === 'eventDate') {
-      if (form.controls.eventDate.hasError('pastDate')) return 'תאריך האירוע לא יכול להיות לפני היום';
-      return 'נא להזין תאריך תקין';
+      if (form.controls.eventDate.hasError('pastDate')) return this.i18n.t('validation.eventDatePast');
+      return this.i18n.t('validation.eventDateInvalid');
     }
     return this.getDetailsStepValidationMessage();
   }
 
   private getActiveExtrasMessage(): string {
-    return 'הטקסט ארוך מדי — קצרו אותו כדי להמשיך';
+    return this.i18n.t('validation.textTooLong');
   }
 
   goNext(): void {
@@ -1511,7 +1525,7 @@ export class ConfiguratorStoreService {
       this.revokeUploadedFilePreviewUrls();
       clearConfiguratorState();
     } catch (error) {
-      this.submitError.set(toHebrewUserError(error, 'שליחת הבקשה נכשלה. נסו שוב.'));
+      this.submitError.set(this.userErrorMessage(error, 'config.submit.failed'));
     } finally {
       this.isSubmitting.set(false);
       this.submitPhase.set(null);
@@ -1582,15 +1596,15 @@ export class ConfiguratorStoreService {
     const videoCount = this.uploadVideoCount();
 
     if (this.requiresUploadStep() && imageCount > this.maximumAllowedImages()) {
-      throw new Error(this.uploadLimitExceededLabelHe().replace('\n', ' '));
+      throw new UserFacingError(this.uploadLimitExceededLabelHe().replace('\n', ' '));
     }
 
     if (this.requiresUploadStep() && imageCount < this.minimumRequiredImages()) {
-      throw new Error(this.uploadProgressLabelHe().replace('\n', ' '));
+      throw new UserFacingError(this.uploadProgressLabelHe().replace('\n', ' '));
     }
 
     if (this.requiresUploadStep() && videoCount > this.maximumAllowedVideos()) {
-      throw new Error(this.uploadVideoLimitExceededLabelHe().replace('\n', ' '));
+      throw new UserFacingError(this.uploadVideoLimitExceededLabelHe().replace('\n', ' '));
     }
 
     const concurrency = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches ? 2 : 3;
@@ -1610,7 +1624,9 @@ export class ConfiguratorStoreService {
           this.submitUploadProgress.set({ completed, total });
         } catch (error) {
           firstError =
-            error instanceof Error ? error : new Error(toHebrewUserError(error, 'העלאת החומרים נכשלה. נסו שוב.'));
+            error instanceof Error
+              ? error
+              : new UserFacingError(this.userErrorMessage(error, 'config.submit.uploadFailed'));
         }
       }
     });
@@ -1657,7 +1673,7 @@ export class ConfiguratorStoreService {
         status: 'error',
         errorMessageHe: reference.type === 'video' ? 'הסרטון לא נמצא במכשיר. נא להעלות אותו שוב.' : 'התמונה לא נמצאה במכשיר. נא להעלות אותה שוב.',
       });
-      throw new Error('חלק מהקבצים לא נמצאו במכשיר. נא לחזור לשלב החומרים ולהעלות שוב.');
+      throw new UserFacingError(this.i18n.t('upload.error.localFilesMissing'));
     }
 
     this.updateUploadedFile(reference.id, { status: 'uploading', file: original });
@@ -1683,14 +1699,24 @@ export class ConfiguratorStoreService {
         errorMessageHe: undefined,
       });
     } catch (error) {
-      const message = toHebrewUserError(error, 'העלאת החומרים נכשלה. נסו שוב.');
+      const message = this.userErrorMessage(error, 'config.submit.uploadFailed');
       this.updateUploadedFile(reference.id, {
         status: 'pending',
         file: original,
         errorMessageHe: undefined,
       });
-      throw new Error(message);
+      throw new UserFacingError(message);
     }
+  }
+
+  /**
+   * Customer-facing message for a failure: already-localized errors pass through,
+   * raw network/HTTP failures are mapped by `toHebrewUserError`, anything else gets
+   * the localized fallback for the active language.
+   */
+  private userErrorMessage(error: unknown, fallbackKey: UiMessageKey): string {
+    if (error instanceof UserFacingError) return error.message;
+    return toHebrewUserError(error, this.i18n.t(fallbackKey));
   }
 
   reset(): void {

@@ -1,20 +1,20 @@
 <section id="transparency" class="creation">
   <app-section-heading
     appReveal
-    eyebrow="שקיפות"
-    heading="איך באמת נוצר קליפ כזה?"
-    subtitle="בינה מלאכותית יכולה לעשות היום הרבה מאוד. אבל כדי ליצור קליפ כזה צריך לשלב כלים שונים — וגם עבודה ידנית מדויקת."
+    [eyebrow]="i18n.tx(msg.eyebrow)"
+    [heading]="i18n.tx(msg.heading)"
+    [subtitle]="i18n.tx(msg.subtitle)"
   />
 
   <ol class="creation__stages">
-    @for (stage of stages; track stage.step; let index = $index) {
+    @for (stage of stages(); track stage.step; let index = $index) {
       <li class="creation__stage" appReveal [appRevealDelay]="index * 80">
         <div class="creation__stage-top">
           <span class="creation__number">{{ stage.step }}</span>
-          <span class="creation__method" [attr.data-method]="stage.method">{{ stage.methodLabelHe }}</span>
+          <span class="creation__method" [attr.data-method]="stage.method">{{ stage.methodLabel }}</span>
         </div>
-        <h3>{{ stage.titleHe }}</h3>
-        <p>{{ stage.descriptionHe }}</p>
+        <h3>{{ stage.title }}</h3>
+        <p>{{ stage.description }}</p>
       </li>
     }
   </ol>

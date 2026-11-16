@@ -12,6 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
+import { LocaleService } from '../../../../core/i18n/locale.service';
+import { HOME_MESSAGES } from '../../home.messages';
 import { scrollToConfigurator, scrollToSectionFromNav } from '../../../../shared/utils/scroll-to.util';
 import {
   bindYouTubePlayer,
@@ -36,6 +38,9 @@ const DESKTOP_BANNER_HEIGHT = 826;
   styleUrl: './hero.component.scss',
 })
 export class HeroComponent implements AfterViewInit {
+  readonly i18n = inject(LocaleService);
+  readonly msg = HOME_MESSAGES.hero;
+
   private readonly sanitizer = inject(DomSanitizer);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
@@ -45,8 +50,13 @@ export class HeroComponent implements AfterViewInit {
   private keepPlayingTimer = 0;
   private heroVideoVisible = false;
 
-  readonly desktopBannerImageUrl = '/hero-banner-desktop.png';
-  readonly mobileBannerImageUrl = '/hero-banner-mobile.png';
+  // EN banners are lossless PNGs cloned from the HE masters (tagline only changed).
+  readonly desktopBannerImageUrl = computed(() =>
+    this.i18n.isEnglish() ? '/hero-banner-desktop-en.png?v=17' : '/hero-banner-desktop.png',
+  );
+  readonly mobileBannerImageUrl = computed(() =>
+    this.i18n.isEnglish() ? '/hero-banner-mobile-en.png?v=18' : '/hero-banner-mobile.png',
+  );
   readonly desktopBannerWidth = DESKTOP_BANNER_WIDTH;
   readonly desktopBannerHeight = DESKTOP_BANNER_HEIGHT;
   readonly heroPosterUrl = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;

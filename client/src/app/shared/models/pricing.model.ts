@@ -33,13 +33,19 @@ export type AddonId =
 export interface MainProductOption {
   id: MainProductId;
   titleHe: string;
+  titleEn: string;
   descriptionHe: string;
+  descriptionEn: string;
 }
 
 export interface SelectableOption<TId extends string> {
   id: TId;
+  /** Hebrew label - also the canonical value used for admin-facing output. */
   labelHe: string;
+  /** English label for the customer-facing UI. Falls back to `labelHe` when missing. */
+  labelEn?: string;
   descriptionHe?: string;
+  descriptionEn?: string;
 }
 
 export interface PriceableOption<TId extends string> extends SelectableOption<TId> {
@@ -69,6 +75,8 @@ export interface PricingSelection {
 export interface PricingLineItem {
   id: string;
   labelHe: string;
+  /** English label for the customer-facing UI. Falls back to `labelHe` when missing. */
+  labelEn?: string;
   amount: number;
   quantity: number;
 }

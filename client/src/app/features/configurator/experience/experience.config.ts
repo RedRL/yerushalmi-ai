@@ -1,3 +1,4 @@
+import { l10n, type L10nText } from '../../../core/i18n/locale.types';
 import type { MainProductId, VideoFormatId, VocalistId } from '../../../shared/models/pricing.model';
 
 export const VIDEO_STILL_SRC = '/configurator/video-still-source.jpg';
@@ -9,25 +10,25 @@ export const FILLED_STILLS: Partial<Record<VideoFormatId, string>> = {
   portrait: '/configurator/video-still-9x16.jpg',
   portrait_3_4: '/configurator/video-still.png',
 };
-export const SUBTITLE_SAMPLE = 'זה הרגע שלכם';
+export const SUBTITLE_SAMPLE = l10n('זה הרגע שלכם', 'This is your moment');
 
 export interface ToneVisual {
   color: string;
   ink: string;
 }
 
-export const PRODUCT_VISUALS: Record<MainProductId, { image: string; blurb: string }> = {
+export const PRODUCT_VISUALS: Record<MainProductId, { image: string; blurb: L10nText }> = {
   song_only: {
     image: '/configurator/product-song.png',
-    blurb: 'שיר מקורי, שנכתב רק עבורכם',
+    blurb: l10n('שיר מקורי, שנכתב רק עבורכם', 'An original song, written just for you'),
   },
   video_existing_song: {
     image: '/configurator/product-video.png',
-    blurb: 'קליפ לרקע שיר שאתם בוחרים',
+    blurb: l10n('קליפ לרקע שיר שאתם בוחרים', 'A video set to a song you choose'),
   },
   video_new_song: {
     image: '/configurator/product-full.png',
-    blurb: 'שיר וקליפ, מהרעיון ועד היצירה המוכנה',
+    blurb: l10n('שיר וקליפ, מהרעיון ועד היצירה המוכנה', 'A song and a video, from the idea to the finished piece'),
   },
 };
 
@@ -50,11 +51,11 @@ export const VOICE_TONES: Record<VocalistId, ToneVisual> = {
   both: { color: '#7c3aed', ink: '#f7f3ff' },
 };
 
-export const FORMAT_CAPTIONS: Record<VideoFormatId, string> = {
-  landscape: 'לרוחב',
-  classic: 'קלאסי',
-  square: 'ריבוע',
-  portrait: 'סטורי',
-  portrait_3_4: 'פורטרט',
-  both: 'שני הפורמטים',
+export const FORMAT_CAPTIONS: Record<VideoFormatId, L10nText> = {
+  landscape: l10n('לרוחב', 'Landscape'),
+  classic: l10n('קלאסי', 'Classic'),
+  square: l10n('ריבוע', 'Square'),
+  portrait: l10n('סטורי', 'Story'),
+  portrait_3_4: l10n('פורטרט', 'Portrait'),
+  both: l10n('שני הפורמטים', 'Both formats'),
 };

@@ -132,6 +132,16 @@ $configurator-sidebar-width: clamp(16.5rem, 22vw, 23.75rem);
   }
 }
 
+:host-context([dir='ltr']) .configurator__body-shell.persistent-scroll-shell--gutter {
+  padding-left: 0;
+  padding-right: var(--scrollbar-gutter);
+
+  @include bp.respond-down('lg') {
+    padding-left: var(--space-2);
+    padding-right: var(--scrollbar-gutter);
+  }
+}
+
 .configurator__body {
   flex: 1 1 auto;
   min-height: 0;

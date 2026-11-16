@@ -1,11 +1,11 @@
 <div class="length-slider">
-  <p class="length-slider__value">{{ current()?.labelHe }}</p>
+  <p class="length-slider__value">{{ label(current()) }}</p>
   @if (current(); as option) {
     <p class="length-slider__price">
       @if (option.price > 0) {
-        תוספת ₪{{ option.price }}
+        {{ i18n.tf('priceSummary.addonSurcharge', { price: money.format(option.price) }) }}
       } @else {
-        כלול במחיר
+        {{ i18n.t('priceSummary.includedInPrice') }}
       }
     </p>
   }
@@ -15,7 +15,7 @@
     [min]="0"
     [max]="options().length - 1"
     [value]="index()"
-    [attr.aria-valuetext]="current()?.labelHe"
+    [attr.aria-valuetext]="label(current())"
     (input)="onInput($event)"
   />
   <div
@@ -28,7 +28,7 @@
         [class.length-slider__tick--on]="option.id === current()?.id"
         [style.--tick-i]="i"
       >
-        @let parts = tickParts(option.labelHe);
+        @let parts = tickParts(label(option));
         <span class="length-slider__tick-value">{{ parts.value }}</span>
         @if (parts.unit) {
           <span class="length-slider__tick-unit">{{ parts.unit }}</span>

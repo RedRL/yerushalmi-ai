@@ -6,8 +6,8 @@
   <app-section-heading
     appReveal
     [fullWidth]="true"
-    eyebrow="בניית הפרויקט"
-    subtitle="עוברים שלב אחר שלב, רואים מחיר משוער בזמן אמת, ושולחים בקשה מפורטת בלי שום התחייבות."
+    [eyebrow]="i18n.t('config.eyebrow')"
+    [subtitle]="i18n.t('config.subtitle')"
   />
 
 
@@ -28,9 +28,9 @@
           aria-busy="true"
         >
           <div class="configurator__submit-spinner" aria-hidden="true"></div>
-          <p class="configurator__submit-message">{{ store.submitStatusLabelHe() }}</p>
+          <p class="configurator__submit-message">{{ store.submitStatusLabel() }}</p>
           @if (store.submitPhase() === 'uploading') {
-            <p class="configurator__submit-hint">נא להמתין — אל תסגרו את הדף</p>
+            <p class="configurator__submit-hint">{{ i18n.t('config.doNotClose') }}</p>
           }
         </div>
       }
@@ -115,24 +115,24 @@
             [attr.aria-live]="showInlinePrice ? 'polite' : null"
           >
             <div class="configurator__inline-price-row">
-              <span class="configurator__inline-price-label">סה"כ משוער</span>
+              <span class="configurator__inline-price-label">{{ i18n.t('config.estimatedTotal') }}</span>
               <div class="configurator__inline-price-values">
                 <div class="configurator__inline-price-figures">
                   @if (showIntroPricing) {
-                    <span class="configurator__inline-price-original">₪{{ store.originalPriceTotal() }}</span>
+                    <span class="configurator__inline-price-original">{{ money.format(store.originalPriceTotal() ?? 0) }}</span>
                   }
-                  <strong class="configurator__inline-price-amount">₪{{ store.priceBreakdown()?.total ?? 0 }}</strong>
+                  <strong class="configurator__inline-price-amount">{{ money.format(store.priceBreakdown()?.total ?? 0) }}</strong>
                 </div>
                 @if (showIntroPricing) {
-                  <span class="configurator__inline-price-promo">מחיר היכרות · לזמן מוגבל</span>
+                  <span class="configurator__inline-price-promo">{{ i18n.t('config.introPrice') }}</span>
                 }
                 @if ((store.priceBreakdown()?.discount ?? 0) > 0) {
                   <span class="configurator__inline-price-promo configurator__inline-coupon">
-                    <span>קופון {{ store.appliedCouponPercent() }}%</span>
+                    <span>{{ i18n.tf('config.couponPercent', { percent: store.appliedCouponPercent() }) }}</span>
                     <button
                       type="button"
                       class="configurator__inline-coupon-remove"
-                      aria-label="הסרת הקופון"
+                      [attr.aria-label]="i18n.t('config.removeCoupon')"
                       (click)="store.removeCoupon()"
                     >
                       ×
@@ -148,7 +148,7 @@
 
           @if (showBack) {
             <button type="button" class="configurator__nav-back" (click)="goBack()">
-              הקודם
+              {{ i18n.t('config.back') }}
             </button>
           }
 
@@ -172,9 +172,9 @@
                 (click)="onSubmitButtonClick($event)"
               >
                 @if (store.isSubmitting()) {
-                  {{ store.submitStatusLabelHe() }}
+                  {{ store.submitStatusLabel() }}
                 } @else {
-                  הגשת הבקשה
+                  {{ i18n.t('config.submit') }}
                 }
               </button>
 
@@ -207,7 +207,7 @@
                 [attr.aria-describedby]="!store.canContinueForward() && nextHintVisible() ? 'configurator-next-hint' : null"
                 (click)="onNextButtonClick($event)"
               >
-                הבא
+                {{ i18n.t('config.next') }}
               </button>
 
               @if (!store.canContinueForward() && store.forwardValidationMessage(); as hint) {
@@ -234,7 +234,7 @@
 
 
     @if (showSidebarPrice) {
-      <aside class="configurator__sidebar" aria-label="סיכום מחיר">
+      <aside class="configurator__sidebar" [attr.aria-label]="i18n.t('config.priceSummaryAria')">
         <app-price-summary
           [breakdown]="store.priceBreakdown()"
           [originalTotal]="store.originalPriceTotal()"

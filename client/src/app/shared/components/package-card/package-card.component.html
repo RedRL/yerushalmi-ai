@@ -5,39 +5,39 @@
   [class.package-card--static]="!selectable()"
   [style.animation-delay.ms]="animateDelay()"
 >
-  @if (pkg().featured && pkg().recommendedBadgeHe) {
-    <span class="package-card__badge">{{ pkg().recommendedBadgeHe }}</span>
+  @if (pkg().featured && pkg().recommendedBadge) {
+    <span class="package-card__badge">{{ i18n.tx(pkg().recommendedBadge) }}</span>
   }
 
   <div class="package-card__header">
     <span class="package-card__emoji" aria-hidden="true">{{ pkg().emoji }}</span>
-    <h3 class="package-card__title">{{ pkg().titleHe }}</h3>
-    @if (pkg().subtitleHe) {
-      <p class="package-card__subtitle">{{ pkg().subtitleHe }}</p>
+    <h3 class="package-card__title">{{ i18n.tx(pkg().title) }}</h3>
+    @if (pkg().subtitle) {
+      <p class="package-card__subtitle">{{ i18n.tx(pkg().subtitle) }}</p>
     }
   </div>
 
-  <p class="package-card__description">{{ pkg().descriptionHe }}</p>
+  <p class="package-card__description">{{ i18n.tx(pkg().description) }}</p>
 
   <p class="package-card__price">
     @if (pkg().priceStartsFrom) {
-      <span class="package-card__price-from">החל מ</span>
+      <span class="package-card__price-from">{{ i18n.t('package.pricePrefix') }}</span>
     }
-    <span class="package-card__price-current">₪{{ pkg().introPrice }}</span>
+    <span class="package-card__price-current">{{ money.format(pkg().introPrice) }}</span>
     @if (pkg().originalPrice > pkg().introPrice) {
-      <span class="package-card__price-original">₪{{ pkg().originalPrice }}</span>
+      <span class="package-card__price-original">{{ money.format(pkg().originalPrice) }}</span>
     }
   </p>
 
   <ul class="package-card__features">
-    @for (feature of pkg().featuresHe; track feature) {
-      <li>{{ feature }}</li>
+    @for (feature of pkg().features; track feature) {
+      <li>{{ i18n.tx(feature) }}</li>
     }
   </ul>
 
   @if (selectable()) {
     <button type="button" class="package-card__cta" (click)="select.emit()">
-      {{ pkg().ctaHe }}
+      {{ i18n.tx(pkg().cta) }}
     </button>
   }
 </article>

@@ -3,8 +3,8 @@
     @case ('length') {
       <app-wizard-screen
         [showActions]="false"
-        kicker="הסרטון"
-        heading="כמה ארוך הסרטון?"
+        [kicker]="i18n.t('video.kicker')"
+        [heading]="i18n.t('video.length.heading')"
         [description]="lengthDescription()"
         [index]="screenIndex()"
         [total]="screenTotal()"
@@ -29,9 +29,9 @@
     @case ('format') {
       <app-wizard-screen
         [showActions]="false"
-        kicker="הסרטון"
-        heading="איך הסרטון יישב במסך?"
-        [description]="store.includesNewSong() ? 'הפריים מתעדכן לפי הבחירה.' : 'הפריים מתעדכן לפי הבחירה. הפורמט לא משנה את המחיר.'"
+        [kicker]="i18n.t('video.kicker')"
+        [heading]="i18n.t('video.format.heading')"
+        [description]="i18n.t(store.includesNewSong() ? 'video.format.description' : 'video.format.descriptionNoPrice')"
         [index]="screenIndex()"
         [total]="screenTotal()"
         (continued)="advance()"
@@ -44,7 +44,7 @@
           [captionColor]="subtitlesColor()"
           [highlightColor]="highlightColor()"
         />
-        <div class="choice-row" role="radiogroup" aria-label="פורמט יציאה">
+        <div class="choice-row" role="radiogroup" [attr.aria-label]="i18n.t('video.format.groupAria')">
           @for (option of formatOptions; track option.id) {
             <button
               type="button"
@@ -55,8 +55,8 @@
               (click)="selectFormat(option.id)"
             >
               <span class="choice-chip__ratio" [style.aspect-ratio]="option.previewAspectRatio"></span>
-              <span>{{ formatCaptions[option.id] }}</span>
-              <small>{{ option.labelHe }}</small>
+              <span>{{ i18n.tx(formatCaptions[option.id]) }}</span>
+              <small>{{ optionLabel(option) }}</small>
             </button>
           }
         </div>
@@ -65,9 +65,9 @@
     @case ('subtitles') {
       <app-wizard-screen
         [showActions]="false"
-        kicker="הסרטון"
-        heading="כתוביות על הפריים"
-        description="אפשר לבחור סגנון קריוקי וצבעים מועדפים לכתוביות."
+        [kicker]="i18n.t('video.kicker')"
+        [heading]="i18n.t('video.subtitles.heading')"
+        [description]="i18n.t('video.subtitles.description')"
         [index]="screenIndex()"
         [total]="screenTotal()"
         (continued)="advance()"
@@ -80,7 +80,7 @@
           [captionColor]="subtitlesColor()"
           [highlightColor]="highlightColor()"
         />
-        <div class="choice-pair" role="radiogroup" aria-label="כתוביות">
+        <div class="choice-pair" role="radiogroup" [attr.aria-label]="i18n.t('video.subtitles.groupAria')">
           @for (option of subtitlesOptions; track option.id) {
             <button
               type="button"
@@ -90,9 +90,9 @@
               [class.choice-chip--on]="subtitles() === option.id"
               (click)="selectSubtitles(option.id)"
             >
-              <span>{{ option.labelHe }}</span>
+              <span>{{ optionLabel(option) }}</span>
               @if (option.price > 0) {
-                <small>₪{{ option.price }}</small>
+                <small>{{ money.format(option.price) }}</small>
               }
             </button>
           }
@@ -100,7 +100,7 @@
 
         @if (hasSubtitles()) {
           <div #subtitleOptions class="subtitle-options" [formGroup]="store.videoForm">
-            <div class="choice-pair" role="radiogroup" aria-label="סגנון קריוקי">
+            <div class="choice-pair" role="radiogroup" [attr.aria-label]="i18n.t('video.karaoke.groupAria')">
               <button
                 type="button"
                 class="choice-chip"
@@ -109,8 +109,8 @@
                 [class.choice-chip--on]="!karaokeEnabled()"
                 (click)="selectKaraoke(false)"
               >
-                <span>בלי קריוקי</span>
-                <small>כל המילים באותו צבע</small>
+                <span>{{ i18n.t('video.karaoke.offTitle') }}</span>
+                <small>{{ i18n.t('video.karaoke.offHint') }}</small>
               </button>
               <button
                 type="button"
@@ -120,14 +120,14 @@
                 [class.choice-chip--on]="karaokeEnabled()"
                 (click)="selectKaraoke(true)"
               >
-                <span>קריוקי</span>
-                <small>כל מילה מושרת מודגשת</small>
+                <span>{{ i18n.t('video.karaoke.onTitle') }}</span>
+                <small>{{ i18n.t('video.karaoke.onHint') }}</small>
               </button>
             </div>
 
             <div class="color-fields" [class.color-fields--with-highlight]="karaokeEnabled()">
               <label class="color-field" for="subtitlesColor">
-                <span class="color-field__label">צבע הכתוביות</span>
+                <span class="color-field__label">{{ i18n.t('video.subtitles.color') }}</span>
                 <span class="color-field__control">
                   <input
                     id="subtitlesColor"
@@ -142,7 +142,7 @@
 
               @if (karaokeEnabled()) {
                 <label class="color-field" for="subtitlesHighlightColor">
-                  <span class="color-field__label">צבע המילה המודגשת</span>
+                  <span class="color-field__label">{{ i18n.t('video.subtitles.highlightColor') }}</span>
                   <span class="color-field__control">
                     <input
                       id="subtitlesHighlightColor"
@@ -158,14 +158,14 @@
             </div>
 
             <label class="notes-field" for="videoRevisionNotes">
-              <span class="notes-field__label">הערות <span class="notes-field__optional">(רשות)</span></span>
+              <span class="notes-field__label">{{ i18n.t('video.notes.label') }} <span class="notes-field__optional">{{ i18n.t('common.optionalParen') }}</span></span>
               <textarea
                 id="videoRevisionNotes"
                 class="field__control notes-field__input"
                 formControlName="revisionNotes"
                 rows="3"
                 [maxlength]="limits.videoRevisionNotes"
-                placeholder="משהו שחשוב לנו לדעת על הכתוביות..."
+                [placeholder]="i18n.t('video.notes.placeholder')"
               ></textarea>
             </label>
           </div>

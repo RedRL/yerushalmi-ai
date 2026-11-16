@@ -1,9 +1,9 @@
-<nav id="configurator-progress" class="progress" aria-label="שלבי בניית הפרויקט">
+<nav id="configurator-progress" class="progress" [attr.aria-label]="i18n.t('config.progressAria')">
   <ol
     class="progress__list"
     [class.progress__list--three-cols]="store.visibleSteps().length === 6"
     role="list"
-    [attr.aria-current]="store.currentStep().labelHe"
+    [attr.aria-current]="i18n.tx(store.currentStep().label)"
   >
     @for (step of store.visibleSteps(); track step.id; let index = $index) {
       <li class="progress__item" [class]="'progress__item--' + stepState(index)">
@@ -13,7 +13,7 @@
           (mousedown)="$event.preventDefault()"
           (click)="onStepClick(index)"
           [attr.aria-current]="stepState(index) === 'current' ? 'step' : null"
-          [attr.aria-label]="'שלב ' + (index + 1) + ' מתוך ' + store.visibleSteps().length + ': ' + step.labelHe"
+          [attr.aria-label]="stepAriaLabel(index, step)"
         >
           <span class="progress__dot">
             @if (stepState(index) === 'completed') {
@@ -24,8 +24,8 @@
               {{ index + 1 }}
             }
           </span>
-          <span class="progress__label progress__label--desktop">{{ step.labelHe }}</span>
-          <span class="progress__label progress__label--mobile">{{ step.labelHeMobile ?? step.labelHe }}</span>
+          <span class="progress__label progress__label--desktop">{{ i18n.tx(step.label) }}</span>
+          <span class="progress__label progress__label--mobile">{{ i18n.tx(step.labelMobile ?? step.label) }}</span>
         </button>
       </li>
     }
