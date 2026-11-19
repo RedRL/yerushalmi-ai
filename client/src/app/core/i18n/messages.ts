@@ -295,6 +295,7 @@ export const UI_MESSAGES = {
   'video.kicker': l10n('הסרטון', 'Video'),
   'video.length.heading': l10n('כמה ארוך הסרטון?', 'How long should the video be?'),
   'video.format.heading': l10n('איך הסרטון יישב במסך?', 'How should the video fit the screen?'),
+  'video.format.headingWedding': l10n('איזה פורמט יהיה הסרטון?', 'What format will the video be?'),
   'video.format.description': l10n('הפריים מתעדכן לפי הבחירה.', 'The frame updates with your choice.'),
   'video.format.descriptionNoPrice': l10n(
     'הפריים מתעדכן לפי הבחירה. הפורמט לא משנה את המחיר.',
@@ -549,14 +550,211 @@ export const UI_MESSAGES = {
   'fileUpload.clickToChoose': l10n('לחצו לבחירת {noun}', 'click to choose {noun}'),
 
   // ---------------------------------------------------------------------------
-  // Weddings placeholder page
+  // Weddings configurator questionnaire + upload intro
   // ---------------------------------------------------------------------------
-  'weddings.title': l10n('חתונות', 'Weddings'),
-  'weddings.body': l10n(
-    'הדף הייעודי לחתונות בבנייה. בינתיים אפשר לחזור לבניית קליפ רגיל.',
-    'Our dedicated weddings page is under construction. In the meantime, you can go back and build a regular clip.',
+  'details.wedding.kicker': l10n('הסיפור שלכם', 'Your story'),
+  'details.wedding.intro.heading': l10n('הסיפור שלכם, בדרך לקליפ 🎬', 'Your story, on the way to a clip 🎬'),
+  'details.wedding.intro.description': l10n(
+    'כמה פרטים קטנים יעזרו לנו ליצור שיר וקליפ שמרגישים בדיוק אתם. כתבו בחופשיות — לא צריך לחרוז או לנסח יפה.',
+    'A few small details will help us create a song and clip that feel exactly like you. Write freely — no need to rhyme or polish.',
   ),
-  'weddings.backToClips': l10n('חזרה לקליפים', 'Back to clips'),
+  'details.wedding.coupleNames.heading': l10n('מה השמות של בני הזוג?', "What are the couple's names?"),
+  'details.wedding.coupleNames.description': l10n(
+    'שני שמות — סביבם נבנה את השיר והקליפ.',
+    'Two names — we will build the song and clip around them.',
+  ),
+  'details.wedding.partner1.placeholder': l10n('שם בן/בת הזוג הראשון/ה', "First partner's name"),
+  'details.wedding.partner2.placeholder': l10n('שם בן/בת הזוג השני/ה', "Second partner's name"),
+  'details.wedding.whoPrepares.heading': l10n('מי מכין את הקליפ?', 'Who is preparing the clip?'),
+  'details.wedding.whoPrepares.description': l10n(
+    'כדי שנדע איך לפנות אליכם ומה הקשר לסיפור.',
+    'So we know how to address you and how you relate to the story.',
+  ),
+  'details.wedding.whoPrepares.couple': l10n('אנחנו בני הזוג', 'We are the couple'),
+  'details.wedding.whoPrepares.friends': l10n('חברים', 'Friends'),
+  'details.wedding.whoPrepares.family': l10n('משפחה', 'Family'),
+  'details.wedding.preparerRelation.label': l10n(
+    'ממי הקליפ, ומה הקשר שלכם לזוג?',
+    'Who is this from, and how are you related to the couple?',
+  ),
+  'details.wedding.preparerRelation.placeholder': l10n(
+    'לדוגמה: החברה הכי טובה של הכלה',
+    "e.g. the bride's best friend",
+  ),
+  'details.wedding.partnerAbout.heading': l10n(
+    'מה הכי מאפיין כל אחד מבני הזוג?',
+    'What best describes each partner?',
+  ),
+  'details.wedding.partnerAbout.heading.they': l10n(
+    'מה הכי מאפיין כל אחד מבני הזוג?',
+    'What best describes each partner?',
+  ),
+  'details.wedding.partnerAbout.description': l10n(
+    'שתיים־שלוש תכונות, תחביבים או הרגלים שממש מזוהים איתו או איתה. למשל: אוהב לישון, תמיד מאחרת, מוזיקאי בנשמה או זאת שמדברת עם כולם.',
+    'Two or three traits, hobbies or habits that really define them. For example: loves sleeping in, always late, a musician at heart, or the one who talks to everyone.',
+  ),
+  'details.wedding.partnerAbout.description.they': l10n(
+    'שתיים־שלוש תכונות, תחביבים או הרגלים שממש מזוהים איתו או איתה. למשל: אוהב לישון, תמיד מאחרת, מוזיקאי בנשמה או זאת שמדברת עם כולם.',
+    'Two or three traits, hobbies or habits that really define them. For example: loves sleeping in, always late, a musician at heart, or the one who talks to everyone.',
+  ),
+  'details.wedding.partnerAbout.about': l10n('ספרו קצת על {name}', 'Tell us a bit about {name}'),
+  'details.wedding.partnerAbout.fallback1': l10n('בן/בת הזוג הראשון/ה', 'the first partner'),
+  'details.wedding.partnerAbout.fallback2': l10n('בן/בת הזוג השני/ה', 'the second partner'),
+  'details.wedding.partnerAbout.placeholder': l10n(
+    'תכונות, תחביבים, הרגלים…',
+    'Traits, hobbies, habits…',
+  ),
+  'details.wedding.howMet.heading': l10n('איך הכרתם?', 'How did you meet?'),
+  'details.wedding.howMet.heading.they': l10n('איך הם הכירו?', 'How did they meet?'),
+  'details.wedding.howMet.description': l10n(
+    'איפה הכול התחיל, מי עשה את הצעד הראשון ומה אתם זוכרים מההתחלה? אם יש פרט מצחיק בדרך לדייט הראשון — זה המקום.',
+    'Where it all started, who made the first move, and what you remember from the beginning. If there is a funny detail on the way to the first date — this is the place.',
+  ),
+  'details.wedding.howMet.description.they': l10n(
+    'איפה הכול התחיל, מי עשה את הצעד הראשון ומה הם זוכרים מההתחלה? אם יש פרט מצחיק בדרך לדייט הראשון — זה המקום.',
+    'Where it all started, who made the first move, and what they remember from the beginning. If there is a funny detail on the way to the first date — this is the place.',
+  ),
+  'details.wedding.howMet.placeholder': l10n('כתבו בחופשיות…', 'Write freely…'),
+  'details.wedding.lifeTogether.heading': l10n(
+    "מה הכי 'אתם' בחיים המשותפים?",
+    "What feels most 'you' in life together?",
+  ),
+  'details.wedding.lifeTogether.heading.they': l10n(
+    "מה הכי 'הם' בחיים המשותפים?",
+    "What feels most 'them' in life together?",
+  ),
+  'details.wedding.lifeTogether.description': l10n(
+    'מה אתם אוהבים לעשות יחד, במה אתם שונים ואילו הרגלים קטנים יש רק לכם? שתפו שניים־שלושה פרטים.',
+    'What you love doing together, how you differ, and which little habits are yours alone. Share two or three details.',
+  ),
+  'details.wedding.lifeTogether.description.they': l10n(
+    'מה הם אוהבים לעשות יחד, במה הם שונים ואילו הרגלים קטנים יש רק להם? שתפו שניים־שלושה פרטים.',
+    'What they love doing together, how they differ, and which little habits are theirs alone. Share two or three details.',
+  ),
+  'details.wedding.lifeTogether.placeholder': l10n('כתבו בחופשיות…', 'Write freely…'),
+  'details.wedding.hasNicknames': l10n('יש לנו כינויי חיבה', 'We have pet names'),
+  'details.wedding.hasNicknames.they': l10n('יש להם כינויי חיבה', 'They have pet names'),
+  'details.wedding.nicknames.placeholder': l10n('איך אתם קוראים זה לזו?', 'What do you call each other?'),
+  'details.wedding.nicknames.placeholder.they': l10n('איך הם קוראים זה לזו?', 'What do they call each other?'),
+  'details.wedding.hasPet': l10n('יש לנו חיית מחמד שתיכנס לקליפ', 'We have a pet that should be in the clip'),
+  'details.wedding.hasPet.they': l10n('יש להם חיית מחמד שתיכנס לקליפ', 'They have a pet that should be in the clip'),
+  'details.wedding.pet.placeholder': l10n('מה השם שלה ואיזו חיה היא?', "What's their name and what animal are they?"),
+  'details.wedding.vibe.heading': l10n('איזה וייב תרצו לקליפ?', 'What vibe do you want for the clip?'),
+  'details.wedding.vibe.heading.they': l10n('איזה וייב ירצו לקליפ?', 'What vibe will they want for the clip?'),
+  'details.wedding.vibe.description': l10n(
+    'בחרו את האווירה שתרצו שהקליפ ישדר.',
+    'Choose the atmosphere you want the clip to convey.',
+  ),
+  'details.wedding.vibe.description.they': l10n(
+    'בחרו את האווירה שירצו שהקליפ ישדר.',
+    'Choose the atmosphere they want the clip to convey.',
+  ),
+  'details.wedding.vibe.funny_upbeat': l10n('מצחיק וקצבי', 'Funny and upbeat'),
+  'details.wedding.vibe.emotional_romantic': l10n('מרגש ורומנטי', 'Emotional and romantic'),
+  'details.wedding.vibe.party': l10n('מסיבה והרמות', 'Party energy'),
+  'details.wedding.vibe.mix': l10n('שילוב של צחוק ורגש', 'A mix of laughs and emotion'),
+  'details.wedding.vibe.other': l10n('אחר', 'Other'),
+  'details.wedding.vibe.customPlaceholder': l10n('תארו את הוייב הרצוי…', 'Describe the vibe you want…'),
+  'details.wedding.mustInclude.heading': l10n('יש סיפור שחייב להיכנס לשיר?', 'Is there a story that must be in the song?'),
+  'details.wedding.mustInclude.heading.they': l10n(
+    'יש סיפור שחייב להיכנס לשיר שלהם?',
+    'Is there a story that must be in their song?',
+  ),
+  'details.wedding.mustInclude.description': l10n(
+    'רשות — אפשר גם להמשיך בלי.',
+    'Optional — you can also continue without one.',
+  ),
+  'details.wedding.mustInclude.description.they': l10n(
+    'רשות — אפשר גם להמשיך בלי.',
+    'Optional — you can also continue without one.',
+  ),
+  'details.wedding.mustInclude.proposal': l10n('הצעת הנישואים', 'The proposal'),
+  'details.wedding.mustInclude.funny_moment': l10n('רגע מצחיק או בלתי נשכח', 'A funny or unforgettable moment'),
+  'details.wedding.mustInclude.both': l10n('גם וגם', 'Both'),
+  'details.wedding.proposal.heading': l10n('איך הייתה הצעת הנישואים?', 'How was the proposal?'),
+  'details.wedding.proposal.placeholder': l10n(
+    'איפה זה קרה, איך זה התגלגל והאם משהו השתבש או הפתיע?',
+    'Where it happened, how it unfolded, and whether anything went wrong or surprised you.',
+  ),
+  'details.wedding.memorable.heading': l10n('ספרו על הרגע שלכם', 'Tell us about your moment'),
+  'details.wedding.memorable.placeholder': l10n(
+    'מה קרה, ואיזה פרט הופך את הסיפור הזה לשלכם?',
+    'What happened, and which detail makes this story yours?',
+  ),
+  'details.wedding.notes.heading': l10n('יש משהו נוסף שחשוב שנדע?', 'Anything else we should know?'),
+  'details.wedding.notes.heading.they': l10n(
+    'יש משהו נוסף שחשוב שנדע עליהם?',
+    'Anything else we should know about them?',
+  ),
+  'details.wedding.notes.description': l10n(
+    'משפט קבוע, בדיחה פרטית, משהו שחייב להופיע — או נושא שתרצו להשאיר מחוץ לקליפ.',
+    'A catchphrase, an inside joke, something that must appear — or a topic you want left out of the clip.',
+  ),
+  'details.wedding.notes.description.they': l10n(
+    'משפט קבוע, בדיחה פרטית, משהו שחייב להופיע — או נושא שכדאי להשאיר מחוץ לקליפ.',
+    'A catchphrase, an inside joke, something that must appear — or a topic to leave out of the clip.',
+  ),
+  'details.wedding.notes.placeholder': l10n('רשות…', 'Optional…'),
+
+  'upload.wedding.intro.kicker': l10n('החומרים', 'Media'),
+  'upload.wedding.intro.heading': l10n('עכשיו מוסיפים אתכם לתמונה 📸', "Now let's add you to the picture 📸"),
+  'upload.wedding.intro.lead': l10n('העלו כאן את כל התמונות יחד:', 'Upload all the photos here together:'),
+  'upload.wedding.intro.item1': l10n(
+    'תמונות עדכניות של כל אחד מבני הזוג: פנים ברורות, רצוי מכמה זוויות.',
+    'Recent photos of each partner: clear faces, ideally from a few angles.',
+  ),
+  'upload.wedding.intro.item2': l10n(
+    'תמונות שלכם יחד: מתחילת הקשר, מטיולים ומרגעים משמעותיים או יומיומיים שאתם אוהבים.',
+    'Photos of you together: from the start of the relationship, trips, and meaningful or everyday moments you love.',
+  ),
+  'upload.wedding.intro.item3': l10n(
+    'תמונות ילדות ונעורים של שניכם: אם תרצו שנשלב בקליפ את הדרך שעברתם מילדות ועד החתונה.',
+    'Childhood and youth photos of both of you: if you want us to weave in the journey from childhood to the wedding.',
+  ),
+  'upload.wedding.intro.item4': l10n(
+    'תמונות שקשורות לסיפורים ששיתפתם: למשל הצעת הנישואים, מקום מיוחד או חיית מחמד.',
+    'Photos tied to the stories you shared: for example the proposal, a special place, or a pet.',
+  ),
+  'upload.wedding.intro.videosTitle': l10n('אפשר להוסיף גם סרטונים — ברשות בלבד.', 'You can also add videos — optional only.'),
+  'upload.wedding.intro.videosBody': l10n(
+    'אם יש לכם סרטונים מרגעים משותפים שתרצו לשלב בקליפ, העלו גם אותם כאן.',
+    'If you have videos from shared moments you want in the clip, upload them here too.',
+  ),
+  'upload.wedding.intro.namingTitle': l10n('איך נדע מי בתמונה?', 'How will we know who is in the photo?'),
+  'upload.wedding.intro.namingBody': l10n(
+    'לפני ההעלאה, תנו לקבצים שמות ברורים שמציינים מי מופיע בהם, ובמידת הצורך גם גיל, תקופה או אירוע. למשל:',
+    'Before uploading, give files clear names that say who appears in them, and if needed also age, period or event. For example:',
+  ),
+  'upload.wedding.intro.namingExamples': l10n(
+    '״הראל_ילדות_גיל_6.jpg״ · ״פז_נעורים.jpg״ · ״הראל_ופז_טיול_בפריז.jpg״ · ״סנפי_הכלב.jpg״',
+    '"Harel_childhood_age_6.jpg" · "Paz_youth.jpg" · "Harel_and_Paz_Paris_trip.jpg" · "Snufi_the_dog.jpg"',
+  ),
+  'upload.wedding.intro.namingNote': l10n(
+    'אין צורך לשנות שם לכל קובץ — רק כשזהות המצולמים או ההקשר לא ברורים.',
+    'No need to rename every file — only when who is pictured or the context is unclear.',
+  ),
+  'upload.wedding.intro.orderTitle': l10n(
+    'רוצים שהתמונות או הסרטונים יופיעו בסדר מסוים?',
+    'Want the photos or videos in a specific order?',
+  ),
+  'upload.wedding.intro.orderBody': l10n(
+    'הוסיפו מספר בתחילת שם הקובץ לפי הסדר הרצוי. למשל: ״01_הראל_ילדות.jpg״, ״02_פז_ילדות.jpg״, ״03_הדייט_הראשון.mp4״.',
+    'Add a number at the start of the filename in the desired order. For example: "01_Harel_childhood.jpg", "02_Paz_childhood.jpg", "03_first_date.mp4".',
+  ),
+  'upload.wedding.intro.orderNote': l10n(
+    'אין צורך לכתוב תיאור נפרד לכל תמונה או סרטון.',
+    'No need to write a separate description for every photo or video.',
+  ),
+  'upload.wedding.intro.continue': l10n('הבנתי, בואו נעלה', "Got it, let's upload"),
+
+  'validation.wedding.coupleNames': l10n('נא למלא את שני שמות בני הזוג', "Please enter both partners' names"),
+  'validation.wedding.whoPrepares': l10n('נא לבחור מי מכין את הקליפ', 'Please choose who is preparing the clip'),
+  'validation.wedding.partnerAbout': l10n('נא לספר קצת על כל אחד מבני הזוג', 'Please tell us a bit about each partner'),
+  'validation.wedding.howMet': l10n('נא לספר איך הכרתם (לפחות כמה מילים)', 'Please tell us how you met (at least a few words)'),
+  'validation.wedding.lifeTogether': l10n('נא לספר על החיים המשותפים שלכם', 'Please tell us about your life together'),
+  'validation.wedding.vibe': l10n('נא לבחור וייב לקליפ', 'Please choose a vibe for the clip'),
+  'validation.wedding.customVibe': l10n('נא לתאר את הוייב הרצוי', 'Please describe the vibe you want'),
+  'validation.wedding.mustInclude': l10n('נא להשלים את פרטי הסיפור שבחרתם', 'Please complete the story details you selected'),
 
   // ---------------------------------------------------------------------------
   // Email compose dialog
@@ -585,6 +783,10 @@ export const UI_MESSAGES = {
   ),
   'song.length.heading': l10n('כמה ארוך השיר?', 'How long should the song be?'),
   'song.length.headingCombined': l10n('כמה ארוכים השיר והסרטון?', 'How long should the song and video be?'),
+  'song.length.headingCombinedWedding': l10n(
+    'כמה ארוך הקליפ (השיר והסרטון)?',
+    'How long should the clip (song and video) be?',
+  ),
   'song.length.description': l10n('גררו את המד לאורך הרצוי', 'Drag the slider to the length you want'),
   'song.field.mood.title': l10n('איזה מצב רוח?', 'What mood?'),
   'song.field.mood.placeholder': l10n('שמח, מרגש, קצבי...', 'Happy, touching, upbeat...'),

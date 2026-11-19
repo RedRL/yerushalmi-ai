@@ -1,0 +1,18 @@
+<section id="pricing" class="weddings-pricing">
+  <div class="weddings-pricing__intro" appReveal>
+    <app-section-heading
+      [eyebrow]="i18n.tx(msg.eyebrow)"
+      [heading]="i18n.tx(msg.heading)"
+      [subtitle]="i18n.tx(msg.subtitle)"
+      [fullWidth]="true"
+    />
+  </div>
+
+  <div class="weddings-pricing__grid">
+    @for (pkg of packages; track pkg.id; let index = $index) {
+      <div appReveal [appRevealDelay]="index * 100">
+        <app-package-card [pkg]="pkg" [animateDelay]="index * 100" (select)="startWithPackage(pkg.id)" />
+      </div>
+    }
+  </div>
+</section>

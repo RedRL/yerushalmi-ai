@@ -26,6 +26,8 @@
 
   <div class="footer__bottom">
     <p>© {{ currentYear }} {{ brandName }}. {{ i18n.t('footer.rights') }}</p>
-    <a routerLink="/clips/terms" class="footer__terms" (click)="onTermsClick($event)">{{ i18n.t('footer.terms') }}</a>
+    <a [routerLink]="termsPath()" class="footer__terms" (click)="onTermsClick($event)">{{
+      i18n.t('footer.terms')
+    }}</a>
   </div>
 </footer>

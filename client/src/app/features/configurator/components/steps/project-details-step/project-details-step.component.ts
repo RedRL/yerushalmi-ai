@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,6 +16,7 @@ import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import { OCCASION_OPTIONS } from '../../../../../core/config/occasion.config';
 import { SITE_CONFIG } from '../../../../../core/config/site.config';
 import { LocaleService } from '../../../../../core/i18n/locale.service';
+import type { UiMessageKey } from '../../../../../core/i18n/messages';
 import { l10n, type L10nText } from '../../../../../core/i18n/locale.types';
 import { containScrollWheel } from '../../../../../shared/utils/contain-scroll-wheel.util';
 import {
@@ -25,6 +27,11 @@ import {
   todayIsoHeIl,
 } from '../../../../../shared/utils/he-date.util';
 import { ConfiguratorStoreService } from '../../../state/configurator-store.service';
+import type {
+  WeddingMustInclude,
+  WeddingPreparer,
+  WeddingVibe,
+} from '../../../state/wedding-details.util';
 import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
 
 /** Sunday-first, matching `Date#getDay()`. */
@@ -54,7 +61,7 @@ const MONTH_LABELS: readonly L10nText[] = [
 
 @Component({
   selector: 'app-project-details-step',
-  imports: [ReactiveFormsModule, WizardScreenComponent],
+  imports: [NgTemplateOutlet, ReactiveFormsModule, WizardScreenComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './project-details-step.component.html',
   styleUrl: './project-details-step.component.scss',
@@ -101,6 +108,97 @@ export class ProjectDetailsStepComponent {
       this.store.includesVideo() ? 'details.personName.headingVideo' : 'details.personName.headingSong',
     ),
   );
+
+  readonly preparerOptions: ReadonlyArray<{ id: WeddingPreparer; labelKey: UiMessageKey }> = [
+    { id: 'couple', labelKey: 'details.wedding.whoPrepares.couple' },
+    { id: 'friends', labelKey: 'details.wedding.whoPrepares.friends' },
+    { id: 'family', labelKey: 'details.wedding.whoPrepares.family' },
+  ];
+
+  readonly vibeOptions: ReadonlyArray<{ id: WeddingVibe; labelKey: UiMessageKey }> = [
+    { id: 'funny_upbeat', labelKey: 'details.wedding.vibe.funny_upbeat' },
+    { id: 'emotional_romantic', labelKey: 'details.wedding.vibe.emotional_romantic' },
+    { id: 'party', labelKey: 'details.wedding.vibe.party' },
+    { id: 'mix', labelKey: 'details.wedding.vibe.mix' },
+    { id: 'other', labelKey: 'details.wedding.vibe.other' },
+  ];
+
+  readonly mustIncludeOptions: ReadonlyArray<{ id: WeddingMustInclude; labelKey: UiMessageKey }> = [
+    { id: 'proposal', labelKey: 'details.wedding.mustInclude.proposal' },
+    { id: 'funny_moment', labelKey: 'details.wedding.mustInclude.funny_moment' },
+    { id: 'both', labelKey: 'details.wedding.mustInclude.both' },
+  ];
+
+  readonly isThirdPerson = computed(() => {
+    this.store.isCurrentStepValid();
+    const value = this.store.weddingForm.controls.whoPrepares.value;
+    return value === 'friends' || value === 'family';
+  });
+
+  readonly partner1AboutLabel = computed(() => {
+    this.store.isCurrentStepValid();
+    const name = this.store.weddingForm.controls.partner1Name.value.trim();
+    return this.i18n.tf('details.wedding.partnerAbout.about', {
+      name: name || this.i18n.t('details.wedding.partnerAbout.fallback1'),
+    });
+  });
+
+  readonly partner2AboutLabel = computed(() => {
+    this.store.isCurrentStepValid();
+    const name = this.store.weddingForm.controls.partner2Name.value.trim();
+    return this.i18n.tf('details.wedding.partnerAbout.about', {
+      name: name || this.i18n.t('details.wedding.partnerAbout.fallback2'),
+    });
+  });
+
+  weddingMsg(base: UiMessageKey): string {
+    if (!this.isThirdPerson()) return this.i18n.t(base);
+    const theyKey = `${base}.they` as UiMessageKey;
+    return this.i18n.t(theyKey);
+  }
+
+  needsPreparerRelation(): boolean {
+    const value = this.store.weddingForm.controls.whoPrepares.value;
+    return value === 'friends' || value === 'family';
+  }
+
+  showCustomVibe(): boolean {
+    return this.store.weddingForm.controls.vibe.value === 'other';
+  }
+
+  showProposalStory(): boolean {
+    const value = this.store.weddingForm.controls.mustInclude.value;
+    return value === 'proposal' || value === 'both';
+  }
+
+  showMemorableMoment(): boolean {
+    const value = this.store.weddingForm.controls.mustInclude.value;
+    return value === 'funny_moment' || value === 'both';
+  }
+
+  selectPreparer(id: WeddingPreparer): void {
+    this.store.weddingForm.controls.whoPrepares.setValue(id);
+    if (id === 'couple') {
+      this.store.weddingForm.controls.preparerRelation.setValue('');
+    }
+  }
+
+  selectVibe(id: WeddingVibe): void {
+    this.store.weddingForm.controls.vibe.setValue(id);
+    if (id !== 'other') {
+      this.store.weddingForm.controls.customVibe.setValue('');
+    }
+  }
+
+  selectMustInclude(id: WeddingMustInclude): void {
+    this.store.weddingForm.controls.mustInclude.setValue(id);
+    if (id === 'funny_moment') {
+      this.store.weddingForm.controls.proposalStory.setValue('');
+    }
+    if (id === 'proposal') {
+      this.store.weddingForm.controls.memorableMoment.setValue('');
+    }
+  }
 
   onOccasionChange(): void {
     if (this.store.projectDetailsForm.controls.occasionId.value !== 'other') {

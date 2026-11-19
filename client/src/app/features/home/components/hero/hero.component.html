@@ -32,13 +32,13 @@
       <div
         class="hero__poster"
         [class.hero__poster--hidden]="videoPlaying()"
-        [style.background-image]="'url(' + heroPosterUrl + ')'"
+        [style.background-image]="'url(' + heroPosterUrl() + ')'"
       ></div>
       <div class="hero__video-wrap">
         <iframe
           #heroVideo
           class="hero__video"
-          [src]="heroVideoEmbedUrl"
+          [src]="heroVideoEmbedUrl()"
           aria-hidden="true"
           tabindex="-1"
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"

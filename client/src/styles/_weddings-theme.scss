@@ -1,0 +1,281 @@
+// Cream / ivory / champagne-gold theme for /weddings (and /weddings/terms).
+// Applied via `html.weddings-theme` so CSS variables cascade into shared components.
+
+html.weddings-theme {
+  --color-bg-base: #f7f3eb;
+  --color-bg-deep: #efe8dc;
+  --color-bg-elevated: #fffdf8;
+  --color-bg-surface: #faf6ef;
+  --color-bg-surface-hover: #f3ece1;
+  --color-bg-glass: rgba(92, 72, 48, 0.04);
+  --color-bg-glass-strong: rgba(92, 72, 48, 0.08);
+
+  --color-border-subtle: rgba(140, 110, 70, 0.16);
+  --color-border-strong: rgba(140, 110, 70, 0.28);
+  --color-border-accent: rgba(184, 148, 90, 0.55);
+
+  --color-text-primary: #2c2418;
+  --color-text-secondary: #5c4e3c;
+  --color-text-muted: #8a7a66;
+  --color-text-on-accent: #fffdf8;
+
+  --color-accent-blue: #b8945a;
+  --color-accent-blue-light: #c9ab74;
+  --color-accent-purple: #a8844e;
+  --color-accent-purple-light: #c4a46a;
+  --color-accent-pink: #c9a078;
+  --color-accent-magenta: #b8945a;
+  --color-accent-cyan: #a8946e;
+
+  --gradient-brand: linear-gradient(135deg, #d4b87a 0%, #b8945a 48%, #9a7840 100%);
+  --gradient-brand-soft: linear-gradient(
+    135deg,
+    rgba(212, 184, 122, 0.22) 0%,
+    rgba(184, 148, 90, 0.16) 50%,
+    rgba(154, 120, 64, 0.12) 100%
+  );
+  --gradient-radial-glow: radial-gradient(circle at 50% 0%, rgba(212, 184, 122, 0.28), transparent 62%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 253, 248, 0.9) 0%, rgba(247, 243, 235, 0) 100%);
+
+  --color-success: #5f8f6b;
+  --color-error: #c45c5c;
+  --color-warning: #c9a24a;
+
+  --font-family-heading: 'Gveret Levin', 'Rubik', 'Segoe UI', 'Arial Hebrew', cursive;
+
+  --font-weight-regular: 300;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
+
+  --shadow-sm: 0 2px 10px rgba(92, 72, 48, 0.08);
+  --shadow-md: 0 10px 28px rgba(92, 72, 48, 0.12);
+  --shadow-lg: 0 24px 56px rgba(92, 72, 48, 0.14);
+  --shadow-glow-purple: 0 0 40px rgba(184, 148, 90, 0.22);
+  --shadow-glow-blue: 0 0 40px rgba(212, 184, 122, 0.24);
+  --shadow-glow-pink: 0 0 40px rgba(201, 160, 120, 0.2);
+
+  --scrollbar-thumb: rgba(184, 148, 90, 0.75);
+  --scrollbar-thumb-hover: rgba(154, 120, 64, 0.9);
+  --scrollbar-gradient: linear-gradient(
+    180deg,
+    rgba(212, 184, 122, 0.95) 0%,
+    rgba(184, 148, 90, 0.9) 48%,
+    rgba(154, 120, 64, 0.88) 100%
+  );
+  --scrollbar-gradient-hover: linear-gradient(
+    180deg,
+    rgba(212, 184, 122, 1) 0%,
+    rgba(184, 148, 90, 0.95) 48%,
+    rgba(154, 120, 64, 0.95) 100%
+  );
+}
+
+html.weddings-theme body {
+  background-color: var(--color-bg-base);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 12% -8%, rgba(212, 184, 122, 0.22), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 88% 0%, rgba(232, 214, 180, 0.35), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(184, 148, 90, 0.1), transparent 55%),
+    linear-gradient(180deg, #faf7f1 0%, #f7f3eb 40%, #f3ece1 100%);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-regular);
+}
+
+html.weddings-theme ::selection {
+  color: #2c2418;
+  background: #e8d6b0;
+}
+
+html.weddings-theme ::-moz-selection {
+  color: #2c2418;
+  background: #e8d6b0;
+}
+
+html.weddings-theme h1,
+html.weddings-theme h2,
+html.weddings-theme h3,
+html.weddings-theme .section-heading__title,
+html.weddings-theme .weddings-hero__headline,
+html.weddings-theme .package-card__title,
+html.weddings-theme .contact__headline,
+html.weddings-theme .wizard__heading,
+html.weddings-theme .wizard__title,
+html.weddings-theme .step__title {
+  font-family: var(--font-family-heading);
+  // Gveret Levin ships as a single Regular cut — fake bold looks muddy.
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-style: normal;
+}
+
+html.weddings-theme .wizard__description {
+  text-wrap: pretty;
+  max-width: none;
+}
+
+html.weddings-theme .wizard__dot--done {
+  background: rgba(184, 148, 90, 0.45);
+}
+
+html.weddings-theme .wizard__actions {
+  background: linear-gradient(180deg, rgba(247, 243, 235, 0), rgba(247, 243, 235, 0.94) 28%);
+}
+
+/* Shared chrome that hardcodes dark navy on /clips */
+html.weddings-theme .header--scrolled,
+html.weddings-theme .header--menu-open {
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+html.weddings-theme .header__mobile-nav {
+  background: rgba(255, 253, 248, 0.98);
+}
+
+html.weddings-theme .header__cta {
+  box-shadow: 0 6px 20px rgba(184, 148, 90, 0.35);
+
+  &:hover {
+    box-shadow: 0 10px 28px rgba(184, 148, 90, 0.45);
+  }
+}
+
+html.weddings-theme .header__backdrop {
+  background: rgba(44, 36, 24, 0.28);
+}
+
+html.weddings-theme .contact {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 184, 122, 0.18), transparent 65%),
+    linear-gradient(180deg, transparent, rgba(232, 214, 180, 0.28) 30%, transparent),
+    var(--color-bg-base);
+}
+
+html.weddings-theme .wizard__dot {
+  background: rgba(140, 110, 70, 0.22);
+}
+
+html.weddings-theme .option-card--selected {
+  box-shadow: 0 0 0 1px rgba(184, 148, 90, 0.3), 0 12px 28px rgba(154, 120, 64, 0.12);
+}
+
+html.weddings-theme .package-card {
+  background: rgba(255, 253, 248, 0.78);
+}
+
+html.weddings-theme .package-card--featured {
+  border-color: rgba(184, 148, 90, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(184, 148, 90, 0.22),
+    0 18px 48px rgba(154, 120, 64, 0.12),
+    var(--shadow-glow-purple);
+}
+
+html.weddings-theme .package-card--selected {
+  border-color: var(--color-accent-purple-light);
+  box-shadow: 0 0 0 1px rgba(184, 148, 90, 0.35), var(--shadow-glow-purple);
+}
+
+html.weddings-theme select.field__control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6 8 10 12 6' stroke='%238a7a66' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Length slider: gold instead of pink/purple */
+html.weddings-theme .length-slider {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(212, 184, 122, 0.22), transparent 42%),
+    var(--color-bg-glass);
+}
+
+html.weddings-theme .length-slider__range {
+  accent-color: #b8945a;
+}
+
+/* Video frame preview stage: cream/gold, not dark navy */
+html.weddings-theme .frame-preview__stage {
+  background:
+    radial-gradient(circle at 50% 100%, rgba(212, 184, 122, 0.28), transparent 55%),
+    linear-gradient(180deg, #faf6ef 0%, #efe6d4 100%);
+}
+
+html.weddings-theme .frame-preview__frame {
+  box-shadow: 0 16px 40px rgba(92, 72, 48, 0.18);
+}
+
+/* Soften product pick images toward champagne */
+html.weddings-theme .pick-card {
+  background: #ebe2d2;
+
+  &--selected {
+    border-color: #c4a46a;
+    box-shadow: 0 0 0 3px rgba(184, 148, 90, 0.3);
+  }
+}
+
+html.weddings-theme .pick-card img {
+  filter: sepia(0.25) saturate(0.75) hue-rotate(5deg) brightness(1.05);
+}
+
+html.weddings-theme .pick-card__shade {
+  background: linear-gradient(180deg, rgba(44, 36, 24, 0.04) 20%, rgba(44, 36, 24, 0.78) 100%);
+}
+
+html.weddings-theme .pick-card__label em {
+  color: #e8d6b0;
+}
+
+html.weddings-theme .choice-chip--on {
+  border-color: rgba(184, 148, 90, 0.55);
+  box-shadow: 0 0 0 2px rgba(184, 148, 90, 0.28);
+}
+
+html.weddings-theme .option-card--on {
+  border-color: rgba(184, 148, 90, 0.55);
+  box-shadow: 0 0 0 1px rgba(184, 148, 90, 0.22);
+}
+
+/* File upload: readable controls on light cream */
+html.weddings-theme .file-upload__tile-spinner {
+  border-top-color: #b8945a;
+}
+
+html.weddings-theme .file-upload__remove {
+  width: 32px;
+  height: 32px;
+  color: #2c2418;
+  background: rgba(255, 253, 248, 0.94);
+  border: 1px solid rgba(140, 110, 70, 0.35);
+  box-shadow: 0 1px 4px rgba(92, 72, 48, 0.12);
+
+  svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  &:hover {
+    color: #c45c5c;
+    background: #fffdf8;
+    border-color: rgba(196, 92, 92, 0.45);
+  }
+}
+
+html.weddings-theme .file-upload-lightbox__close {
+  color: #fffdf8;
+  background: rgba(44, 36, 24, 0.88);
+  border: 1px solid rgba(255, 253, 248, 0.45);
+
+  &:hover {
+    border-color: #e8d6b0;
+    color: #fffdf8;
+  }
+}
+
+html.weddings-theme .file-upload-lightbox__name {
+  color: #fffdf8;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+html.weddings-theme .configurator__submit-spinner {
+  border-top-color: #b8945a;
+}

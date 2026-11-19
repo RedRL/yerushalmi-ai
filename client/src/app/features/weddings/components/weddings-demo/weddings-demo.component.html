@@ -1,0 +1,25 @@
+<section id="portfolio" class="weddings-demo">
+  <div class="weddings-demo__intro" appReveal>
+    <app-section-heading
+      [eyebrow]="i18n.tx(msg.eyebrow)"
+      [heading]="i18n.tx(msg.heading)"
+      [subtitle]="i18n.tx(msg.subtitle)"
+      [fullWidth]="true"
+    />
+  </div>
+
+  <figure class="weddings-demo__frame" appReveal>
+    <div class="weddings-demo__player">
+      <iframe
+        class="weddings-demo__iframe"
+        [src]="embedUrl()"
+        [title]="videoTitle()"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+    <figcaption class="weddings-demo__caption">{{ i18n.tx(msg.label) }}</figcaption>
+  </figure>
+</section>

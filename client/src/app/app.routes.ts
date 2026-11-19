@@ -24,7 +24,12 @@ export const routes: Routes = [
     path: 'weddings',
     loadComponent: () =>
       import('./features/weddings/weddings.component').then((m) => m.WeddingsComponent),
-    title: 'YERUSHALMI.AI | חתונות',
+    title: 'YERUSHALMI.AI | קליפי חתונה ושירים אישיים',
+  },
+  {
+    path: 'weddings/terms',
+    loadComponent: () => import('./features/terms/terms.component').then((m) => m.TermsComponent),
+    title: 'YERUSHALMI.AI | תקנון שירות',
   },
   {
     path: '**',

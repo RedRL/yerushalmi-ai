@@ -97,12 +97,12 @@ export const MAIN_PRODUCT_OPTIONS: readonly MainProductOption[] = [
   },
   {
     id: 'video_existing_song',
-    titleHe: 'סרטון עם שיר לבחירתכם',
-    titleEn: 'Video with a song of your choice',
+    titleHe: 'סרטון עם שיר קיים לבחירתכם',
+    titleEn: 'Video with an existing song of your choice',
     descriptionHe:
-      'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
+      'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר שכבר קיים שתבחרו — בלי כתיבת שיר חדש בהתאמה אישית.',
     descriptionEn:
-      'We create a moving, impressive video that tells your story, set to a song of your choice.',
+      'We create a moving, impressive video that tells your story, set to an existing song you choose — not a newly written custom song.',
   },
   {
     id: 'video_new_song',

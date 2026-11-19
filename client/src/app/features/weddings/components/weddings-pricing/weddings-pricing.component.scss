@@ -1,0 +1,33 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.weddings-pricing {
+  padding: var(--section-padding-y) var(--section-padding-x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  background:
+    linear-gradient(180deg, rgba(212, 184, 122, 0.08), transparent 70%),
+    var(--color-bg-base);
+}
+
+.weddings-pricing__intro {
+  @include container('lg');
+}
+
+.weddings-pricing__grid {
+  @include container('lg');
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+
+  @include bp.respond-down('lg') {
+    grid-template-columns: 1fr;
+    max-width: 28rem;
+    margin-inline: auto;
+  }
+}

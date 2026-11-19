@@ -3,6 +3,7 @@
 
 :root {
   --font-family-base: 'Rubik', 'Segoe UI', 'Arial Hebrew', system-ui, -apple-system, sans-serif;
+  --font-family-heading: var(--font-family-base);
 
   --font-size-display: clamp(2.75rem, 5vw + 1.5rem, 5.25rem);
   --font-size-h1: clamp(2.25rem, 3vw + 1.25rem, 3.5rem);

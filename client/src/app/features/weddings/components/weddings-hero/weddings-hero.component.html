@@ -1,0 +1,55 @@
+<section id="top" class="weddings-hero" [style.--hero-banner-fade.px]="bannerFadePx()">
+  <div
+    #banner
+    class="weddings-hero__banner"
+    [style.transform]="bannerStyle().transform"
+    [style.opacity]="bannerStyle().opacity"
+  >
+    <div class="weddings-hero__banner-art">
+      <picture class="weddings-hero__banner-picture">
+        <source media="(max-width: 767px)" [srcset]="mobileBannerImageUrl()" />
+        <img
+          class="weddings-hero__banner-image"
+          [src]="desktopBannerImageUrl()"
+          [alt]="i18n.tx(msg.bannerAlt)"
+          [width]="desktopBannerWidth"
+          [height]="desktopBannerHeight"
+          fetchpriority="high"
+        />
+      </picture>
+
+      <button
+        type="button"
+        class="weddings-hero__scroll-indicator"
+        (click)="goToStage()"
+        [attr.aria-label]="i18n.tx(msg.scrollAria)"
+      >
+        <span class="weddings-hero__scroll-line"><span class="weddings-hero__scroll-dot"></span></span>
+        <span class="weddings-hero__scroll-label">{{ i18n.tx(msg.scrollLabel) }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div #stage id="hero-stage" class="weddings-hero__stage">
+    <div class="weddings-hero__content" [style.transform]="stageStyle().transform">
+      <span class="weddings-hero__kicker">{{ i18n.tx(msg.kicker) }}</span>
+
+      <h1 class="weddings-hero__headline">
+        <span class="weddings-hero__line">{{ i18n.tx(msg.headlineLine1) }}</span>
+        <span class="weddings-hero__line">{{ i18n.tx(msg.headlineLine2) }}</span>
+        <span class="weddings-hero__line weddings-hero__line--accent">{{ i18n.tx(msg.headlineAccent) }}</span>
+      </h1>
+
+      <p class="weddings-hero__subtitle">{{ i18n.tx(msg.subtitle) }}</p>
+
+      <div class="weddings-hero__actions">
+        <button type="button" class="weddings-hero__cta weddings-hero__cta--primary" (click)="goToConfigurator()">
+          {{ i18n.tx(msg.ctaPrimary) }}
+        </button>
+        <button type="button" class="weddings-hero__cta weddings-hero__cta--secondary" (click)="goToDemo()">
+          {{ i18n.tx(msg.ctaSecondary) }}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

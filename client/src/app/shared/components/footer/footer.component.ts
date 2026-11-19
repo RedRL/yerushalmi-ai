@@ -26,10 +26,16 @@ export class FooterComponent {
     WHATSAPP_CONFIG.buildUrl(this.i18n.t('site.whatsappDefaultMessage')),
   );
 
+  termsPath(): string {
+    const path = this.router.url.split('?')[0].split('#')[0];
+    return path.startsWith('/weddings') ? '/weddings/terms' : '/clips/terms';
+  }
+
   onTermsClick(event: Event): void {
-    if (this.router.url.split('?')[0].split('#')[0] !== '/clips/terms') return;
+    const path = this.router.url.split('?')[0].split('#')[0];
+    if (path !== this.termsPath()) return;
 
     event.preventDefault();
-    resetPageScrollPosition('/clips/terms');
+    resetPageScrollPosition(path);
   }
 }

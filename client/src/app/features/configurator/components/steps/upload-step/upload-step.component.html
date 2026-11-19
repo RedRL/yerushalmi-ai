@@ -1,100 +1,133 @@
-<div class="step">
-  <p class="wizard__kicker">{{ i18n.t('upload.kicker') }}</p>
-  <h3 class="step__title">{{ i18n.t('upload.title') }}</h3>
+@if (store.isUploadIntroScreen()) {
+  <div class="step upload-step__intro">
+    <p class="wizard__kicker">{{ i18n.t('upload.wedding.intro.kicker') }}</p>
+    <h3 class="step__title">{{ i18n.t('upload.wedding.intro.heading') }}</h3>
 
-  <div class="upload-step__tabs" role="tablist" [attr.aria-label]="i18n.t('upload.tabsAria')">
-    <div class="upload-step__tab-group">
-      <button
-        type="button"
-        role="tab"
-        class="upload-step__tab"
-        [class.upload-step__tab--active]="activeTab() === 'image'"
-        [attr.aria-selected]="activeTab() === 'image'"
-        (click)="setActiveTab('image')"
-      >
-        {{ i18n.t('upload.tab.images') }}
-      </button>
-      <button
-        type="button"
-        class="upload-step__info-button"
-        [attr.aria-label]="i18n.t('upload.imagesInfoAria')"
-        [class.upload-step__info-button--active]="helpTab() === 'image'"
-        [attr.aria-expanded]="helpTab() === 'image'"
-        (click)="toggleHelp('image', $event)"
-        (mouseenter)="showHelp('image')"
-        (mouseleave)="scheduleHideHelp()"
-      >i</button>
-    </div>
+    <p class="upload-step__intro-lead">{{ i18n.t('upload.wedding.intro.lead') }}</p>
+    <ul class="upload-step__intro-list">
+      <li>{{ i18n.t('upload.wedding.intro.item1') }}</li>
+      <li>{{ i18n.t('upload.wedding.intro.item2') }}</li>
+      <li>{{ i18n.t('upload.wedding.intro.item3') }}</li>
+      <li>{{ i18n.t('upload.wedding.intro.item4') }}</li>
+    </ul>
 
-    <div class="upload-step__tab-group">
-      <button
-        type="button"
-        role="tab"
-        class="upload-step__tab"
-        [class.upload-step__tab--active]="activeTab() === 'video'"
-        [attr.aria-selected]="activeTab() === 'video'"
-        (click)="setActiveTab('video')"
-      >
-        {{ i18n.t('upload.tab.videos') }}
-      </button>
-      <button
-        type="button"
-        class="upload-step__info-button"
-        [attr.aria-label]="i18n.t('upload.videosInfoAria')"
-        [class.upload-step__info-button--active]="helpTab() === 'video'"
-        [attr.aria-expanded]="helpTab() === 'video'"
-        (click)="toggleHelp('video', $event)"
-        (mouseenter)="showHelp('video')"
-        (mouseleave)="scheduleHideHelp()"
-      >i</button>
-    </div>
+    <p class="upload-step__intro-block">
+      <strong>{{ i18n.t('upload.wedding.intro.videosTitle') }}</strong>
+      {{ i18n.t('upload.wedding.intro.videosBody') }}
+    </p>
 
-    @if (helpTab(); as tab) {
-      <div
-        class="upload-step__help"
-        role="tooltip"
-        (click)="$event.stopPropagation()"
-        (mouseenter)="keepHelp()"
-        (mouseleave)="scheduleHideHelp()"
-      >
-        @if (tab === 'image') {
-          <p>{{ imageCountGuidance() }}</p>
-        } @else {
-          <p>{{ videoCountGuidance() }}</p>
-        }
-        <p>{{ i18n.t('upload.orderGuidance') }}</p>
+    <p class="upload-step__intro-block">
+      <strong>{{ i18n.t('upload.wedding.intro.namingTitle') }}</strong>
+      {{ i18n.t('upload.wedding.intro.namingBody') }}
+    </p>
+    <p class="upload-step__intro-examples">{{ i18n.t('upload.wedding.intro.namingExamples') }}</p>
+    <p class="upload-step__intro-note">{{ i18n.t('upload.wedding.intro.namingNote') }}</p>
+
+    <p class="upload-step__intro-block">
+      <strong>{{ i18n.t('upload.wedding.intro.orderTitle') }}</strong>
+      {{ i18n.t('upload.wedding.intro.orderBody') }}
+    </p>
+    <p class="upload-step__intro-note">{{ i18n.t('upload.wedding.intro.orderNote') }}</p>
+  </div>
+} @else {
+  <div class="step">
+    <p class="wizard__kicker">{{ i18n.t('upload.kicker') }}</p>
+    <h3 class="step__title">{{ i18n.t('upload.title') }}</h3>
+
+    <div class="upload-step__tabs" role="tablist" [attr.aria-label]="i18n.t('upload.tabsAria')">
+      <div class="upload-step__tab-group">
+        <button
+          type="button"
+          role="tab"
+          class="upload-step__tab"
+          [class.upload-step__tab--active]="activeTab() === 'image'"
+          [attr.aria-selected]="activeTab() === 'image'"
+          (click)="setActiveTab('image')"
+        >
+          {{ i18n.t('upload.tab.images') }}
+        </button>
+        <button
+          type="button"
+          class="upload-step__info-button"
+          [attr.aria-label]="i18n.t('upload.imagesInfoAria')"
+          [class.upload-step__info-button--active]="helpTab() === 'image'"
+          [attr.aria-expanded]="helpTab() === 'image'"
+          (click)="toggleHelp('image', $event)"
+          (mouseenter)="showHelp('image')"
+          (mouseleave)="scheduleHideHelp()"
+        >i</button>
       </div>
-    }
-  </div>
 
-  <div class="upload-step__pane" [hidden]="activeTab() !== 'image'">
-    <app-file-upload
-      kind="image"
-      accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
-      [acceptDescriptionHe]="i18n.t('upload.accept.images')"
-      [maxFiles]="store.maximumAllowedImages()"
-      [files]="imageFiles()"
-      (filesSelected)="onImagesSelected($event)"
-      (selectionStarted)="clearErrors()"
-      (removeFile)="onRemoveFile($event)"
-    />
-  </div>
+      <div class="upload-step__tab-group">
+        <button
+          type="button"
+          role="tab"
+          class="upload-step__tab"
+          [class.upload-step__tab--active]="activeTab() === 'video'"
+          [attr.aria-selected]="activeTab() === 'video'"
+          (click)="setActiveTab('video')"
+        >
+          {{ i18n.t('upload.tab.videos') }}
+        </button>
+        <button
+          type="button"
+          class="upload-step__info-button"
+          [attr.aria-label]="i18n.t('upload.videosInfoAria')"
+          [class.upload-step__info-button--active]="helpTab() === 'video'"
+          [attr.aria-expanded]="helpTab() === 'video'"
+          (click)="toggleHelp('video', $event)"
+          (mouseenter)="showHelp('video')"
+          (mouseleave)="scheduleHideHelp()"
+        >i</button>
+      </div>
 
-  <div class="upload-step__pane" [hidden]="activeTab() !== 'video'">
-    <app-file-upload
-      kind="video"
-      accept="video/mp4,video/quicktime,video/webm,.mp4,.m4v,.mov,.webm,.3gp"
-      [acceptDescriptionHe]="i18n.t('upload.accept.videos')"
-      [maxFiles]="store.maximumAllowedVideos()"
-      [files]="videoFiles()"
-      [extraErrors]="videoErrors()"
-      (filesSelected)="onVideosSelected($event)"
-      (selectionStarted)="clearErrors()"
-      (removeFile)="onRemoveFile($event)"
-    />
-  </div>
+      @if (helpTab(); as tab) {
+        <div
+          class="upload-step__help"
+          role="tooltip"
+          (click)="$event.stopPropagation()"
+          (mouseenter)="keepHelp()"
+          (mouseleave)="scheduleHideHelp()"
+        >
+          @if (tab === 'image') {
+            <p>{{ imageCountGuidance() }}</p>
+          } @else {
+            <p>{{ videoCountGuidance() }}</p>
+          }
+          <p>{{ i18n.t('upload.orderGuidance') }}</p>
+        </div>
+      }
+    </div>
 
-  <div class="upload-step__summary" aria-live="polite">
-    {{ i18n.tf('upload.summary', { images: imageFiles().length, videos: videoFiles().length }) }}
+    <div class="upload-step__pane" [hidden]="activeTab() !== 'image'">
+      <app-file-upload
+        kind="image"
+        accept="image/jpeg,image/png,image/webp,image/heic,.jpg,.jpeg,.png,.webp,.heic,.heif"
+        [acceptDescriptionHe]="i18n.t('upload.accept.images')"
+        [maxFiles]="store.maximumAllowedImages()"
+        [files]="imageFiles()"
+        (filesSelected)="onImagesSelected($event)"
+        (selectionStarted)="clearErrors()"
+        (removeFile)="onRemoveFile($event)"
+      />
+    </div>
+
+    <div class="upload-step__pane" [hidden]="activeTab() !== 'video'">
+      <app-file-upload
+        kind="video"
+        accept="video/mp4,video/quicktime,video/webm,.mp4,.m4v,.mov,.webm,.3gp"
+        [acceptDescriptionHe]="i18n.t('upload.accept.videos')"
+        [maxFiles]="store.maximumAllowedVideos()"
+        [files]="videoFiles()"
+        [extraErrors]="videoErrors()"
+        (filesSelected)="onVideosSelected($event)"
+        (selectionStarted)="clearErrors()"
+        (removeFile)="onRemoveFile($event)"
+      />
+    </div>
+
+    <div class="upload-step__summary" aria-live="polite">
+      {{ i18n.tf('upload.summary', { images: imageFiles().length, videos: videoFiles().length }) }}
+    </div>
   </div>
-</div>
+}

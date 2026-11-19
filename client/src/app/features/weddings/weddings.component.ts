@@ -1,62 +1,56 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { SITE_CONFIG } from '../../core/config/site.config';
-import { LocaleService } from '../../core/i18n/locale.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  DOCUMENT,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { HeaderComponent } from '../../shared/components/header/header.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { ProcessSectionComponent } from '../home/components/process-section/process-section.component';
+import { CreationProcessSectionComponent } from '../home/components/creation-process-section/creation-process-section.component';
+import { ConfiguratorComponent } from '../configurator/configurator.component';
+import { ConfiguratorStoreService } from '../configurator/state/configurator-store.service';
+import { CONFIGURATOR_EXPERIENCE_MODE } from '../configurator/experience/experience-mode';
+import { ContactSectionComponent } from '../contact/contact-section.component';
+import { WeddingsHeroComponent } from './components/weddings-hero/weddings-hero.component';
+import { WeddingsDemoComponent } from './components/weddings-demo/weddings-demo.component';
+import { WeddingsPricingComponent } from './components/weddings-pricing/weddings-pricing.component';
+import { WEDDINGS_MESSAGES } from './weddings.messages';
 
-/** Placeholder until the dedicated weddings landing is built. */
 @Component({
   selector: 'app-weddings',
-  imports: [RouterLink],
+  providers: [
+    { provide: CONFIGURATOR_EXPERIENCE_MODE, useValue: 'weddings' as const },
+    ConfiguratorStoreService,
+  ],
+  imports: [
+    HeaderComponent,
+    WeddingsHeroComponent,
+    WeddingsDemoComponent,
+    ProcessSectionComponent,
+    CreationProcessSectionComponent,
+    WeddingsPricingComponent,
+    ConfiguratorComponent,
+    ContactSectionComponent,
+    FooterComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <main class="weddings">
-      <p class="weddings__brand">{{ brand }}</p>
-      <h1>{{ i18n.t('weddings.title') }}</h1>
-      <p>{{ i18n.t('weddings.body') }}</p>
-      <a routerLink="/clips">{{ i18n.t('weddings.backToClips') }}</a>
-    </main>
-  `,
-  styles: `
-    .weddings {
-      min-height: 100dvh;
-      display: grid;
-      place-content: center;
-      gap: 0.75rem;
-      padding: 2rem;
-      text-align: center;
-      background: radial-gradient(circle at 50% 20%, rgba(139, 92, 246, 0.16), transparent 55%),
-        linear-gradient(180deg, #0b0d16 0%, #121526 100%);
-      color: #f4f1ff;
-    }
-
-    .weddings__brand {
-      margin: 0;
-      letter-spacing: 0.08em;
-      font-size: 0.85rem;
-      opacity: 0.72;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 4vw, 3rem);
-    }
-
-    p {
-      margin: 0;
-      max-width: 28rem;
-      justify-self: center;
-      line-height: 1.6;
-      color: rgba(244, 241, 255, 0.78);
-    }
-
-    a {
-      margin-top: 0.5rem;
-      color: #c4b5fd;
-      font-weight: 600;
-    }
-  `,
+  templateUrl: './weddings.component.html',
+  styleUrl: './weddings.component.scss',
 })
-export class WeddingsComponent {
-  readonly i18n = inject(LocaleService);
-  readonly brand = SITE_CONFIG.brandName;
+export class WeddingsComponent implements OnInit {
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly processMessages = WEDDINGS_MESSAGES.process;
+  readonly creationMessages = WEDDINGS_MESSAGES.creation;
+
+  ngOnInit(): void {
+    this.document.documentElement.classList.add('weddings-theme');
+    this.destroyRef.onDestroy(() => {
+      this.document.documentElement.classList.remove('weddings-theme');
+    });
+  }
 }

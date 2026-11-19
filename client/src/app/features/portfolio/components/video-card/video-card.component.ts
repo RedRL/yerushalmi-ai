@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { LocaleService } from '../../../../core/i18n/locale.service';
 import { AudioPlayerComponent } from '../../../../shared/components/audio-player/audio-player.component';
-import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
+import { youtubeIdFor, type PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
 
 export type VideoCardSize = 'default' | 'featured' | 'gallery';
 
@@ -44,7 +44,7 @@ export class VideoCardComponent {
   readonly isAudioSong = computed(() => !!this.video().audioUrl);
   readonly audioSrc = computed(() => encodeURI(this.video().audioUrl ?? ''));
   readonly thumbnailUrl = computed(() => {
-    const youtubeId = this.video().youtubeId;
+    const youtubeId = youtubeIdFor(this.video(), this.i18n.isEnglish());
     return youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : '';
   });
 

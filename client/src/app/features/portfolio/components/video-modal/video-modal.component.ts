@@ -14,7 +14,7 @@ import {
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
 import { LocaleService } from '../../../../core/i18n/locale.service';
 import { AudioPlayerComponent } from '../../../../shared/components/audio-player/audio-player.component';
-import type { PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
+import { youtubeIdFor, type PortfolioVideo } from '../../../../shared/models/portfolio-video.model';
 import {
   bindYouTubePlayer,
   buildYouTubeEmbedUrl,
@@ -58,7 +58,7 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   });
 
   readonly embedUrl = computed<SafeResourceUrl | null>(() => {
-    const youtubeId = this.video().youtubeId;
+    const youtubeId = youtubeIdFor(this.video(), this.i18n.isEnglish());
     if (!youtubeId) return null;
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -70,7 +70,7 @@ export class VideoModalComponent implements OnInit, OnDestroy {
   });
 
   readonly backdropUrl = computed(() => {
-    const youtubeId = this.video().youtubeId;
+    const youtubeId = youtubeIdFor(this.video(), this.i18n.isEnglish());
     return youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg` : '';
   });
 

@@ -27,6 +27,42 @@
   color: var(--color-error);
 }
 
+.upload-step__intro {
+  gap: var(--space-3);
+  overflow: auto;
+}
+
+.upload-step__intro-lead,
+.upload-step__intro-block,
+.upload-step__intro-note,
+.upload-step__intro-examples {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  line-height: 1.65;
+}
+
+.upload-step__intro-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: 1.2rem;
+  list-style: disc;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  line-height: 1.65;
+}
+
+.upload-step__intro-examples {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-tiny);
+  color: var(--color-text-muted);
+}
+
+.upload-step__intro-note {
+  color: var(--color-text-muted);
+}
+
 .upload-step__tabs {
   position: relative;
   display: grid;

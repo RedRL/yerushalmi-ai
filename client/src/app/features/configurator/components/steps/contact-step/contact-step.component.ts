@@ -19,6 +19,9 @@ export class ContactStepComponent {
   readonly whatsappUrl = computed(() =>
     WHATSAPP_CONFIG.buildUrl(this.i18n.t('site.whatsappDefaultMessage')),
   );
+  readonly termsHref = computed(() =>
+    this.store.isWeddingsMode() ? '/weddings/terms' : '/clips/terms',
+  );
   readonly limits = FIELD_LIMITS;
   readonly formatShortInquiryReference = formatShortInquiryReference;
   private readonly couponMessage = viewChild<ElementRef<HTMLElement>>('couponMessage');

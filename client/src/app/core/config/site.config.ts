@@ -10,8 +10,9 @@ export interface NavLink {
 export const SITE_CONFIG = {
   brandName: 'YERUSHALMI.AI',
   canonicalUrl: 'https://yerushalmi.ai/clips',
-  /** Dedicated weddings landing — sibling of /clips; page content comes later. */
+  /** Dedicated weddings landing — sibling of /clips. */
   weddingsUrl: 'https://yerushalmi.ai/weddings',
+  weddingsCanonicalUrl: 'https://yerushalmi.ai/weddings',
 } as const;
 
 export const NAV_LINKS: readonly NavLink[] = [

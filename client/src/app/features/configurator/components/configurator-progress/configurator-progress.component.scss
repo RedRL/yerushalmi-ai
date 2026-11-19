@@ -131,10 +131,10 @@
 .progress__item--current .progress__dot {
   border-color: var(--color-accent-purple-light);
   color: var(--color-text-primary);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-purple-light) 35%, transparent);
 
   @include bp.respond-down('lg') {
-    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-purple-light) 35%, transparent);
   }
 }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { LocaleService } from '../../../../core/i18n/locale.service';
 import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
@@ -24,10 +24,13 @@ export interface CreationStage {
 })
 export class CreationProcessSectionComponent {
   readonly i18n = inject(LocaleService);
-  readonly msg = HOME_MESSAGES.creation;
+  /** Optional override — weddings page passes WEDDINGS_MESSAGES.creation. */
+  readonly messages = input<typeof HOME_MESSAGES.creation | null>(null);
+
+  readonly msg = computed(() => this.messages() ?? HOME_MESSAGES.creation);
 
   readonly stages = computed<readonly CreationStage[]>(() =>
-    this.msg.stages.map((stage) => ({
+    this.msg().stages.map((stage) => ({
       step: stage.step,
       title: this.i18n.tx(stage.title),
       description: this.i18n.tx(stage.description),

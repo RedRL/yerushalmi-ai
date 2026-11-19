@@ -84,6 +84,26 @@
   }
 }
 
+:host.terms-page--weddings {
+  .terms__back {
+    letter-spacing: 0.04em;
+  }
+
+  .terms__header h1 {
+    font-family: var(--font-family-heading);
+    font-weight: 400;
+  }
+
+  .terms__intro {
+    border-inline-start: 2px solid var(--color-border-accent);
+  }
+
+  .terms__content h2 {
+    font-family: var(--font-family-heading);
+    font-weight: 400;
+  }
+}
+
 @include bp.respond-down('lg') {
   .terms {
     padding-top: var(--header-height);

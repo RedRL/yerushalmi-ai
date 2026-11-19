@@ -7,79 +7,93 @@
     />
   </div>
 
-  <div class="portfolio__gallery" appReveal>
-    <button
-      type="button"
-      class="portfolio__nav portfolio__nav--prev"
-      (click)="scrollPrev()"
-      [attr.aria-label]="i18n.t('portfolio.prev')"
-    >
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
+  @if (isSingleVideo()) {
+    <div class="portfolio__gallery portfolio__gallery--single" appReveal>
+      <div class="portfolio__single">
+        <app-video-card
+          size="gallery"
+          [video]="featuredVideo"
+          [descriptionHe]="featuredVideo.descriptionHe ?? categoryOf(featuredVideo).descriptionHe"
+          [descriptionEn]="featuredVideo.descriptionEn ?? categoryOf(featuredVideo).descriptionEn"
+          (play)="openVideo($event)"
+        />
+      </div>
+    </div>
+  } @else {
+    <div class="portfolio__gallery" appReveal>
+      <button
+        type="button"
+        class="portfolio__nav portfolio__nav--prev"
+        (click)="scrollPrev()"
+        [attr.aria-label]="i18n.t('portfolio.prev')"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
 
-    <div class="portfolio__viewport">
-      <div #scroller class="portfolio__track" tabindex="0" [attr.aria-label]="i18n.t('portfolio.galleryAria')">
-        @for (video of loopVideos; track $index) {
-          <div
-            class="portfolio__item"
-            [class.portfolio__item--active]="$index === centeredIndex()"
-            [class.portfolio__item--side-prev]="$index === centeredIndex() - 1"
-            [class.portfolio__item--side-next]="$index === centeredIndex() + 1"
-          >
-            <div class="portfolio__item-stage">
-              <app-video-card
-                size="gallery"
-                [video]="video"
-                [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
-                [descriptionEn]="video.descriptionEn ?? categoryOf(video).descriptionEn"
-                (play)="openVideo($event)"
-              />
+      <div class="portfolio__viewport">
+        <div #scroller class="portfolio__track" tabindex="0" [attr.aria-label]="i18n.t('portfolio.galleryAria')">
+          @for (video of loopVideos; track $index) {
+            <div
+              class="portfolio__item"
+              [class.portfolio__item--active]="$index === centeredIndex()"
+              [class.portfolio__item--side-prev]="$index === centeredIndex() - 1"
+              [class.portfolio__item--side-next]="$index === centeredIndex() + 1"
+            >
+              <div class="portfolio__item-stage">
+                <app-video-card
+                  size="gallery"
+                  [video]="video"
+                  [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
+                  [descriptionEn]="video.descriptionEn ?? categoryOf(video).descriptionEn"
+                  (play)="openVideo($event)"
+                />
+              </div>
             </div>
-          </div>
+          }
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="portfolio__nav portfolio__nav--next"
+        (click)="scrollNext()"
+        [attr.aria-label]="i18n.t('portfolio.next')"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="portfolio__reactions" appReveal>
+      <h3 class="portfolio__songs-title">{{ i18n.t('portfolio.reactionsTitle') }}</h3>
+      <div class="portfolio__songs-grid">
+        @for (video of reactions; track video.id) {
+          <app-video-card
+            size="gallery"
+            [video]="video"
+            [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
+            [descriptionEn]="video.descriptionEn ?? categoryOf(video).descriptionEn"
+            (play)="openVideo($event)"
+          />
         }
       </div>
     </div>
 
-    <button
-      type="button"
-      class="portfolio__nav portfolio__nav--next"
-      (click)="scrollNext()"
-      [attr.aria-label]="i18n.t('portfolio.next')"
-    >
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-  </div>
-
-  <div class="portfolio__reactions" appReveal>
-    <h3 class="portfolio__songs-title">{{ i18n.t('portfolio.reactionsTitle') }}</h3>
-    <div class="portfolio__songs-grid">
-      @for (video of reactions; track video.id) {
-        <app-video-card
-          size="gallery"
-          [video]="video"
-          [descriptionHe]="video.descriptionHe ?? categoryOf(video).descriptionHe"
-          [descriptionEn]="video.descriptionEn ?? categoryOf(video).descriptionEn"
-          (play)="openVideo($event)"
-        />
-      }
+    <div class="portfolio__songs" appReveal>
+      <h3 class="portfolio__songs-title">{{ i18n.t('portfolio.songsTitle') }}</h3>
+      <p class="portfolio__songs-subtitle">{{ i18n.t('portfolio.songsSubtitle') }}</p>
+      <div class="portfolio__songs-grid">
+        @for (song of songs; track song.id) {
+          <app-video-card
+            size="gallery"
+            [video]="song"
+            [descriptionHe]="song.descriptionHe ?? categoryOf(song).descriptionHe"
+            [descriptionEn]="song.descriptionEn ?? categoryOf(song).descriptionEn"
+            (play)="openVideo($event)"
+          />
+        }
+      </div>
     </div>
-  </div>
-
-  <div class="portfolio__songs" appReveal>
-    <h3 class="portfolio__songs-title">{{ i18n.t('portfolio.songsTitle') }}</h3>
-    <p class="portfolio__songs-subtitle">{{ i18n.t('portfolio.songsSubtitle') }}</p>
-    <div class="portfolio__songs-grid">
-      @for (song of songs; track song.id) {
-        <app-video-card
-          size="gallery"
-          [video]="song"
-          [descriptionHe]="song.descriptionHe ?? categoryOf(song).descriptionHe"
-          [descriptionEn]="song.descriptionEn ?? categoryOf(song).descriptionEn"
-          (play)="openVideo($event)"
-        />
-      }
-    </div>
-  </div>
+  }
 </section>
 
 @if (selectedVideo(); as video) {

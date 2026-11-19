@@ -22,8 +22,9 @@ import {
   postToYouTubePlayer,
 } from '../../../../shared/utils/youtube-embed.util';
 
-/** בייבילישס — background video for the hero stage. */
-const HERO_VIDEO_ID = '7pcjSw9pBPc';
+/** בייבילישס — background video for the hero stage (HE / EN). */
+const HERO_VIDEO_ID_HE = '7pcjSw9pBPc';
+const HERO_VIDEO_ID_EN = 'RgYnfu_Zk9I';
 const YT_PLAYING = 1;
 const YT_UNSTARTED = -1;
 
@@ -59,9 +60,14 @@ export class HeroComponent implements AfterViewInit {
   );
   readonly desktopBannerWidth = DESKTOP_BANNER_WIDTH;
   readonly desktopBannerHeight = DESKTOP_BANNER_HEIGHT;
-  readonly heroPosterUrl = `https://i.ytimg.com/vi/${HERO_VIDEO_ID}/maxresdefault.jpg`;
+  readonly heroVideoId = computed(() =>
+    this.i18n.isEnglish() ? HERO_VIDEO_ID_EN : HERO_VIDEO_ID_HE,
+  );
+  readonly heroPosterUrl = computed(
+    () => `https://i.ytimg.com/vi/${this.heroVideoId()}/maxresdefault.jpg`,
+  );
   readonly videoPlaying = signal(false);
-  readonly heroVideoEmbedUrl = this.buildVideoEmbedUrl();
+  readonly heroVideoEmbedUrl = computed(() => this.buildVideoEmbedUrl(this.heroVideoId()));
 
   private readonly bannerShift = signal(0);
   private readonly bannerScale = signal(1);
@@ -192,13 +198,13 @@ export class HeroComponent implements AfterViewInit {
     this.bannerFadePx.set(fade);
   }
 
-  private buildVideoEmbedUrl(): SafeResourceUrl {
+  private buildVideoEmbedUrl(videoId: string): SafeResourceUrl {
     const origin = isPlatformBrowser(this.platformId)
       ? window.location.origin
       : 'https://yerushalmi.ai';
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(
-      buildYouTubeEmbedUrl(HERO_VIDEO_ID, {
+      buildYouTubeEmbedUrl(videoId, {
         autoplay: true,
         mute: true,
         loop: true,

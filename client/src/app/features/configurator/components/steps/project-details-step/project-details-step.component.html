@@ -1,176 +1,466 @@
-<div class="flow-step" [formGroup]="store.projectDetailsForm">
-  @switch (store.activeScreen().field) {
-    @case ('personName') {
-      <app-wizard-screen
-        [kicker]="i18n.t('details.kicker')"
-        [heading]="personNameLabel()"
-        [description]="i18n.t('details.personName.description')"
-        [showActions]="false"
-        [index]="screenIndex()"
-        [total]="screenTotal()"
-      >
-        <input
-          class="field__control wizard-input"
-          formControlName="personName"
-          [placeholder]="i18n.t('details.personName.placeholder')"
-          [maxlength]="limits.personName"
+@if (store.isWeddingsMode()) {
+  <div class="flow-step" [formGroup]="store.weddingForm">
+    @switch (store.activeScreen().field) {
+      @case ('weddingIntro') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="i18n.t('details.wedding.intro.heading')"
+          [description]="i18n.t('details.wedding.intro.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
         />
-      </app-wizard-screen>
-    }
-    @case ('occasion') {
-      <app-wizard-screen
-        [kicker]="i18n.t('details.kicker')"
-        [heading]="i18n.t('details.occasion.heading')"
-        [description]="i18n.t('details.occasion.description')"
-        [showActions]="false"
-        [index]="screenIndex()"
-        [total]="screenTotal()"
-      >
-        <select
-          class="field__control wizard-input"
-          formControlName="occasionId"
-          [attr.aria-label]="i18n.t('details.occasion.aria')"
-          (change)="onOccasionChange()"
+      }
+      @case ('coupleNames') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="i18n.t('details.wedding.coupleNames.heading')"
+          [description]="i18n.t('details.wedding.coupleNames.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
         >
-          <option value="" disabled>{{ i18n.t('details.occasion.placeholder') }}</option>
-          @for (option of occasionOptions; track option.id) {
-            <option [value]="option.id">{{ i18n.tx(option.label) }}</option>
-          }
-        </select>
-
-        @if (store.isCustomOccasion()) {
-          <label class="project-details-step__custom-occasion" for="customOccasion">
-            <span>{{ i18n.t('details.occasion.customLabel') }}</span>
+          <div class="project-details-step__stack">
             <input
-              #customOccasionInput
-              id="customOccasion"
               class="field__control wizard-input"
-              formControlName="customOccasion"
-              [placeholder]="i18n.t('details.occasion.customPlaceholder')"
-              [maxlength]="limits.occasion"
+              formControlName="partner1Name"
+              [placeholder]="i18n.t('details.wedding.partner1.placeholder')"
+              [maxlength]="limits.personName"
             />
-          </label>
-        }
-
-        @if (store.isWeddingOccasion()) {
-          <p class="project-details-step__wedding-note" role="note">
-            {{ i18n.t('details.occasion.weddingNote') }}
-            <a [href]="weddingsUrl" target="_blank" rel="noopener noreferrer">{{ i18n.t('details.occasion.weddingLink') }}</a>.
-          </p>
-        }
-      </app-wizard-screen>
-    }
-    @case ('story') {
-      <app-wizard-screen
-        [kicker]="i18n.t('details.kicker')"
-        [heading]="i18n.tx(store.occasionCopy().storyHeading)"
-        [description]="i18n.tx(store.occasionCopy().storyDescription)"
-        [showActions]="false"
-        [index]="screenIndex()"
-        [total]="screenTotal()"
-      >
-        <textarea
-          class="field__control wizard-input project-details-step__story"
-          formControlName="story"
-          rows="7"
-          [maxlength]="limits.story"
-          [placeholder]="i18n.t('details.story.placeholder')"
-          aria-describedby="story-counter"
-          (wheel)="onStoryWheel($event)"
-        ></textarea>
-        <div class="project-details-step__counter-row">
-          <span id="story-counter" class="project-details-step__counter">
-            {{ store.projectDetailsForm.controls.story.value.length }} / {{ limits.story }}
-          </span>
-        </div>
-        @if (store.projectDetailsForm.controls.story.touched && store.projectDetailsForm.controls.story.invalid) {
-          <p class="field__error">{{ i18n.t('details.story.tooShort') }}</p>
-        }
-      </app-wizard-screen>
-    }
-    @case ('eventDate') {
-      <app-wizard-screen
-        [kicker]="i18n.t('details.kicker')"
-        [heading]="i18n.t('details.eventDate.heading')"
-        [description]="i18n.t('details.eventDate.description')"
-        [showActions]="false"
-        [index]="screenIndex()"
-        [total]="screenTotal()"
-      >
-        <div class="project-details-step__date-controls">
-          <input
-            id="eventDate"
-            class="field__control wizard-input project-details-step__date-text"
-            type="text"
-            inputmode="numeric"
-            autocomplete="off"
-            placeholder="dd/mm/yyyy"
-            maxlength="10"
-            [class.ng-invalid]="!!eventDateError()"
-            [class.ng-touched]="dateFieldTouched()"
-            [value]="eventDateText()"
-            (input)="onEventDateInput($event)"
-            (blur)="onEventDateBlur()"
-          />
-          <button type="button" class="project-details-step__date-icon" [attr.aria-label]="i18n.t('details.calendar.open')" (click)="toggleCalendar()">
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
-              <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </button>
-          <input
-            #nativeDate
-            class="project-details-step__date-native"
-            type="date"
-            tabindex="-1"
-            aria-hidden="true"
-            [min]="minEventDate()"
-            [value]="nativeDateValue()"
-            (input)="onNativeEventDateInput($event)"
-            (change)="onNativeEventDateInput($event)"
-          />
-          @if (!isMobileViewport() && calendarOpen()) {
-            <div class="project-details-step__calendar" role="dialog" [attr.aria-label]="i18n.t('details.calendar.pick')">
-              <div class="project-details-step__calendar-head">
-                <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" [attr.aria-label]="i18n.t('details.calendar.prevMonth')">‹</button>
-                <span>{{ calendarTitle() }}</span>
-                <button type="button" (click)="shiftCalendarMonth(1)" [attr.aria-label]="i18n.t('details.calendar.nextMonth')">›</button>
-              </div>
-              <button type="button" class="project-details-step__calendar-today" (click)="revealToday()">{{ i18n.t('common.today') }}</button>
-              <div class="project-details-step__calendar-weekdays">
-                @for (day of weekdayLabels(); track $index) {
-                  <span>{{ day }}</span>
-                }
-              </div>
-              <div class="project-details-step__calendar-grid">
-                @for (cell of calendarCells(); track $index) {
-                  @if (cell) {
-                    <button
-                      type="button"
-                      class="project-details-step__calendar-day"
-                      [class.project-details-step__calendar-day--today]="cell === todayCalendarDay()"
-                      [class.project-details-step__calendar-day--selected]="cell === selectedCalendarDay()"
-                      [class.project-details-step__calendar-day--disabled]="isPastCalendarDay(cell)"
-                      [disabled]="isPastCalendarDay(cell)"
-                      (click)="selectCalendarDay(cell)"
-                    >
-                      {{ cell }}
-                    </button>
-                  } @else {
-                    <span></span>
-                  }
-                }
-              </div>
-            </div>
+            <input
+              class="field__control wizard-input"
+              formControlName="partner2Name"
+              [placeholder]="i18n.t('details.wedding.partner2.placeholder')"
+              [maxlength]="limits.personName"
+            />
+          </div>
+        </app-wizard-screen>
+      }
+      @case ('whoPrepares') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="i18n.t('details.wedding.whoPrepares.heading')"
+          [description]="i18n.t('details.wedding.whoPrepares.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <div class="choice-row project-details-step__choices" role="radiogroup" [attr.aria-label]="i18n.t('details.wedding.whoPrepares.heading')">
+            @for (option of preparerOptions; track option.id) {
+              <button
+                type="button"
+                class="choice-chip"
+                role="radio"
+                [attr.aria-checked]="store.weddingForm.controls.whoPrepares.value === option.id"
+                [class.choice-chip--on]="store.weddingForm.controls.whoPrepares.value === option.id"
+                (click)="selectPreparer(option.id)"
+              >
+                {{ i18n.t(option.labelKey) }}
+              </button>
+            }
+          </div>
+          @if (needsPreparerRelation()) {
+            <label class="project-details-step__extra-field">
+              <span>{{ i18n.t('details.wedding.preparerRelation.label') }}</span>
+              <input
+                class="field__control wizard-input"
+                formControlName="preparerRelation"
+                [placeholder]="i18n.t('details.wedding.preparerRelation.placeholder')"
+                [maxlength]="limits.preparerRelation"
+              />
+            </label>
           }
-        </div>
-        <span
-          class="field__error project-details-step__date-error"
-          [class.field__error--hidden]="!eventDateError()"
-          [attr.aria-hidden]="eventDateError() ? null : 'true'"
-          aria-live="polite"
-        >{{ eventDateError() || '\u00a0' }}</span>
-      </app-wizard-screen>
+        </app-wizard-screen>
+      }
+      @case ('partnerAbout') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="weddingMsg('details.wedding.partnerAbout.heading')"
+          [description]="weddingMsg('details.wedding.partnerAbout.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <div class="project-details-step__stack">
+            <label class="project-details-step__extra-field">
+              <span>{{ partner1AboutLabel() }}</span>
+              <textarea
+                class="field__control wizard-input project-details-step__story"
+                formControlName="partner1About"
+                rows="4"
+                [placeholder]="i18n.t('details.wedding.partnerAbout.placeholder')"
+                [maxlength]="limits.partnerAbout"
+                (wheel)="onStoryWheel($event)"
+              ></textarea>
+            </label>
+            <label class="project-details-step__extra-field">
+              <span>{{ partner2AboutLabel() }}</span>
+              <textarea
+                class="field__control wizard-input project-details-step__story"
+                formControlName="partner2About"
+                rows="4"
+                [placeholder]="i18n.t('details.wedding.partnerAbout.placeholder')"
+                [maxlength]="limits.partnerAbout"
+                (wheel)="onStoryWheel($event)"
+              ></textarea>
+            </label>
+          </div>
+        </app-wizard-screen>
+      }
+      @case ('howMet') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="weddingMsg('details.wedding.howMet.heading')"
+          [description]="weddingMsg('details.wedding.howMet.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <textarea
+            class="field__control wizard-input project-details-step__story"
+            formControlName="howMet"
+            rows="7"
+            [placeholder]="i18n.t('details.wedding.howMet.placeholder')"
+            [maxlength]="limits.howMet"
+            (wheel)="onStoryWheel($event)"
+          ></textarea>
+        </app-wizard-screen>
+      }
+      @case ('lifeTogether') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="weddingMsg('details.wedding.lifeTogether.heading')"
+          [description]="weddingMsg('details.wedding.lifeTogether.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <textarea
+            class="field__control wizard-input project-details-step__story"
+            formControlName="lifeTogether"
+            rows="6"
+            [placeholder]="i18n.t('details.wedding.lifeTogether.placeholder')"
+            [maxlength]="limits.lifeTogether"
+            (wheel)="onStoryWheel($event)"
+          ></textarea>
+          <div class="project-details-step__toggles">
+            <label class="project-details-step__toggle">
+              <input type="checkbox" formControlName="hasNicknames" />
+              <span>{{ weddingMsg('details.wedding.hasNicknames') }}</span>
+            </label>
+            @if (store.weddingForm.controls.hasNicknames.value) {
+              <input
+                class="field__control wizard-input"
+                formControlName="nicknames"
+                [placeholder]="weddingMsg('details.wedding.nicknames.placeholder')"
+                [maxlength]="limits.nicknames"
+              />
+            }
+            <label class="project-details-step__toggle">
+              <input type="checkbox" formControlName="hasPet" />
+              <span>{{ weddingMsg('details.wedding.hasPet') }}</span>
+            </label>
+            @if (store.weddingForm.controls.hasPet.value) {
+              <input
+                class="field__control wizard-input"
+                formControlName="petDetails"
+                [placeholder]="i18n.t('details.wedding.pet.placeholder')"
+                [maxlength]="limits.petDetails"
+              />
+            }
+          </div>
+        </app-wizard-screen>
+      }
+      @case ('vibe') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="weddingMsg('details.wedding.vibe.heading')"
+          [description]="weddingMsg('details.wedding.vibe.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <div class="choice-row project-details-step__choices" role="radiogroup" [attr.aria-label]="weddingMsg('details.wedding.vibe.heading')">
+            @for (option of vibeOptions; track option.id) {
+              <button
+                type="button"
+                class="choice-chip"
+                role="radio"
+                [attr.aria-checked]="store.weddingForm.controls.vibe.value === option.id"
+                [class.choice-chip--on]="store.weddingForm.controls.vibe.value === option.id"
+                (click)="selectVibe(option.id)"
+              >
+                {{ i18n.t(option.labelKey) }}
+              </button>
+            }
+          </div>
+          @if (showCustomVibe()) {
+            <input
+              class="field__control wizard-input"
+              formControlName="customVibe"
+              [placeholder]="i18n.t('details.wedding.vibe.customPlaceholder')"
+              [maxlength]="limits.customVibe"
+              [attr.aria-label]="i18n.t('details.wedding.vibe.customPlaceholder')"
+            />
+          }
+        </app-wizard-screen>
+      }
+      @case ('mustInclude') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="weddingMsg('details.wedding.mustInclude.heading')"
+          [description]="weddingMsg('details.wedding.mustInclude.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <div class="choice-row project-details-step__choices" role="radiogroup" [attr.aria-label]="weddingMsg('details.wedding.mustInclude.heading')">
+            @for (option of mustIncludeOptions; track option.id) {
+              <button
+                type="button"
+                class="choice-chip"
+                role="radio"
+                [attr.aria-checked]="store.weddingForm.controls.mustInclude.value === option.id"
+                [class.choice-chip--on]="store.weddingForm.controls.mustInclude.value === option.id"
+                (click)="selectMustInclude(option.id)"
+              >
+                {{ i18n.t(option.labelKey) }}
+              </button>
+            }
+          </div>
+          @if (showProposalStory()) {
+            <label class="project-details-step__extra-field">
+              <span>{{ i18n.t('details.wedding.proposal.heading') }}</span>
+              <textarea
+                class="field__control wizard-input project-details-step__story"
+                formControlName="proposalStory"
+                rows="4"
+                [placeholder]="i18n.t('details.wedding.proposal.placeholder')"
+                [maxlength]="limits.proposalStory"
+                (wheel)="onStoryWheel($event)"
+              ></textarea>
+            </label>
+          }
+          @if (showMemorableMoment()) {
+            <label class="project-details-step__extra-field">
+              <span>{{ i18n.t('details.wedding.memorable.heading') }}</span>
+              <textarea
+                class="field__control wizard-input project-details-step__story"
+                formControlName="memorableMoment"
+                rows="4"
+                [placeholder]="i18n.t('details.wedding.memorable.placeholder')"
+                [maxlength]="limits.memorableMoment"
+                (wheel)="onStoryWheel($event)"
+              ></textarea>
+            </label>
+          }
+        </app-wizard-screen>
+      }
+      @case ('weddingNotes') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.wedding.kicker')"
+          [heading]="weddingMsg('details.wedding.notes.heading')"
+          [description]="weddingMsg('details.wedding.notes.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <textarea
+            class="field__control wizard-input project-details-step__story"
+            formControlName="additionalNotes"
+            rows="5"
+            [placeholder]="i18n.t('details.wedding.notes.placeholder')"
+            [maxlength]="limits.projectAdditionalNotes"
+            (wheel)="onStoryWheel($event)"
+          ></textarea>
+        </app-wizard-screen>
+      }
+      @case ('eventDate') {
+        <ng-container *ngTemplateOutlet="eventDateScreen" />
+      }
     }
-  }
-</div>
+  </div>
+} @else {
+  <div class="flow-step" [formGroup]="store.projectDetailsForm">
+    @switch (store.activeScreen().field) {
+      @case ('personName') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.kicker')"
+          [heading]="personNameLabel()"
+          [description]="i18n.t('details.personName.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <input
+            class="field__control wizard-input"
+            formControlName="personName"
+            [placeholder]="i18n.t('details.personName.placeholder')"
+            [maxlength]="limits.personName"
+          />
+        </app-wizard-screen>
+      }
+      @case ('occasion') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.kicker')"
+          [heading]="i18n.t('details.occasion.heading')"
+          [description]="i18n.t('details.occasion.description')"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <select
+            class="field__control wizard-input"
+            formControlName="occasionId"
+            [attr.aria-label]="i18n.t('details.occasion.aria')"
+            (change)="onOccasionChange()"
+          >
+            <option value="" disabled>{{ i18n.t('details.occasion.placeholder') }}</option>
+            @for (option of occasionOptions; track option.id) {
+              <option [value]="option.id">{{ i18n.tx(option.label) }}</option>
+            }
+          </select>
+
+          @if (store.isCustomOccasion()) {
+            <label class="project-details-step__custom-occasion" for="customOccasion">
+              <span>{{ i18n.t('details.occasion.customLabel') }}</span>
+              <input
+                #customOccasionInput
+                id="customOccasion"
+                class="field__control wizard-input"
+                formControlName="customOccasion"
+                [placeholder]="i18n.t('details.occasion.customPlaceholder')"
+                [maxlength]="limits.occasion"
+              />
+            </label>
+          }
+
+          @if (store.isWeddingOccasion()) {
+            <p class="project-details-step__wedding-note" role="note">
+              {{ i18n.t('details.occasion.weddingNote') }}
+              <a [href]="weddingsUrl" target="_blank" rel="noopener noreferrer">{{ i18n.t('details.occasion.weddingLink') }}</a>.
+            </p>
+          }
+        </app-wizard-screen>
+      }
+      @case ('story') {
+        <app-wizard-screen
+          [kicker]="i18n.t('details.kicker')"
+          [heading]="i18n.tx(store.occasionCopy().storyHeading)"
+          [description]="i18n.tx(store.occasionCopy().storyDescription)"
+          [showActions]="false"
+          [index]="screenIndex()"
+          [total]="screenTotal()"
+        >
+          <textarea
+            class="field__control wizard-input project-details-step__story"
+            formControlName="story"
+            rows="7"
+            [maxlength]="limits.story"
+            [placeholder]="i18n.t('details.story.placeholder')"
+            aria-describedby="story-counter"
+            (wheel)="onStoryWheel($event)"
+          ></textarea>
+          <div class="project-details-step__counter-row">
+            <span id="story-counter" class="project-details-step__counter">
+              {{ store.projectDetailsForm.controls.story.value.length }} / {{ limits.story }}
+            </span>
+          </div>
+          @if (store.projectDetailsForm.controls.story.touched && store.projectDetailsForm.controls.story.invalid) {
+            <p class="field__error">{{ i18n.t('details.story.tooShort') }}</p>
+          }
+        </app-wizard-screen>
+      }
+      @case ('eventDate') {
+        <ng-container *ngTemplateOutlet="eventDateScreen" />
+      }
+    }
+  </div>
+}
+
+<ng-template #eventDateScreen>
+  <div [formGroup]="store.projectDetailsForm">
+    <app-wizard-screen
+      [kicker]="store.isWeddingsMode() ? i18n.t('details.wedding.kicker') : i18n.t('details.kicker')"
+      [heading]="i18n.t('details.eventDate.heading')"
+      [description]="i18n.t('details.eventDate.description')"
+      [showActions]="false"
+      [index]="screenIndex()"
+      [total]="screenTotal()"
+    >
+      <div class="project-details-step__date-controls">
+        <input
+          id="eventDate"
+          class="field__control wizard-input project-details-step__date-text"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="dd/mm/yyyy"
+          maxlength="10"
+          [class.ng-invalid]="!!eventDateError()"
+          [class.ng-touched]="dateFieldTouched()"
+          [value]="eventDateText()"
+          (input)="onEventDateInput($event)"
+          (blur)="onEventDateBlur()"
+        />
+        <button type="button" class="project-details-step__date-icon" [attr.aria-label]="i18n.t('details.calendar.open')" (click)="toggleCalendar()">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="M8 3v4M16 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
+        <input
+          #nativeDate
+          class="project-details-step__date-native"
+          type="date"
+          tabindex="-1"
+          aria-hidden="true"
+          [min]="minEventDate()"
+          [value]="nativeDateValue()"
+          (input)="onNativeEventDateInput($event)"
+          (change)="onNativeEventDateInput($event)"
+        />
+        @if (!isMobileViewport() && calendarOpen()) {
+          <div class="project-details-step__calendar" role="dialog" [attr.aria-label]="i18n.t('details.calendar.pick')">
+            <div class="project-details-step__calendar-head">
+              <button type="button" (click)="shiftCalendarMonth(-1)" [disabled]="!canGoPrevMonth()" [attr.aria-label]="i18n.t('details.calendar.prevMonth')">‹</button>
+              <span>{{ calendarTitle() }}</span>
+              <button type="button" (click)="shiftCalendarMonth(1)" [attr.aria-label]="i18n.t('details.calendar.nextMonth')">›</button>
+            </div>
+            <button type="button" class="project-details-step__calendar-today" (click)="revealToday()">{{ i18n.t('common.today') }}</button>
+            <div class="project-details-step__calendar-weekdays">
+              @for (day of weekdayLabels(); track $index) {
+                <span>{{ day }}</span>
+              }
+            </div>
+            <div class="project-details-step__calendar-grid">
+              @for (cell of calendarCells(); track $index) {
+                @if (cell) {
+                  <button
+                    type="button"
+                    class="project-details-step__calendar-day"
+                    [class.project-details-step__calendar-day--today]="cell === todayCalendarDay()"
+                    [class.project-details-step__calendar-day--selected]="cell === selectedCalendarDay()"
+                    [class.project-details-step__calendar-day--disabled]="isPastCalendarDay(cell)"
+                    [disabled]="isPastCalendarDay(cell)"
+                    (click)="selectCalendarDay(cell)"
+                  >
+                    {{ cell }}
+                  </button>
+                } @else {
+                  <span></span>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <span
+        class="field__error project-details-step__date-error"
+        [class.field__error--hidden]="!eventDateError()"
+        [attr.aria-hidden]="eventDateError() ? null : 'true'"
+        aria-live="polite"
+      >{{ eventDateError() || '\u00a0' }}</span>
+    </app-wizard-screen>
+  </div>
+</ng-template>

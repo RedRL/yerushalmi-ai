@@ -1,13 +1,28 @@
 import type { MainProductId } from '../../../shared/models/pricing.model';
+import type { ExperienceMode } from '../experience/experience-mode';
 import type { ConfiguratorStepId } from '../configurator.model';
 
 export type StoryField = 'personName' | 'occasion' | 'story' | 'eventDate';
 export type SongField = 'styles' | 'vocalist' | 'length' | 'optional' | 'existingSongName' | 'existingSongLink';
 export type VideoField = 'length' | 'format' | 'subtitles';
 export type ExtrasField = 'who' | 'how' | 'notes';
+export type WeddingField =
+  | 'weddingIntro'
+  | 'coupleNames'
+  | 'whoPrepares'
+  | 'partnerAbout'
+  | 'howMet'
+  | 'lifeTogether'
+  | 'vibe'
+  | 'mustInclude'
+  | 'weddingNotes'
+  | 'eventDate';
+export type UploadField = 'uploadIntro';
+
+export type FlowField = StoryField | SongField | VideoField | ExtrasField | WeddingField | UploadField;
 
 export interface FlowScreen {
-  field?: StoryField | SongField | VideoField | ExtrasField;
+  field?: FlowField;
   skippable: boolean;
 }
 
@@ -15,6 +30,19 @@ const STORY_SCREENS: readonly FlowScreen[] = [
   { field: 'personName', skippable: false },
   { field: 'occasion', skippable: false },
   { field: 'story', skippable: false },
+  { field: 'eventDate', skippable: true },
+];
+
+const WEDDING_STORY_SCREENS: readonly FlowScreen[] = [
+  { field: 'weddingIntro', skippable: false },
+  { field: 'coupleNames', skippable: false },
+  { field: 'whoPrepares', skippable: false },
+  { field: 'partnerAbout', skippable: false },
+  { field: 'howMet', skippable: false },
+  { field: 'lifeTogether', skippable: false },
+  { field: 'vibe', skippable: false },
+  { field: 'mustInclude', skippable: true },
+  { field: 'weddingNotes', skippable: true },
   { field: 'eventDate', skippable: true },
 ];
 
@@ -41,13 +69,21 @@ const FULL_EXPERIENCE_VIDEO_SCREENS: readonly FlowScreen[] = [
   { field: 'subtitles', skippable: false },
 ];
 
+const UPLOAD_SCREENS: readonly FlowScreen[] = [{ skippable: false }];
+
+const WEDDING_UPLOAD_SCREENS: readonly FlowScreen[] = [
+  { field: 'uploadIntro', skippable: false },
+  { skippable: false },
+];
+
 export function screensForStep(
   step: ConfiguratorStepId | undefined,
   product: MainProductId | null,
+  mode: ExperienceMode = 'clips',
 ): readonly FlowScreen[] {
   switch (step) {
     case 'details':
-      return STORY_SCREENS;
+      return mode === 'weddings' ? WEDDING_STORY_SCREENS : STORY_SCREENS;
     case 'song':
       if (product === 'video_existing_song') return EXISTING_SONG_SCREENS;
       if (product === 'song_only' || product === 'video_new_song') return NEW_SONG_SCREENS;
@@ -60,6 +96,8 @@ export function screensForStep(
         { field: 'how', skippable: false },
         { field: 'notes', skippable: false },
       ];
+    case 'upload':
+      return mode === 'weddings' ? WEDDING_UPLOAD_SCREENS : UPLOAD_SCREENS;
     default:
       return [{ skippable: false }];
   }

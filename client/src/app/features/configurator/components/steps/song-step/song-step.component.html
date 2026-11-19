@@ -99,7 +99,7 @@
         [total]="screenTotal()"
       >
         <div class="song-fields">
-          @for (field of optionalFields; track field.id) {
+          @for (field of optionalFields(); track field.id) {
             <label class="song-fields__item">
               <span>{{ i18n.t(field.titleKey) }}</span>
               @if (field.control === 'additionalNotes') {

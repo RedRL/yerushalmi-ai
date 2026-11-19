@@ -1,9 +1,10 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnDestroy,
+  computed,
+  effect,
   inject,
   signal,
   viewChild,
@@ -22,9 +23,13 @@ import { VideoCardComponent } from './components/video-card/video-card.component
 import { VideoModalComponent } from './components/video-modal/video-modal.component';
 
 const LOOP_SETS = 3;
+const FEATURED_VIDEO_ID = 'babylicious';
 
 /** Reversed within each set for RTL display (right-to-left reading order). */
 const DISPLAY_VIDEOS = [...PORTFOLIO_VIDEOS].reverse();
+
+const FEATURED_VIDEO =
+  PORTFOLIO_VIDEOS.find((video) => video.id === FEATURED_VIDEO_ID) ?? PORTFOLIO_VIDEOS[0];
 
 @Component({
   selector: 'app-portfolio',
@@ -33,54 +38,63 @@ const DISPLAY_VIDEOS = [...PORTFOLIO_VIDEOS].reverse();
   templateUrl: './portfolio.component.html',
   styleUrl: './portfolio.component.scss',
 })
-export class PortfolioComponent implements AfterViewInit, OnDestroy {
+export class PortfolioComponent implements OnDestroy {
   readonly i18n = inject(LocaleService);
   private readonly scrollerRef = viewChild<ElementRef<HTMLElement>>('scroller');
   private scrollEndHandler: (() => void) | null = null;
   private scrollHandler: (() => void) | null = null;
   private scrollFrame = 0;
+  private boundScroller: HTMLElement | null = null;
 
   private readonly categoryById = new Map<string, PortfolioCategory>(
     PORTFOLIO_CATEGORIES.map((category) => [category.id, category]),
   );
 
-  readonly videos = PORTFOLIO_VIDEOS;
+  /** English portfolio shows only the featured clip — no carousel. */
+  readonly isSingleVideo = computed(() => this.i18n.isEnglish());
+  readonly featuredVideo = FEATURED_VIDEO;
   readonly songs = PORTFOLIO_SONGS;
   readonly reactions = PORTFOLIO_REACTIONS;
   readonly loopVideos = Array.from({ length: LOOP_SETS }, () => [...DISPLAY_VIDEOS]).flat();
   readonly selectedVideo = signal<PortfolioVideo | null>(null);
-  readonly centeredIndex = signal(this.middleSetIndexOf('babylicious'));
+  readonly centeredIndex = signal(this.middleSetIndexOf(FEATURED_VIDEO_ID));
+
+  constructor() {
+    effect(() => {
+      if (this.isSingleVideo()) {
+        this.teardownScroller();
+        return;
+      }
+
+      const scroller = this.scrollerRef()?.nativeElement ?? null;
+      if (!scroller || scroller === this.boundScroller) return;
+
+      this.teardownScroller();
+      this.boundScroller = scroller;
+      queueMicrotask(() => {
+        if (this.boundScroller !== scroller) return;
+        this.scrollToMiddleSet(scroller);
+        this.updateCenteredIndex(scroller);
+        this.scrollEndHandler = () => this.normalizeLoop(scroller);
+        this.scrollHandler = () => {
+          if (this.scrollFrame) return;
+          this.scrollFrame = requestAnimationFrame(() => {
+            this.scrollFrame = 0;
+            this.updateCenteredIndex(scroller);
+          });
+        };
+        scroller.addEventListener('scrollend', this.scrollEndHandler, { passive: true });
+        scroller.addEventListener('scroll', this.scrollHandler, { passive: true });
+      });
+    });
+  }
 
   categoryOf(video: PortfolioVideo): PortfolioCategory {
     return this.categoryById.get(video.categoryId) ?? PORTFOLIO_CATEGORIES[0];
   }
 
-  ngAfterViewInit(): void {
-    const scroller = this.scrollerRef()?.nativeElement;
-    if (!scroller) return;
-
-    queueMicrotask(() => {
-      this.scrollToMiddleSet(scroller);
-      this.updateCenteredIndex(scroller);
-      this.scrollEndHandler = () => this.normalizeLoop(scroller);
-      this.scrollHandler = () => {
-        if (this.scrollFrame) return;
-        this.scrollFrame = requestAnimationFrame(() => {
-          this.scrollFrame = 0;
-          this.updateCenteredIndex(scroller);
-        });
-      };
-      scroller.addEventListener('scrollend', this.scrollEndHandler, { passive: true });
-      scroller.addEventListener('scroll', this.scrollHandler, { passive: true });
-    });
-  }
-
   ngOnDestroy(): void {
-    const scroller = this.scrollerRef()?.nativeElement;
-    if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
-    if (!scroller) return;
-    if (this.scrollEndHandler) scroller.removeEventListener('scrollend', this.scrollEndHandler);
-    if (this.scrollHandler) scroller.removeEventListener('scroll', this.scrollHandler);
+    this.teardownScroller();
   }
 
   openVideo(video: PortfolioVideo): void {
@@ -99,6 +113,21 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
   /** Visually to the left in RTL reading order */
   scrollNext(): void {
     this.scrollByCards(-1);
+  }
+
+  private teardownScroller(): void {
+    const scroller = this.boundScroller;
+    if (this.scrollFrame) {
+      cancelAnimationFrame(this.scrollFrame);
+      this.scrollFrame = 0;
+    }
+    if (scroller) {
+      if (this.scrollEndHandler) scroller.removeEventListener('scrollend', this.scrollEndHandler);
+      if (this.scrollHandler) scroller.removeEventListener('scroll', this.scrollHandler);
+    }
+    this.scrollEndHandler = null;
+    this.scrollHandler = null;
+    this.boundScroller = null;
   }
 
   private scrollByCards(direction: -1 | 1): void {
@@ -155,7 +184,7 @@ export class PortfolioComponent implements AfterViewInit, OnDestroy {
 
   private scrollToMiddleSet(scroller: HTMLElement): void {
     const items = scroller.querySelectorAll<HTMLElement>('.portfolio__item');
-    const target = items[this.middleSetIndexOf('babylicious')];
+    const target = items[this.middleSetIndexOf(FEATURED_VIDEO_ID)];
     if (!target) return;
 
     this.scrollItemToCenter(scroller, target);

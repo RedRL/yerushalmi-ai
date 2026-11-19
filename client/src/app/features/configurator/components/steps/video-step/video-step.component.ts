@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FIELD_LIMITS } from '../../../../../core/config/field-limits.config';
 import {
@@ -37,6 +37,10 @@ export class VideoStepComponent {
   readonly formatCaptions = FORMAT_CAPTIONS;
   readonly limits = FIELD_LIMITS;
   private readonly subtitleOptions = viewChild<ElementRef<HTMLElement>>('subtitleOptions');
+
+  readonly formatHeading = computed(() =>
+    this.i18n.t(this.store.isWeddingsMode() ? 'video.format.headingWedding' : 'video.format.heading'),
+  );
 
   lengthDescription(): string {
     if (this.store.requiresExistingSongRights()) {

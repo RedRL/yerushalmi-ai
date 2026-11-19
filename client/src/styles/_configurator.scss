@@ -116,8 +116,10 @@ app-configurator .configurator {
     font-size: var(--font-size-small);
 
     &:focus-visible {
-      outline: 2px solid rgba(139, 92, 246, 0.45);
-      outline-offset: 1px;
+      // Inset so overflow:hidden ancestors (panel / overflow-x clip) don't crop the ring,
+      // especially on RTL where fields sit flush to the physical right edge.
+      outline: 2px solid color-mix(in srgb, var(--color-accent-purple-light) 70%, transparent);
+      outline-offset: -2px;
     }
   }
 

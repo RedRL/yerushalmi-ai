@@ -44,6 +44,7 @@ export const PORTFOLIO_VIDEOS: readonly PortfolioVideo[] = [
     requiredWordsHe: ['בייבילישס'],
     youtubeUrl: 'https://www.youtube.com/watch?v=7pcjSw9pBPc',
     youtubeId: '7pcjSw9pBPc',
+    youtubeIdEn: 'RgYnfu_Zk9I',
   },
   {
     id: 'eliya',

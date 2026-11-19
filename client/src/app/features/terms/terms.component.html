@@ -2,7 +2,7 @@
 
 <main class="terms">
   <div class="terms__inner">
-    <a routerLink="/clips" class="terms__back" (click)="goHome($event)">{{ i18n.tx(content.backLabel) }}</a>
+    <a [routerLink]="homePath()" class="terms__back" (click)="goHome($event)">{{ i18n.tx(content.backLabel) }}</a>
 
     <header class="terms__header">
       <h1>{{ i18n.tx(content.title) }}</h1>

@@ -12,8 +12,8 @@ import {
   savePageScrollPosition,
 } from '../../shared/utils/scroll-restoration.util';
 
-const HOME_PATH = '/clips';
-const TERMS_PATH = '/clips/terms';
+const LANDING_PATHS = new Set(['/clips', '/weddings']);
+const TERMS_PATHS = new Set(['/clips/terms', '/weddings/terms']);
 
 @Injectable({ providedIn: 'root' })
 export class ScrollRestorationService {
@@ -51,12 +51,12 @@ export class ScrollRestorationService {
     const pathname = url.split('?')[0].split('#')[0] || '/';
     const sectionId = (history.state as { sectionId?: string | null } | null)?.sectionId;
 
-    if (pathname === TERMS_PATH) {
+    if (TERMS_PATHS.has(pathname)) {
       resetPageScrollPosition(pathname);
       return;
     }
 
-    if (pathname === HOME_PATH && sectionId) {
+    if (LANDING_PATHS.has(pathname) && sectionId) {
       this.jumpToSectionWhenReady(sectionId);
       return;
     }

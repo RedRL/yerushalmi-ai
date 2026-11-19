@@ -1,0 +1,267 @@
+@use 'mixins' as *;
+@use 'breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+.weddings-hero {
+  --hero-banner-fade: 0px;
+
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-base);
+  margin-top: calc(-1 * var(--header-height));
+  overflow: visible;
+  max-width: 100%;
+}
+
+.weddings-hero__banner {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  padding-top: 0;
+  background: var(--color-bg-base);
+  z-index: 0;
+  transform-origin: center top;
+  will-change: transform, opacity;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, var(--color-bg-base) 0%, transparent var(--hero-banner-fade)),
+      linear-gradient(to bottom, var(--color-bg-base) 0%, transparent calc(var(--hero-banner-fade) * 0.35)),
+      linear-gradient(to left, var(--color-bg-base) 0%, transparent calc(var(--hero-banner-fade) * 0.45)),
+      linear-gradient(to right, var(--color-bg-base) 0%, transparent calc(var(--hero-banner-fade) * 0.45));
+  }
+
+  @include bp.respond-down('md') {
+    width: 100%;
+    max-width: 100%;
+    padding-top: clamp(var(--space-1), 2vh, var(--space-3));
+    padding-inline: 0;
+    background: #f7f3eb;
+  }
+
+  .weddings-hero__scroll-indicator {
+    @include bp.respond-down('md') {
+      display: none;
+    }
+  }
+}
+
+.weddings-hero__banner-art {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 calc(100% - var(--hero-banner-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 calc(100% - var(--hero-banner-fade)),
+    transparent 100%
+  );
+}
+
+.weddings-hero__banner-picture {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.weddings-hero__banner-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center center;
+  // Match clips hero masters exactly so HE/EN swaps cannot reflow.
+  aspect-ratio: 1903 / 826;
+
+  @include bp.respond-down('md') {
+    aspect-ratio: 1024 / 1536;
+    object-fit: cover;
+    object-position: center top;
+  }
+}
+
+.weddings-hero__scroll-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vw, 2.5rem);
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.weddings-hero__scroll-line {
+  position: relative;
+  width: 1px;
+  height: 2.75rem;
+  background: linear-gradient(to bottom, transparent, var(--color-accent-purple-light));
+}
+
+.weddings-hero__scroll-dot {
+  position: absolute;
+  inset-inline-start: 50%;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-purple-light);
+  transform: translateX(-50%);
+  animation: weddings-hero-scroll-dot 1.8s ease-in-out infinite;
+}
+
+.weddings-hero__scroll-label {
+  font-size: var(--font-size-tiny);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.weddings-hero__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: clamp(2.5rem, 6vw, 5rem) var(--section-padding-x) clamp(3rem, 7vw, 5.5rem);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 184, 122, 0.18), transparent 65%),
+    var(--color-bg-base);
+}
+
+.weddings-hero__content {
+  @include container('md');
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  text-align: center;
+  will-change: transform;
+}
+
+.weddings-hero__kicker {
+  color: var(--color-accent-purple-light);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.weddings-hero__headline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  font-family: var(--font-family-heading);
+  font-size: clamp(2.4rem, 5vw + 1rem, 4.4rem);
+  font-weight: 400;
+  line-height: 1.18;
+  color: var(--color-text-primary);
+}
+
+.weddings-hero__line--accent {
+  color: var(--color-accent-purple);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+// EN accent is much longer than HE — keep it on one line without overflowing.
+:host-context([dir='ltr']) .weddings-hero__content {
+  max-width: min(100%, 68rem);
+}
+
+:host-context([dir='ltr']) .weddings-hero__headline {
+  font-size: clamp(1.35rem, 3.4vw + 0.55rem, 3.35rem);
+}
+
+.weddings-hero__subtitle {
+  max-width: 38rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-lg);
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.weddings-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.weddings-hero__cta {
+  min-height: 3rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &--primary {
+    background: var(--gradient-brand);
+    color: var(--color-text-on-accent);
+    box-shadow: 0 10px 28px rgba(154, 120, 64, 0.22);
+  }
+
+  &--secondary {
+    background: transparent;
+    border-color: var(--color-border-accent);
+    color: var(--color-text-primary);
+
+    &:hover {
+      background: var(--color-bg-glass-strong);
+    }
+  }
+}
+
+@keyframes weddings-hero-scroll-dot {
+  0% {
+    top: 0;
+    opacity: 1;
+  }
+  80% {
+    top: calc(100% - 6px);
+    opacity: 0.35;
+  }
+  100% {
+    top: 0;
+    opacity: 1;
+  }
+}

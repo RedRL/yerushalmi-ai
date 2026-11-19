@@ -148,14 +148,15 @@ export function buildInquiryEmailHtml(
       ? section('תוספות', `<table role="presentation" width="100%">${listRow('נבחרו', resolveAddonLabels(visibleAddons))}</table>`)
       : '';
 
+  const isWeddingInquiry = payload.projectDetails.occasion.trim() === 'חתונה';
   const optionalDetailsRows = [
     row('גיל', payload.projectDetails.age),
-    row('קשר למזמין', payload.projectDetails.relationship),
-    row('תכונות אופי', payload.projectDetails.characterTraits),
-    row('תחביבים', payload.projectDetails.hobbies),
+    row(isWeddingInquiry ? 'מי מכין את הקליפ' : 'קשר למזמין', payload.projectDetails.relationship),
+    row(isWeddingInquiry ? 'על בן/בת הזוג הראשון/ה' : 'תכונות אופי', payload.projectDetails.characterTraits),
+    row(isWeddingInquiry ? 'על בן/בת הזוג השני/ה' : 'תחביבים', payload.projectDetails.hobbies),
     row('מקצוע', payload.projectDetails.occupation),
-    row('אנשים להזכיר', payload.projectDetails.peopleToMention),
-    row('אווירה רצויה', payload.projectDetails.desiredAtmosphere),
+    row(isWeddingInquiry ? 'כינויים / חיית מחמד' : 'אנשים להזכיר', payload.projectDetails.peopleToMention),
+    row(isWeddingInquiry ? 'וייב לקליפ' : 'אווירה רצויה', payload.projectDetails.desiredAtmosphere),
   ].join('');
 
   const optionalDetailsSection =

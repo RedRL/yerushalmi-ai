@@ -94,11 +94,14 @@ export class HeaderComponent {
     this.closeMobileMenu();
 
     const path = this.router.url.split('?')[0].split('#')[0];
-    if (path !== '/clips') {
+    const landingPath = path.startsWith('/weddings') ? '/weddings' : '/clips';
+    const onLanding = path === landingPath;
+
+    if (!onLanding) {
       if (sectionId !== 'top') {
         beginScrollRestoration();
       }
-      void this.router.navigate(['/clips'], {
+      void this.router.navigate([landingPath], {
         state: { sectionId: sectionId === 'top' ? null : sectionId },
       });
       return;

@@ -30,7 +30,7 @@
       <app-wizard-screen
         [showActions]="false"
         [kicker]="i18n.t('video.kicker')"
-        [heading]="i18n.t('video.format.heading')"
+        [heading]="formatHeading()"
         [description]="i18n.t(store.includesNewSong() ? 'video.format.description' : 'video.format.descriptionNoPrice')"
         [index]="screenIndex()"
         [total]="screenTotal()"

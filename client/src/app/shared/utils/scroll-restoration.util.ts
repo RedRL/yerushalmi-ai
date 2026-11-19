@@ -48,9 +48,9 @@ export function clearSavedPageScrollPosition(pathname = window.location.pathname
   }
 }
 
-/** Home should always open at the hero, not a previously saved scroll position. */
+/** Landing pages should always open at the hero, not a previously saved scroll position. */
 export function shouldRestoreScrollPosition(pathname = window.location.pathname): boolean {
-  return pathname !== '/' && pathname !== '/clips';
+  return pathname !== '/' && pathname !== '/clips' && pathname !== '/weddings';
 }
 
 /** Jump to the top and discard any saved scroll position for the route. */

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { LocaleService } from '../../../../core/i18n/locale.service';
 import { SectionHeadingComponent } from '../../../../shared/components/section-heading/section-heading.component';
 import { RevealOnScrollDirective } from '../../../../shared/directives/reveal-on-scroll.directive';
@@ -20,10 +20,13 @@ interface ProcessStepView {
 })
 export class ProcessSectionComponent {
   readonly i18n = inject(LocaleService);
-  readonly msg = HOME_MESSAGES.process;
+  /** Optional override — weddings page passes WEDDINGS_MESSAGES.process. */
+  readonly messages = input<typeof HOME_MESSAGES.process | null>(null);
+
+  readonly msg = computed(() => this.messages() ?? HOME_MESSAGES.process);
 
   readonly steps = computed<readonly ProcessStepView[]>(() =>
-    this.msg.steps.map((item) => ({
+    this.msg().steps.map((item) => ({
       step: item.step,
       title: this.i18n.tx(item.title),
       description: this.i18n.tx(item.description),

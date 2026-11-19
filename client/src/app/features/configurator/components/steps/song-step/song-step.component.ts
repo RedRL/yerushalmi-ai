@@ -17,6 +17,52 @@ import { ConfiguratorStoreService } from '../../../state/configurator-store.serv
 import { LengthSliderComponent } from '../../length-slider/length-slider.component';
 import { WizardScreenComponent } from '../../wizard-screen/wizard-screen.component';
 
+const ALL_OPTIONAL_FIELDS = [
+  {
+    id: 'mood',
+    titleKey: 'song.field.mood.title',
+    placeholderKey: 'song.field.mood.placeholder',
+    control: 'mood',
+    max: FIELD_LIMITS.mood,
+  },
+  {
+    id: 'namesToInclude',
+    titleKey: 'song.field.names.title',
+    placeholderKey: 'song.field.commaSeparated',
+    control: 'namesToInclude',
+    max: FIELD_LIMITS.namesToInclude,
+  },
+  {
+    id: 'importantWords',
+    titleKey: 'song.field.words.title',
+    placeholderKey: 'song.field.commaSeparated',
+    control: 'importantWords',
+    max: FIELD_LIMITS.importantWords,
+  },
+  {
+    id: 'excludedTopics',
+    titleKey: 'song.field.excluded.title',
+    placeholderKey: 'song.field.commaSeparated',
+    control: 'excludedTopics',
+    max: FIELD_LIMITS.excludedTopics,
+  },
+  {
+    id: 'additionalNotes',
+    titleKey: 'song.field.notes.title',
+    placeholderKey: 'song.field.notes.placeholder',
+    control: 'additionalNotes',
+    max: FIELD_LIMITS.songAdditionalNotes,
+  },
+] as const satisfies readonly {
+  id: string;
+  titleKey: UiMessageKey;
+  placeholderKey: UiMessageKey;
+  control: string;
+  max: number;
+}[];
+
+const WEDDING_OPTIONAL_EXCLUDED = new Set(['namesToInclude', 'additionalNotes']);
+
 @Component({
   selector: 'app-song-step',
   imports: [ReactiveFormsModule, WizardScreenComponent, LengthSliderComponent],
@@ -30,60 +76,25 @@ export class SongStepComponent {
   readonly player = inject(StylePreviewPlayer);
   readonly styleOptions = SONG_STYLE_OPTIONS;
   readonly vocalistOptions = VOCALIST_OPTIONS;
-  readonly styleTones = STYLE_TONES;
-  readonly voiceTones = VOICE_TONES;
   readonly limits = FIELD_LIMITS;
   private readonly customStyleInput = viewChild<ElementRef<HTMLInputElement>>('customStyleInput');
 
-  readonly optionalFields = [
-    {
-      id: 'mood',
-      titleKey: 'song.field.mood.title',
-      placeholderKey: 'song.field.mood.placeholder',
-      control: 'mood',
-      max: FIELD_LIMITS.mood,
-    },
-    {
-      id: 'namesToInclude',
-      titleKey: 'song.field.names.title',
-      placeholderKey: 'song.field.commaSeparated',
-      control: 'namesToInclude',
-      max: FIELD_LIMITS.namesToInclude,
-    },
-    {
-      id: 'importantWords',
-      titleKey: 'song.field.words.title',
-      placeholderKey: 'song.field.commaSeparated',
-      control: 'importantWords',
-      max: FIELD_LIMITS.importantWords,
-    },
-    {
-      id: 'excludedTopics',
-      titleKey: 'song.field.excluded.title',
-      placeholderKey: 'song.field.commaSeparated',
-      control: 'excludedTopics',
-      max: FIELD_LIMITS.excludedTopics,
-    },
-    {
-      id: 'additionalNotes',
-      titleKey: 'song.field.notes.title',
-      placeholderKey: 'song.field.notes.placeholder',
-      control: 'additionalNotes',
-      max: FIELD_LIMITS.songAdditionalNotes,
-    },
-  ] as const satisfies readonly {
-    id: string;
-    titleKey: UiMessageKey;
-    placeholderKey: UiMessageKey;
-    control: string;
-    max: number;
-  }[];
+  readonly styleTones = STYLE_TONES;
+  readonly voiceTones = VOICE_TONES;
+
+  readonly optionalFields = computed(() => {
+    if (!this.store.isWeddingsMode()) return ALL_OPTIONAL_FIELDS;
+    return ALL_OPTIONAL_FIELDS.filter((field) => !WEDDING_OPTIONAL_EXCLUDED.has(field.id));
+  });
 
   readonly lengthOptions = computed(() => getSongLengthOptions(this.store.mainProduct()));
 
-  readonly lengthTitle = computed(() =>
-    this.i18n.t(this.store.isFullExperience() ? 'song.length.headingCombined' : 'song.length.heading'),
-  );
+  readonly lengthTitle = computed(() => {
+    if (this.store.isWeddingsMode() && this.store.isFullExperience()) {
+      return this.i18n.t('song.length.headingCombinedWedding');
+    }
+    return this.i18n.t(this.store.isFullExperience() ? 'song.length.headingCombined' : 'song.length.heading');
+  });
 
   styleLabel(style: string): string {
     return localizedSongStyleLabel(style, this.i18n.locale());

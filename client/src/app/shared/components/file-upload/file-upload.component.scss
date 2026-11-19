@@ -347,13 +347,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-full);
   color: var(--color-text-primary);
   background: rgba(8, 7, 20, 0.72);
   line-height: 1;
   transition: color var(--transition-fast), background var(--transition-fast);
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 
   &:hover {
     color: var(--color-error);

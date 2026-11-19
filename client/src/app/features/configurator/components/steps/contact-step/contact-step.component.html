@@ -77,7 +77,7 @@
           <div class="consent-checkbox__content">
             <div class="field__label-row">
               <label for="termsConsent">
-                {{ i18n.t('contact.consent.termsPrefix') }} <a href="/clips/terms" target="_blank" rel="noopener noreferrer">{{ i18n.t('contact.consent.termsLink') }}</a> {{ i18n.t('contact.consent.termsSuffix') }}
+                {{ i18n.t('contact.consent.termsPrefix') }} <a [href]="termsHref()" target="_blank" rel="noopener noreferrer">{{ i18n.t('contact.consent.termsLink') }}</a> {{ i18n.t('contact.consent.termsSuffix') }}
               </label>
             </div>
           </div>

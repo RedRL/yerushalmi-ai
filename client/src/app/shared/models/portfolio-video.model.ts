@@ -29,6 +29,14 @@ export interface PortfolioVideo {
   descriptionEn?: string;
   youtubeUrl?: string;
   youtubeId?: string;
+  /** Optional English-locale YouTube id (falls back to `youtubeId`). */
+  youtubeIdEn?: string;
   /** Local or hosted audio file. When set, songs play in a native player instead of YouTube. */
   audioUrl?: string;
+}
+
+/** Resolve the YouTube id for the active locale (EN override when present). */
+export function youtubeIdFor(video: PortfolioVideo, english: boolean): string | undefined {
+  if (english && video.youtubeIdEn) return video.youtubeIdEn;
+  return video.youtubeId;
 }

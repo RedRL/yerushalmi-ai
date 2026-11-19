@@ -48,14 +48,14 @@ export const PACKAGE_DEFINITIONS: readonly PackageDefinition[] = [
   {
     id: 'video_existing_song',
     emoji: '🎬',
-    title: l10n('קליפ לשיר לבחירתכם', 'Video for a song of your choice'),
+    title: l10n('קליפ לשיר קיים לבחירתכם', 'Video for an existing song of your choice'),
     description: l10n(
-      'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר לבחירתכם.',
-      'We create a moving, impressive video that tells your story, set to a song of your choice.',
+      'יוצרים סרטון מרגש ומרשים שמספר את הסיפור שלכם, לרקע שיר שכבר קיים שתבחרו — בלי כתיבת שיר חדש בהתאמה אישית.',
+      'We create a moving, impressive video that tells your story, set to an existing song you choose — not a newly written custom song.',
     ),
     features: [
       l10n('✔ קליפ בהתאמה אישית', '✔ Personalized music video'),
-      l10n('✔ שימוש בשיר לבחירתכם', '✔ Uses a song of your choice'),
+      l10n('✔ שימוש בשיר קיים לבחירתכם', '✔ Uses an existing song of your choice'),
       l10n('✔ סבב תיקונים אחד לסרטון', '✔ One revision round for the video'),
       l10n('✔ מסירה עד 7 ימי עסקים', '✔ Delivery within 7 business days'),
       l10n('✔ סרטון באיכות Full HD', '✔ Full HD video quality'),
